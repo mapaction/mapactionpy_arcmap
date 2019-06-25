@@ -1,6 +1,0 @@
-{
-    "python.pythonPath": "C:\\py27arcgis106\\ArcGIS10.6\\python.exe",
-    "python.linting.pylintEnabled": false,
-    "python.linting.pep8Enabled": true,
-    "python.linting.enabled": true
-}
