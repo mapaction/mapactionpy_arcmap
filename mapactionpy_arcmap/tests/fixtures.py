@@ -7,6 +7,10 @@ fixture_datasource_dictionary_ma001 = """
 """
 
 
+# "D:\code\github\mapactionpy_arcmap\mapactionpy_arcmap\tests\test_data\slv_stle_ste_pt_s0_osm_pp_places.shp"
+
+
+
 fixture_layer_description_ma001 = """
 -
    m: Main Map
