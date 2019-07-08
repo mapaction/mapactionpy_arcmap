@@ -17,7 +17,7 @@ C:\Python27\ArcGIS10.6\python.exe
 
 The recipe file is a collection of layers.  The intention is that each Map would have it's own recipe json file.
 Layers are added in the index order from the recipe file.
-The following excerpt is taken from a ```recipe.json``` file:
+The following excerpt is taken from a [recipe.json](Config/recipe.json) file:
 ```
 ...
     {
@@ -43,7 +43,7 @@ At present, the only fields which are actually used are:
 
 ### layerConfig File
 
-The Layer Config file is a static file which defines how to add a particular layer.
+The Layer Config file ([layerProperties.json](Config/layerProperties.json)) is a static file which defines how to add a particular layer.
 
 ```
     {
@@ -57,9 +57,10 @@ The Layer Config file is a static file which defines how to add a particular lay
     },
 ```
 
-The recipe file is a collection of layers.  The intention is that each Map would have it's own recipe json file.
-
-#|Field | Description|
+:warning: Not all the Regular expressions in the ([layerProperties.json](Config/layerProperties.json) file "work".  These will be updated in due course.
+:warning: Only shapefiles are handled in this version.
+   
+    #|Field | Description|
 -|------------ | -------------|
 1|```MapFrame``` | Name of the Map Frame that the layer is to be added to|
 2|```LayerGroup``` | Layer Group (:warning: NOT CURRENTLY IN USE)|

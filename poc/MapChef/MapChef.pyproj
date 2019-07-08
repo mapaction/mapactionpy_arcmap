@@ -47,7 +47,6 @@
     <Content Include="Config\layerProperties.json" />
     <Content Include="Config\recipe.json" />
     <Content Include="Images\TableOfContents.png" />
-    <Content Include="Images\WarningSymbol.png" />
     <Content Include="README.md" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
