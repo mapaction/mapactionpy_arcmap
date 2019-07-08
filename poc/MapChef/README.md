@@ -10,6 +10,68 @@ Python and ArcPy
 C:\Python27\ArcGIS10.6\python.exe
 ```
 
+## Layers
+
+
+### Recipe File
+
+The recipe file is a collection of layers.  The intention is that each Map would have it's own recipe json file.
+Layers are added in the index order from the recipe file.
+The following excerpt is taken from a ```recipe.json``` file:
+```
+...
+    {
+      "index": "8",
+      "layerFile": {
+        "name": "Physical - Sea - py",
+        "level": "",
+        "detail": "Sea"
+      },
+      "source": "National, COD (HDX) or GADM",
+      "include": []
+    },
+...
+```
+
+At present, the only fields which are actually used are:
+
+#|Field | Description|
+-|------------ | --------------------------------------------------------------|
+1|```index``` | Layer index|
+2|```layerFile.Name``` | Layer Name  - Must correlate with a row from the Layer Config file|
+
+
+### layerConfig File
+
+The Layer Config file is a static file which defines how to add a particular layer.
+
+```
+    {
+      "MapFrame": "Main Map",
+      "LayerGroup": "Elevation",
+      "LayerName": "Physical - Sea - py",
+      "SourceFolder": "220_phys",
+      "RegExp": "^[a-z]{3}_phys_ocn_py_(.*?).shp$",
+      "DefinitionQuery": "None",
+      "Display": "Yes"
+    },
+```
+
+The recipe file is a collection of layers.  The intention is that each Map would have it's own recipe json file.
+
+#|Field | Description|
+-|------------ | -------------|
+1|```MapFrame``` | Name of the Map Frame that the layer is to be added to|
+2|```LayerGroup``` | Layer Group (! NOT CURRENTLY IN USE)|
+3|```LayerName``` | Name of the Layer.  This must correlate with the ```layerFile.Name``` field in the ```recipe.json``` file.  |
+4|```SourceFolder``` | Folder under the &lt;root&gt;```/GIS/2_Active_Data``` directory|
+5|```RegExp``` | Regular Expression.  Used when selecting files to display|
+6|```DefinitionQuery``` | Definition Query - (:warning: NOT CURRENTLY IN USE)|
+7|```Display``` | :warning: NOT CURRENTLY IN USE)|
+
+After executing, the layers are generated and added to the MXD file, for example:
+![alt text](Images/TableOfContents.png)
+
 ## Execution
 
 ```
