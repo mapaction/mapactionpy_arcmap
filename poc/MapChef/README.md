@@ -57,7 +57,7 @@ The Layer Config file ([layerProperties.json](Config/layerProperties.json)) is a
     },
 ```
 
-:warning: Not all the Regular expressions in the ([layerProperties.json](Config/layerProperties.json) file "work".  These will be updated in due course.
+:warning: Not all the Regular expressions in the [layerProperties.json](Config/layerProperties.json file "work".  These will be updated in due course.__
 :warning: Only shapefiles are handled in this version.
    
     #|Field | Description|
