@@ -62,7 +62,7 @@ The recipe file is a collection of layers.  The intention is that each Map would
 #|Field | Description|
 -|------------ | -------------|
 1|```MapFrame``` | Name of the Map Frame that the layer is to be added to|
-2|```LayerGroup``` | Layer Group (! NOT CURRENTLY IN USE)|
+2|```LayerGroup``` | Layer Group (:warning: NOT CURRENTLY IN USE)|
 3|```LayerName``` | Name of the Layer.  This must correlate with the ```layerFile.Name``` field in the ```recipe.json``` file.  |
 4|```SourceFolder``` | Folder under the &lt;root&gt;```/GIS/2_Active_Data``` directory|
 5|```RegExp``` | Regular Expression.  Used when selecting files to display|
@@ -73,6 +73,18 @@ After executing, the layers are generated and added to the MXD file, for example
 ![alt text](Images/TableOfContents.png)
 
 ## Execution
+
+### Parameters
+
+#|Field | Description|
+-|------------ | -------------|
+1|```--recipeFile``` | Path to the ```recipe.json``` file.|
+2|```--layerConfig``` | Path to the ```layerProperties.json``` file.|
+3|```--cmf``` | Path to the Crash Move Folder root. |
+4|```--template``` | Path to the ```MXD``` file.|
+
+### Example
+
 
 ```
 C:\Python27\ArcGIS10.6\python.exe main.py \
