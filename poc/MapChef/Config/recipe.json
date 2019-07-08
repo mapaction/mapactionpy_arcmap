@@ -1,0 +1,81 @@
+{
+  "title": "Administration Map Overview",
+  "layers": [
+    {
+      "index": "1",
+      "layerFile": {
+        "name": "Settlement - Places - pt",
+        "level": "",
+        "detail": "Places"
+      },
+      "source": "OpenStreetmap",
+      "include": [ "Capital", "Admin 1 Cities" ]
+    },
+    {
+      "index": "2",
+      "layerFile": {
+        "name": "Cartography - Feather - pt",
+        "detail": "Feather"
+      },
+      "source": "MapAction",
+      "include": []
+    },
+    {
+      "index": "3",
+      "layerFile": {
+        "name": "Admin - AffectedCountry - py",
+        "level": "Admin 0"
+      },
+      "source": "National, COD (HDX) or GADM",
+      "include": []
+    },
+    {
+      "index": "4",
+      "layerFile": {
+        "name": "Admin - Admin1 - py",
+        "level": "Admin 1"
+      },
+      "source": "National, COD (HDX) or GADM",
+      "include": []
+    },
+    {
+      "index": "5",
+      "layerFile": {
+        "name": "Admin",
+        "level": "Admin 0"
+      },
+      "source": "National, COD (HDX) or GADM",
+      "include": []
+    },
+    {
+      "index": "6",
+      "layerFile": {
+        "name": "Admin - AffectedCountry - py",
+        "level": "Admin 0",
+        "detail": "Affected Area Polygon"
+      },
+      "source": "National, COD (HDX) or GADM",
+      "include": []
+    },
+    {
+      "index": "7",
+      "layerFile": {
+        "name": "Admin - SurroundingCountry - py",
+        "level": "Admin 0",
+        "detail": "Surrounding Area Polygon"
+      },
+      "source": "National, COD (HDX) or GADM",
+      "include": []
+    },
+    {
+      "index": "8",
+      "layerFile": {
+        "name": "Physical - Sea - py",
+        "level": "",
+        "detail": "Sea"
+      },
+      "source": "National, COD (HDX) or GADM",
+      "include": []
+    }
+  ]
+}
