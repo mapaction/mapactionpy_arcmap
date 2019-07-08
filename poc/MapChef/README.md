@@ -10,7 +10,7 @@ Python and ArcPy
 C:\Python27\ArcGIS10.6\python.exe
 ```
 
-## Layers
+## Configuration Files
 
 
 ### Recipe File
