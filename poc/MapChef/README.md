@@ -60,7 +60,7 @@ The Layer Config file ([layerProperties.json](Config/layerProperties.json)) is a
 :warning: Not all the Regular expressions in the [layerProperties.json](Config/layerProperties.json) file "work".  These will be updated in due course.<br>
 :warning: Only shapefiles are handled in this version.
    
-    #|Field | Description|
+#|Field | Description|
 -|------------ | -------------|
 1|```MapFrame``` | Name of the Map Frame that the layer is to be added to|
 2|```LayerGroup``` | Layer Group (:warning: NOT CURRENTLY IN USE)|
