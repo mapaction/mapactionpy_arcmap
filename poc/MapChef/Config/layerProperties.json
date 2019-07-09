@@ -149,7 +149,7 @@
       "LayerGroup": "Elevation",
       "LayerName": "Elevation - DEM - ras",
       "SourceFolder": "211_elev",
-      "RegExp": "^XXX_elev_dem_ras_(.*?)_(.*?)_([phm][phm])(_(.+))",
+      "RegExp": "^Rasters.gdb\/[a-z]{3}_elev_dem_ras_(.*?)$",
       "DefinitionQuery": "None",
       "Display": "Yes"
     },

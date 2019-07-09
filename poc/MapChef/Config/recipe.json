@@ -23,8 +23,8 @@
     {
       "index": "3",
       "layerFile": {
-        "name": "Admin - AffectedCountry - py",
-        "level": "Admin 0"
+        "name": "Elevation - DEM - ras",
+        "level": "Elevation"
       },
       "source": "National, COD (HDX) or GADM",
       "include": []
