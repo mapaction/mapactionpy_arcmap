@@ -1,3 +1,4 @@
+
 # MapChef
 
 Adds geospatial data to an ArcMap MXD file as separate layers based on a supplied recipe configuration file.
@@ -75,7 +76,7 @@ The Layer Config file ([layerProperties.json](Config/layerProperties.json)) is a
 
 
 #|MapFrame|LayerGroup|LayerName|SourceFolder|RegExp|DefinitionQuery|Display||
--|--------|----------|---------|------------|------|---------------|-------||----------
+-|--------|----------|---------|------------|------|---------------|-------|-|
 1|Main Map|None|Settlement - Places - pt|228_stle|^[a-z]{3}_stle_stl_pt_(.*?)_(.*?)_([phm][phm]).shp$|"""SettleType"" IN ('national_capital','city')"|Yes||
 2|Main Map|Transport Points|Transport - Airports - pt|232_tran|^[a-z]{3}_tran_air_pt_(.*?)_(.*?)_([phm][phm]).shp$|None|Yes||
 3|Main Map|Transport Points|Transport - Seaports - pt|232_tran|^[a-z]{3}_trans_por_pt_(.*?)_(.*?)_([phm][phm]).shp$|None|Yes||
@@ -102,10 +103,6 @@ The Layer Config file ([layerProperties.json](Config/layerProperties.json)) is a
 24|Location Map|None|Location - Admin1 - ln|202_admn|^XXX_admn_ad1_ln_(.*?)_(.*?)_([phm][phm])(_(.+))|None|Yes||
 25|Location Map|None|Location - AffectedCountry - py|202_admn|^XXX_admn_ad0_py_(.*?)_(.*?)_([phm][phm])(_(.+))|None|Yes||
 26|Location Map|None|Location - SurroundingCountry - py|202_admn|^(?!(XXX))_admn_ad0_py_(.*?)_(.*?)_([phm][phm])(_(.+))|None|Yes||
-
-
-
-
 
 After executing, the layers are generated and added to the MXD file, for example:
 ![alt text](Images/TableOfContents.png)
