@@ -73,6 +73,7 @@ The Layer Config file ([layerProperties.json](Config/layerProperties.json)) is a
 ##### Progress
 :warning: Not all the Regular expressions in the [layerProperties.json](Config/layerProperties.json) file "work".  These will be updated in due course.<br>
 :warning: Only shapefiles and rasters are handled in this version.
+:warning: Definition Queries are not implemented.
 
 
 #|MapFrame|LayerGroup|LayerName|SourceFolder|RegExp|DefinitionQuery|Display||
