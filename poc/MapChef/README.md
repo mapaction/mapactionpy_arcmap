@@ -76,34 +76,34 @@ The Layer Config file ([layerProperties.json](Config/layerProperties.json)) is a
 :warning: Definition Queries are not implemented.
 
 
-#|MapFrame|LayerGroup|LayerName|SourceFolder|RegExp|DefinitionQuery|Display||
--|--------|----------|---------|------------|------|---------------|-------|-|
-1|Main Map|None|Settlement - Places - pt|228_stle|^[a-z]{3}_stle_stl_pt_(.*?)_(.*?)_([phm][phm]).shp$|"""SettleType"" IN ('national_capital','city')"|Yes||
-2|Main Map|Transport Points|Transport - Airports - pt|232_tran|^[a-z]{3}_tran_air_pt_(.*?)_(.*?)_([phm][phm]).shp$|None|Yes||
-3|Main Map|Transport Points|Transport - Seaports - pt|232_tran|^[a-z]{3}_trans_por_pt_(.*?)_(.*?)_([phm][phm]).shp$|None|Yes||
-4|Main Map|Elevation - Coastline - ln|Settlement - Places - pt|211_elev|^[a-z]{3}_elev_cst_ln_(.*?)_(.*?)_([phm][phm]).shp$|None|Yes||
-5|Main Map|Admin Lines|Borders - Admin1 - ln|202_admn|^[a-z]{3}_admn_ad1_ln_(.*?)_(.*?)_([phm][phm]).shp$|None|Yes||
-6|Location Map|Admin Lines|Borders - Admin2 - ln|202_admn|^[a-z]{3}_admn_ad2_ln_(.*?)_(.*?)_([phm][phm]).shp$|None|Yes||
-7|Main Map|Transport Lines|Transport - Rail - ln|232_tran|^[a-z]{3}_tran_rrd_ln_(.*?)_(.*?)_([phm][phm]).shp$|None|Yes||
-8|Main Map|Transport Lines|Transport - Road - ln|232_tran|^[a-z]{3}_tran_rds_ln_(.*?)_(.*?)_([phm][phm]).shp$|None|Yes||
-9|Main Map|None|Cartography - Feather - pt|207_carto|^[a-z]{3}_carto_fea_py_(.*?)_(.*?)_pp_(.*?).shp$|None|Yes||
-10|Main Map|Physical|Physical - Waterbody - py|221_phys||None|Yes||
-11|Main Map|Physical|Physical - River - ln|221_phys|^[a-z]{3}_phys_riv_ln_(.*?)_(.*?)_([phm][phm]).shp$|None|Yes||
-12|Main Map|Admin Polygons|Admin - Admin2 - py|202_admn|^[a-z]{3}_admn_ad2_py_(.*?)_(.*?)_([phm][phm]).shp$|None|Yes||
-13|Main Map|Admin Polygons|Admin - Admin1 - py|202_admn|^[a-z]{3}_admn_ad1_py_(.*?)_(.*?)_([phm][phm]).shp$|None|Yes||
-14|Main Map|Admin Polygons|Admin - AffectedCountry - py|202_admn|^[a-z]{3}_admn_ad0_py_(.*?)_(.*?)_([phm][phm]).shp$|None|Yes||
-15|Main Map|Admin Polygons|Admin - SurroundingCountry - py|202_admn|^(?!(XXX))_admn_ad0_py_(.*?)_(.*?)_([phm][phm])(_(.+))|None|Yes||
-16|Main Map|Elevation|Physical - Sea - py|220_phys|^[a-z]{3}_phys_ocn_py_(.*?).shp$|None|Yes||
-17|Main Map|Elevation|Elevation - DEM - ras|211_elev|^XXX_elev_dem_ras_(.*?)_(.*?)_([phm][phm])(_(.+))|None|Yes||
-18|Main Map|Elevation|Elevation - Hillshade - ras|211_elev|^XXX_elev_hsh_ras_(.*?)_(.*?)_([phm][phm])(_(.+))|None|Yes||
-19|Main Map|Elevation|Elevation - Curvature - ras|211_elev|tbd|None|Yes||
-20|Main Map|Legend|Legend - Road - ln|232_tran|^XXX_tran_rds_ln_(.*?)_(.*?)_([phm][phm])(_(.+))|None|No||
-21|Main Map|Legend|Legend - WaterBody - py|221_phys|tbd|None|No||
-22|Main Map|Legend|Elevation - Elevation - ras|211_elev|^XXX_elev_dem_ras_(.*?)_(.*?)_([phm][phm])(_(.+))|None|Yes||
-23|Main Map|None|Location - Coastline - ln|211_elev|^XXX_elev_cst_ln_(.*?)_(.*?)_([phm][phm])(_(.+))|None|Yes||
-24|Location Map|None|Location - Admin1 - ln|202_admn|^XXX_admn_ad1_ln_(.*?)_(.*?)_([phm][phm])(_(.+))|None|Yes||
-25|Location Map|None|Location - AffectedCountry - py|202_admn|^XXX_admn_ad0_py_(.*?)_(.*?)_([phm][phm])(_(.+))|None|Yes||
-26|Location Map|None|Location - SurroundingCountry - py|202_admn|^(?!(XXX))_admn_ad0_py_(.*?)_(.*?)_([phm][phm])(_(.+))|None|Yes||
+#||MapFrame|LayerGroup|LayerName|SourceFolder|RegExp|DefinitionQuery|Display||
+-|-|--------|----------|---------|------------|------|---------------|-------|-|
+1|:heavy_check_mark:|Main Map|None|Settlement - Places - pt|228_stle|^[a-z]{3}_stle_stl_pt_(.*?)_(.*?)_([phm][phm]).shp$|"""SettleType"" IN ('national_capital','city')"|Yes||
+2||Main Map|Transport Points|Transport - Airports - pt|232_tran|^[a-z]{3}_tran_air_pt_(.*?)_(.*?)_([phm][phm]).shp$|None|Yes||
+3||Main Map|Transport Points|Transport - Seaports - pt|232_tran|^[a-z]{3}_trans_por_pt_(.*?)_(.*?)_([phm][phm]).shp$|None|Yes||
+4||Main Map|Elevation - Coastline - ln|Settlement - Places - pt|211_elev|^[a-z]{3}_elev_cst_ln_(.*?)_(.*?)_([phm][phm]).shp$|None|Yes||
+5||Main Map|Admin Lines|Borders - Admin1 - ln|202_admn|^[a-z]{3}_admn_ad1_ln_(.*?)_(.*?)_([phm][phm]).shp$|None|Yes||
+6||Location Map|Admin Lines|Borders - Admin2 - ln|202_admn|^[a-z]{3}_admn_ad2_ln_(.*?)_(.*?)_([phm][phm]).shp$|None|Yes||
+7||Main Map|Transport Lines|Transport - Rail - ln|232_tran|^[a-z]{3}_tran_rrd_ln_(.*?)_(.*?)_([phm][phm]).shp$|None|Yes||
+8||Main Map|Transport Lines|Transport - Road - ln|232_tran|^[a-z]{3}_tran_rds_ln_(.*?)_(.*?)_([phm][phm]).shp$|None|Yes||
+9|:heavy_check_mark:|Main Map|None|Cartography - Feather - pt|207_carto|^[a-z]{3}_carto_fea_py_(.*?)_(.*?)_pp_(.*?).shp$|None|Yes||
+10||Main Map|Physical|Physical - Waterbody - py|221_phys||None|Yes||
+11||Main Map|Physical|Physical - River - ln|221_phys|^[a-z]{3}_phys_riv_ln_(.*?)_(.*?)_([phm][phm]).shp$|None|Yes||
+12||Main Map|Admin Polygons|Admin - Admin2 - py|202_admn|^[a-z]{3}_admn_ad2_py_(.*?)_(.*?)_([phm][phm]).shp$|None|Yes||
+13||Main Map|Admin Polygons|Admin - Admin1 - py|202_admn|^[a-z]{3}_admn_ad1_py_(.*?)_(.*?)_([phm][phm]).shp$|None|Yes||
+14||Main Map|Admin Polygons|Admin - AffectedCountry - py|202_admn|^[a-z]{3}_admn_ad0_py_(.*?)_(.*?)_([phm][phm]).shp$|None|Yes||
+15||Main Map|Admin Polygons|Admin - SurroundingCountry - py|202_admn|^(?!(XXX))_admn_ad0_py_(.*?)_(.*?)_([phm][phm])(_(.+))|None|Yes||
+16|:heavy_check_mark:|Main Map|Elevation|Physical - Sea - py|220_phys|^[a-z]{3}_phys_ocn_py_(.*?).shp$|None|Yes||
+17|:heavy_check_mark:|Main Map|Elevation|Elevation - DEM - ras|211_elev|^XXX_elev_dem_ras_(.*?)_(.*?)_([phm][phm])(_(.+))|None|Yes||
+18||Main Map|Elevation|Elevation - Hillshade - ras|211_elev|^XXX_elev_hsh_ras_(.*?)_(.*?)_([phm][phm])(_(.+))|None|Yes||
+19||Main Map|Elevation|Elevation - Curvature - ras|211_elev|tbd|None|Yes||
+20||Main Map|Legend|Legend - Road - ln|232_tran|^XXX_tran_rds_ln_(.*?)_(.*?)_([phm][phm])(_(.+))|None|No||
+21||Main Map|Legend|Legend - WaterBody - py|221_phys|tbd|None|No||
+22||Main Map|Legend|Elevation - Elevation - ras|211_elev|^XXX_elev_dem_ras_(.*?)_(.*?)_([phm][phm])(_(.+))|None|Yes||
+23||Main Map|None|Location - Coastline - ln|211_elev|^XXX_elev_cst_ln_(.*?)_(.*?)_([phm][phm])(_(.+))|None|Yes||
+24||Location Map|None|Location - Admin1 - ln|202_admn|^XXX_admn_ad1_ln_(.*?)_(.*?)_([phm][phm])(_(.+))|None|Yes||
+25||Location Map|None|Location - AffectedCountry - py|202_admn|^XXX_admn_ad0_py_(.*?)_(.*?)_([phm][phm])(_(.+))|None|Yes||
+26||Location Map|None|Location - SurroundingCountry - py|202_admn|^(?!(XXX))_admn_ad0_py_(.*?)_(.*?)_([phm][phm])(_(.+))|None|Yes||
 
 After executing, the layers are generated and added to the MXD file, for example:
 ![alt text](Images/TableOfContents.png)
