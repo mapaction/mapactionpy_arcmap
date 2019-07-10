@@ -94,8 +94,8 @@ The Layer Config file ([layerProperties.json](Config/layerProperties.json)) is a
 14||Main Map|Admin Polygons|Admin - AffectedCountry - py|202_admn|^[a-z]{3}_admn_ad0_py_(.*?)_(.*?)_([phm][phm]).shp$|None|Yes||
 15||Main Map|Admin Polygons|Admin - SurroundingCountry - py|202_admn|^(?!(XXX))_admn_ad0_py_(.*?)_(.*?)_([phm][phm])(_(.+))|None|Yes||
 16|:heavy_check_mark:|Main Map|Elevation|Physical - Sea - py|220_phys|^[a-z]{3}_phys_ocn_py_(.*?).shp$|None|Yes||
-17|:heavy_check_mark:|Main Map|Elevation|Elevation - DEM - ras|211_elev|^XXX_elev_dem_ras_(.*?)_(.*?)_([phm][phm])(_(.+))|None|Yes||
-18||Main Map|Elevation|Elevation - Hillshade - ras|211_elev|^XXX_elev_hsh_ras_(.*?)_(.*?)_([phm][phm])(_(.+))|None|Yes||
+17|:heavy_check_mark:|Main Map|Elevation|Elevation - DEM - ras|211_elev|^Rasters.gdb\/[a-z]{3}_elev_dem_ras_(.*?)$|None|Yes||
+18||Main Map|Elevation|Elevation - Hillshade - ras|211_elev|^Rasters.gdb\/[a-z]{3}_elev_hsh_ras_(.*?)$|None|Yes||
 19||Main Map|Elevation|Elevation - Curvature - ras|211_elev|tbd|None|Yes||
 20||Main Map|Legend|Legend - Road - ln|232_tran|^XXX_tran_rds_ln_(.*?)_(.*?)_([phm][phm])(_(.+))|None|No||
 21||Main Map|Legend|Legend - WaterBody - py|221_phys|tbd|None|No||
