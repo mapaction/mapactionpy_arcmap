@@ -66,19 +66,18 @@ The Layer Config file ([layerProperties.json](Config/layerProperties.json)) is a
 3|```LayerName``` | Name of the Layer.  This must correlate with the ```layerFile.Name``` field in the ```recipe.json``` file.  |
 4|```SourceFolder``` | Folder under the &lt;root&gt;```/GIS/2_Active_Data``` directory|
 5|```RegExp``` | Regular Expression.  Used when selecting files to display|
-6|```DefinitionQuery``` | Definition Query - (:warning: NOT CURRENTLY IN USE)|
-7|```Display``` | :warning: NOT CURRENTLY IN USE)|
+6|```DefinitionQuery``` | Definition Query|
+7|```Display``` | Shows if set to 'Yes'|
 
 
 ##### Progress
 :warning: Not all the Regular expressions in the [layerProperties.json](Config/layerProperties.json) file "work".  These will be updated in due course.<br>
 :warning: Only shapefiles and rasters are handled in this version.
-:warning: Definition Queries are not implemented.
 
 
 #||MapFrame|LayerGroup|LayerName|SourceFolder|RegExp|DefinitionQuery|Display||
 -|-|--------|----------|---------|------------|------|---------------|-------|-|
-1|:heavy_check_mark:|Main Map|None|Settlement - Places - pt|228_stle|^[a-z]{3}_stle_stl_pt_(.*?)_(.*?)_([phm][phm]).shp$|"""SettleType"" IN ('national_capital','city')"|Yes||
+1|:heavy_check_mark:|Main Map|None|Settlement - Places - pt|228_stle|^[a-z]{3}_stle_stl_pt_(.*?)_(.*?)_([phm][phm]).shp$|"""Sett    leType"" IN ('national_capital','city')"|Yes||
 2||Main Map|Transport Points|Transport - Airports - pt|232_tran|^[a-z]{3}_tran_air_pt_(.*?)_(.*?)_([phm][phm]).shp$|None|Yes||
 3||Main Map|Transport Points|Transport - Seaports - pt|232_tran|^[a-z]{3}_trans_por_pt_(.*?)_(.*?)_([phm][phm]).shp$|None|Yes||
 4||Main Map|Elevation - Coastline - ln|Settlement - Places - pt|211_elev|^[a-z]{3}_elev_cst_ln_(.*?)_(.*?)_([phm][phm]).shp$|None|Yes||

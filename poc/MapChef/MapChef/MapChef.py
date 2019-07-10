@@ -54,7 +54,7 @@ class MapChef:
                                 self.mxd = arcpy.mapping.MapDocument(self.mxdTemplateFile)
                                 self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
                                 dataFile = dataFilePath + "/" + fileName
-                                self.addLayer(self.dataFrame, dataFile, (layer.name + ".lyr"))    
+                                self.addLayer(self.dataFrame, dataFile, (layer.name + ".lyr"), properties.definitionQuery, properties.display)    
                     else:
                         parts = properties.regExp.split("/")
                         for root, dirs, files in os.walk(dataFilePath):
@@ -67,20 +67,27 @@ class MapChef:
                                         if re.match(parts[1], raster):
                                             print(raster)
                                             rasterLayer = (rasterFile + "\\" + raster)
-                                            #self.addRasterToLayer(self.dataFrame, raster, (layer.name + ".lyr"))    
                                             self.mxd = arcpy.mapping.MapDocument(self.mxdTemplateFile)
                                             self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
                                             self.addRasterToLayer(self.dataFrame, rasterLayer, (layer.name + ".lyr"))    
 
-    def addLayer(self, dataFrame, dataFile, layerName):
+    def addLayer(self, dataFrame, dataFile, layerName, definitionQuery, display):
         print ("Adding \'" + dataFile + "\' to layer \'" + layerName + "\'")
         # Make a layer from the feature class
         arcpy.MakeFeatureLayer_management(dataFile, layerName)
         layer = arcpy.mapping.Layer(layerName)
-        layer.visible = True
+        if (definitionQuery):
+            # https://gis.stackexchange.com/questions/90736/setting-definition-query-on-arcpy-layer-from-shapefile
+            layer.definitionQuery = definitionQuery
+            arcpy.SelectLayerByAttribute_management(layerName, "SUBSET_SELECTION", definitionQuery)
+        if (display.upper() == "YES"):
+            layer.visible = True
+        else:
+            layer.visible = False
+
         arcpy.mapping.AddLayer(dataFrame, layer, "BOTTOM")
-        arcpy.RefreshActiveView()
         arcpy.RefreshTOC()
+        arcpy.RefreshActiveView()
         self.mxd.save()
 
     def addRasterToLayer(self, dataFrame, dataFile, layerName):
