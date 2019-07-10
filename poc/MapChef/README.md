@@ -120,7 +120,6 @@ After executing, the layers are generated and added to the MXD file, for example
 
 ### Example
 
-
 ```
 C:\Python27\ArcGIS10.6\python.exe main.py \
    --recipeFile "C:\Users\steve\Source\Repos\MapChef\MapChef\Config\recipe.json" \
@@ -128,6 +127,14 @@ C:\Python27\ArcGIS10.6\python.exe main.py \
    --cmf "D:\MapAction\2018-11-16-SierraCobre" \
    --template "D:\MapAction\2018-11-16-SierraCobre\GIS\3_Mapping\33_MXD_Maps\MA001_scb_country_overview_DEV.mxd" 
 ```
+
+### Result
+
+This map was generated using a recipe with four layers: 
+
+:information_source: No styling yet - :hankey:
+
+![alt text](Images/Result.png)
 
 ## Authors
 
