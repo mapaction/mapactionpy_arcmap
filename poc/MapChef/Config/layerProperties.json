@@ -3,7 +3,7 @@
     {
       "MapFrame": "Main Map",
       "LayerGroup": "None",
-      "LayerName": "Settlement - Places - pt",
+      "LayerName": "Settlements - Places",
       "SourceFolder": "228_stle",
       "RegExp": "^[a-z]{3}_stle_stl_pt_(.*?)_(.*?)_([phm][phm]).shp$",
       "DefinitionQuery": "fclass IN ('national_capital', 'city')",
@@ -12,7 +12,7 @@
     {
       "MapFrame": "Main Map",
       "LayerGroup": "Transport Points",
-      "LayerName": "Transport - Airports - pt",
+      "LayerName": "Transport - Airports",
       "SourceFolder": "232_tran",
       "RegExp": "^[a-z]{3}_tran_air_pt_(.*?)_(.*?)_([phm][phm]).shp$",
       "DefinitionQuery": "",
@@ -21,7 +21,7 @@
     {
       "MapFrame": "Main Map",
       "LayerGroup": "Transport Points",
-      "LayerName": "Transport - Seaports - pt",
+      "LayerName": "Transport - Seaports",
       "SourceFolder": "232_tran",
       "RegExp": "^[a-z]{3}_trans_por_pt_(.*?)_(.*?)_([phm][phm]).shp$",
       "DefinitionQuery": "",
@@ -29,8 +29,8 @@
     },
     {
       "MapFrame": "Main Map",
-      "LayerGroup": "Elevation - Coastline - ln",
-      "LayerName": "Settlement - Places - pt",
+      "LayerGroup": "Elevation - Coastline",
+      "LayerName": "Settlement - Places",
       "SourceFolder": "211_elev",
       "RegExp": "^[a-z]{3}_elev_cst_ln_(.*?)_(.*?)_([phm][phm]).shp$",
       "DefinitionQuery": "",
@@ -39,7 +39,7 @@
     {
       "MapFrame": "Main Map",
       "LayerGroup": "Admin Lines",
-      "LayerName": "Borders - Admin1 - ln",
+      "LayerName": "Borders - Admin 1",
       "SourceFolder": "202_admn",
       "RegExp": "^[a-z]{3}_admn_ad1_ln_(.*?)_(.*?)_([phm][phm]).shp$",
       "DefinitionQuery": "",
@@ -48,7 +48,7 @@
     {
       "MapFrame": "Location Map",
       "LayerGroup": "Admin Lines",
-      "LayerName": "Borders - Admin2 - ln",
+      "LayerName": "Borders - Admin 2",
       "SourceFolder": "202_admn",
       "RegExp": "^[a-z]{3}_admn_ad2_ln_(.*?)_(.*?)_([phm][phm]).shp$",
       "DefinitionQuery": "",
@@ -57,7 +57,7 @@
     {
       "MapFrame": "Main Map",
       "LayerGroup": "Transport Lines",
-      "LayerName": "Transport - Rail - ln",
+      "LayerName": "Transport - Rail",
       "SourceFolder": "232_tran",
       "RegExp": "^[a-z]{3}_tran_rrd_ln_(.*?)_(.*?)_([phm][phm]).shp$",
       "DefinitionQuery": "",
@@ -66,7 +66,7 @@
     {
       "MapFrame": "Main Map",
       "LayerGroup": "Transport Lines",
-      "LayerName": "Transport - Road - ln",
+      "LayerName": "Transport - Road",
       "SourceFolder": "232_tran",
       "RegExp": "^[a-z]{3}_tran_rds_ln_(.*?)_(.*?)_([phm][phm]).shp$",
       "DefinitionQuery": "",
@@ -75,7 +75,7 @@
     {
       "MapFrame": "Main Map",
       "LayerGroup": "None",
-      "LayerName": "Cartography - Feather - pt",
+      "LayerName": "Cartography - Feather",
       "SourceFolder": "207_carto",
       "RegExp": "^[a-z]{3}_carto_fea_py_(.*?)_(.*?)_pp_(.*?).shp$",
       "DefinitionQuery": "",
@@ -84,7 +84,7 @@
     {
       "MapFrame": "Main Map",
       "LayerGroup": "Physical",
-      "LayerName": "Physical - Waterbody - py",
+      "LayerName": "Physical - Waterbodies",
       "SourceFolder": "221_phys",
       "RegExp": "",
       "DefinitionQuery": "",
@@ -93,7 +93,7 @@
     {
       "MapFrame": "Main Map",
       "LayerGroup": "Physical",
-      "LayerName": "Physical - River - ln",
+      "LayerName": "Physical - Rivers",
       "SourceFolder": "221_phys",
       "RegExp": "^[a-z]{3}_phys_riv_ln_(.*?)_(.*?)_([phm][phm]).shp$",
       "DefinitionQuery": "",
@@ -102,7 +102,7 @@
     {
       "MapFrame": "Main Map",
       "LayerGroup": "Admin Polygons",
-      "LayerName": "Admin - Admin2 - py",
+      "LayerName": "Admin - Ad 2 Polygon",
       "SourceFolder": "202_admn",
       "RegExp": "^[a-z]{3}_admn_ad2_py_(.*?)_(.*?)_([phm][phm]).shp$",
       "DefinitionQuery": "",
@@ -111,7 +111,7 @@
     {
       "MapFrame": "Main Map",
       "LayerGroup": "Admin Polygons",
-      "LayerName": "Admin - Admin1 - py",
+      "LayerName": "Admin - Ad 1 Polygon",
       "SourceFolder": "202_admn",
       "RegExp": "^[a-z]{3}_admn_ad1_py_(.*?)_(.*?)_([phm][phm]).shp$",
       "DefinitionQuery": "",
@@ -120,7 +120,7 @@
     {
       "MapFrame": "Main Map",
       "LayerGroup": "Admin Polygons",
-      "LayerName": "Admin - AffectedCountry - py",
+      "LayerName": "Admin 0 - Affected Country",
       "SourceFolder": "202_admn",
       "RegExp": "^[a-z]{3}_admn_ad0_py_(.*?)_(.*?)_([phm][phm]).shp$",
       "DefinitionQuery": "",
@@ -129,16 +129,16 @@
     {
       "MapFrame": "Main Map",
       "LayerGroup": "Admin Polygons",
-      "LayerName": "Admin - SurroundingCountry - py",
+      "LayerName": "Admin 0 - Surrounding Country",
       "SourceFolder": "202_admn",
-      "RegExp": "^(?!(XXX))_admn_ad0_py_(.*?)_(.*?)_([phm][phm])(_(.+))",
+      "RegExp": "^[a-z]{3}_admn_ad0_py_(.*?)_(.*?)_([phm][phm]).shp$",
       "DefinitionQuery": "",
       "Display": "Yes"
     },
     {
       "MapFrame": "Main Map",
       "LayerGroup": "Elevation",
-      "LayerName": "Physical - Sea - py",
+      "LayerName": "Physical - Sea",
       "SourceFolder": "220_phys",
       "RegExp": "^[a-z]{3}_phys_ocn_py_(.*?).shp$",
       "DefinitionQuery": "",
@@ -147,7 +147,7 @@
     {
       "MapFrame": "Main Map",
       "LayerGroup": "Elevation",
-      "LayerName": "Elevation - DEM - ras",
+      "LayerName": "Elevation - DEM",
       "SourceFolder": "211_elev",
       "RegExp": "^Rasters.gdb\/[a-z]{3}_elev_dem_ras_(.*?)$",
       "DefinitionQuery": "",
@@ -156,7 +156,7 @@
     {
       "MapFrame": "Main Map",
       "LayerGroup": "Elevation",
-      "LayerName": "Elevation - Hillshade - ras",
+      "LayerName": "Elevation - Hillshade",
       "SourceFolder": "211_elev",
       "RegExp": "^XXX_elev_hsh_ras_(.*?)_(.*?)_([phm][phm])(_(.+))",
       "DefinitionQuery": "",
@@ -165,7 +165,7 @@
     {
       "MapFrame": "Main Map",
       "LayerGroup": "Elevation",
-      "LayerName": "Elevation - Curvature - ras",
+      "LayerName": "Elevation - Curvature",
       "SourceFolder": "211_elev",
       "RegExp": "tbd",
       "DefinitionQuery": "",
@@ -174,16 +174,16 @@
     {
       "MapFrame": "Main Map",
       "LayerGroup": "Legend",
-      "LayerName": "Legend - Road - ln",
+      "LayerName": "Legend - Roads",
       "SourceFolder": "232_tran",
-      "RegExp": "^XXX_tran_rds_ln_(.*?)_(.*?)_([phm][phm])(_(.+))",
+      "RegExp": "^[a-z]{3}_tran_rds_ln_(.*?)_(.*?)_([phm][phm])(_(.+))",
       "DefinitionQuery": "",
       "Display": "No"
     },
     {
       "MapFrame": "Main Map",
       "LayerGroup": "Legend",
-      "LayerName": "Legend - WaterBody - py",
+      "LayerName": "Legend - Water",
       "SourceFolder": "221_phys",
       "RegExp": "tbd",
       "DefinitionQuery": "",
@@ -191,46 +191,37 @@
     },
     {
       "MapFrame": "Main Map",
-      "LayerGroup": "Legend",
-      "LayerName": "Elevation - Elevation - ras",
+      "LayerGroup": "None",
+      "LayerName": "Elevation - Coastline",
       "SourceFolder": "211_elev",
-      "RegExp": "^XXX_elev_dem_ras_(.*?)_(.*?)_([phm][phm])(_(.+))",
-      "DefinitionQuery": "",
-      "Display": "Yes"
-    },
-    {
-      "MapFrame": "Main Map",
-      "LayerGroup": "None",
-      "LayerName": "Location - Coastline - ln",
-      "SourceFolder": "211_elev",
-      "RegExp": "^XXX_elev_cst_ln_(.*?)_(.*?)_([phm][phm])(_(.+))",
+      "RegExp": "^[a-z]{3}_elev_cst_ln_(.*?)_(.*?)_([phm][phm])(_(.+))",
       "DefinitionQuery": "",
       "Display": "Yes"
     },
     {
       "MapFrame": "Location Map",
       "LayerGroup": "None",
-      "LayerName": "Location - Admin1 - ln",
+      "LayerName": "Location - Admin1",
       "SourceFolder": "202_admn",
-      "RegExp": "^XXX_admn_ad1_ln_(.*?)_(.*?)_([phm][phm])(_(.+))",
+      "RegExp": "^[a-z]{3}_admn_ad1_ln_(.*?)_(.*?)_([phm][phm])(_(.+))",
       "DefinitionQuery": "",
       "Display": "Yes"
     },
     {
       "MapFrame": "Location Map",
       "LayerGroup": "None",
-      "LayerName": "Location - AffectedCountry - py",
+      "LayerName": "Location - Affected Country",
       "SourceFolder": "202_admn",
-      "RegExp": "^XXX_admn_ad0_py_(.*?)_(.*?)_([phm][phm])(_(.+))",
+      "RegExp": "^[a-z]{3}_admn_ad0_py_(.*?)_(.*?)_([phm][phm])(_(.+))",
       "DefinitionQuery": "",
       "Display": "Yes"
     },
     {
       "MapFrame": "Location Map",
       "LayerGroup": "None",
-      "LayerName": "Location - SurroundingCountry - py",
+      "LayerName": "Location - Surrounding Country",
       "SourceFolder": "202_admn",
-      "RegExp": "^(?!(XXX))_admn_ad0_py_(.*?)_(.*?)_([phm][phm])(_(.+))",
+      "RegExp": "^[a-z]{3}_admn_ad0_py_(.*?)_(.*?)_([phm][phm])(_(.+))",
       "DefinitionQuery": "",
       "Display": "Yes"
     }

@@ -8,7 +8,7 @@ from MapRecipe import MapRecipe
 from LayerProperties import LayerProperties
 
 class MapChef:
-    def __init__(self, recipeJsonFile, layerPropertiesFile, mxdTemplate, crashMoveFolder, clean = False):
+    def __init__(self, recipeJsonFile, layerPropertiesFile, mxdTemplate, crashMoveFolder, layerDirectory, clean = False):
         self.mxd = None
         self.clean = clean
         self.recipeJsonFile = recipeJsonFile
@@ -16,6 +16,7 @@ class MapChef:
         self.mxdTemplateFile = mxdTemplate
         self.root = crashMoveFolder
         self.layerPropertiesFile = layerPropertiesFile
+        self.layerDirectory = layerDirectory
         self.layerProperties = self.readLayerPropertiesFile()
 
     def readRecipe(self):
@@ -41,35 +42,91 @@ class MapChef:
         if (self.clean == True):
             self.removeLayers()
         for layer in self.recipe.layers:
-            print ("Get shape file for layer \'" + layer.name + "\'")
+            print ("Get data source for layer \'" + layer.name + "\'")
             properties = self.layerProperties.get(layer.name)
-            if (properties is not None):
-                dataFilePath= self.root + "/GIS/2_Active_Data/" +  properties.sourceFolder
-                if (os.path.isdir(dataFilePath)):
-                    if ("/" not in properties.regExp):
-                        onlyfiles = [f for f in listdir(dataFilePath) if isfile(join(dataFilePath, f))]
-                        for fileName in onlyfiles:
-                            if re.match(properties.regExp, fileName):
-                                #print ("File name: " + fileName)
-                                self.mxd = arcpy.mapping.MapDocument(self.mxdTemplateFile)
-                                self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
-                                dataFile = dataFilePath + "/" + fileName
-                                self.addLayer(self.dataFrame, dataFile, (layer.name + ".lyr"), properties.definitionQuery, properties.display)    
-                    else:
-                        parts = properties.regExp.split("/")
-                        for root, dirs, files in os.walk(dataFilePath):
-                            for gdb in dirs:
-                                if re.match(parts[0], gdb):
-                                    rasterFile = (dataFilePath + "/" + gdb).replace("/", os.sep)
-                                    arcpy.env.workspace = rasterFile
-                                    rasters = arcpy.ListRasters("*")
-                                    for raster in rasters:
-                                        if re.match(parts[1], raster):
-                                            print(raster)
-                                            rasterLayer = (rasterFile + "\\" + raster)
-                                            self.mxd = arcpy.mapping.MapDocument(self.mxdTemplateFile)
-                                            self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
-                                            self.addRasterToLayer(self.dataFrame, rasterLayer, (layer.name + ".lyr"))    
+            if (properties is not None):             
+                layerFilePath= self.root + "/GIS/3_Mapping/38_Initial_Maps_Layer_Files/Reference Map/" +  properties.layerName + ".lyr"
+                if (os.path.exists(layerFilePath)):
+                    self.mxd = arcpy.mapping.MapDocument(self.mxdTemplateFile)
+                    self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
+                    layerToAdd = arcpy.mapping.Layer(layerFilePath)
+                    arcpy.RefreshTOC()
+                    arcpy.RefreshActiveView()
+                    self.mxd.save()
+                    dataFilePath= self.root + "/GIS/2_Active_Data/" +  properties.sourceFolder
+                    if (os.path.isdir(dataFilePath)):
+                        if ("/" not in properties.regExp):
+                            onlyfiles = [f for f in listdir(dataFilePath) if isfile(join(dataFilePath, f))]
+                            for fileName in onlyfiles:
+                                if re.match(properties.regExp, fileName):
+                                    self.mxd = arcpy.mapping.MapDocument(self.mxdTemplateFile)
+                                    self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
+                                    dataFile = dataFilePath + "/" + fileName
+                                    self.addToLayer(self.dataFrame, dataFile, layerToAdd, properties.definitionQuery, properties.display)
+                        else:
+                            parts = properties.regExp.split("/")
+                            for root, dirs, files in os.walk(dataFilePath):
+                                for gdb in dirs:
+                                    if re.match(parts[0], gdb):
+                                        rasterFile = (dataFilePath + "/" + gdb).replace("/", os.sep)
+                                        arcpy.env.workspace = rasterFile
+                                        rasters = arcpy.ListRasters("*")
+                                        for raster in rasters:
+                                           if re.match(parts[1], raster):
+                                               rasterLayer = (rasterFile + "\\" + raster)
+                                               self.mxd = arcpy.mapping.MapDocument(self.mxdTemplateFile)
+                                               self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
+                                               self.addRasterToLayer(self.dataFrame, rasterFile, layerToAdd, raster, properties.display)    
+
+    def addRasterToLayer(self, dataFrame, rasterFile, layer, raster, display):
+        print ("Adding \'" + rasterFile + os.sep + raster + "\' to layer \'" + layer.name + "\'")
+        for lyr in arcpy.mapping.ListLayers(layer):                  #THIS IS THE MISSING PIECE  
+            lyr.replaceDataSource(rasterFile, "FILEGDB_WORKSPACE", raster)
+
+            if (display.upper() == "YES"):
+                lyr.visible = True
+            else:
+                lyr.visible = False
+            arcpy.mapping.AddLayer(dataFrame, lyr, "BOTTOM")            
+        arcpy.RefreshActiveView()
+        arcpy.RefreshTOC()
+        self.mxd.save()
+
+    def addToLayer(self, dataFrame, dataFile, layer, definitionQuery, display):
+        dataDirectory = os.path.dirname(os.path.realpath(dataFile))
+        for lyr in arcpy.mapping.ListLayers(layer):                  #THIS IS THE MISSING PIECE  
+            print (lyr.name + " " + layer.name)  
+            # https://community.esri.com/thread/60097
+            base=os.path.basename(dataFile)
+            lyr.replaceDataSource(dataDirectory, "SHAPEFILE_WORKSPACE", os.path.splitext(base)[0])  
+            if (definitionQuery):
+               # https://gis.stackexchange.com/questions/90736/setting-definition-query-on-arcpy-layer-from-shapefile
+                lyr.definitionQuery = definitionQuery
+                arcpy.SelectLayerByAttribute_management(lyr, "SUBSET_SELECTION", definitionQuery)
+            if (display.upper() == "YES"):
+                lyr.visible = True
+            else:
+                lyr.visible = False
+            arcpy.mapping.AddLayer(dataFrame, lyr, "BOTTOM")
+        arcpy.RefreshTOC()
+        arcpy.RefreshActiveView()
+        self.mxd.save()
+
+#    def addRasterToLayer(self, dataFrame, dataFile, layerName):
+#        print ("Adding \'" + dataFile + "\' to layer \'" + layerName + "\'")
+#        # Make a layer from the feature class
+#        # https://pro.arcgis.com/en/pro-app/arcpy/classes/result.htm
+#        result = arcpy.MakeRasterLayer_management(dataFile, layerName)
+#        msgIndex=0
+#        while (msgIndex < result.messageCount):
+#            print (result.getMessage(msgIndex))
+#            msgIndex = msgIndex+1       
+#        layer = result.getOutput(0)
+#        layer.visible = True
+#        arcpy.mapping.AddLayer(dataFrame, layer, "BOTTOM")
+#        arcpy.RefreshActiveView()
+#        arcpy.RefreshTOC()
+#        self.mxd.save()
 
     def addLayer(self, dataFrame, dataFile, layerName, definitionQuery, display):
         print ("Adding \'" + dataFile + "\' to layer \'" + layerName + "\'")
@@ -90,18 +147,3 @@ class MapChef:
         arcpy.RefreshActiveView()
         self.mxd.save()
 
-    def addRasterToLayer(self, dataFrame, dataFile, layerName):
-        print ("Adding \'" + dataFile + "\' to layer \'" + layerName + "\'")
-        # Make a layer from the feature class
-        # https://pro.arcgis.com/en/pro-app/arcpy/classes/result.htm
-        result = arcpy.MakeRasterLayer_management(dataFile, layerName)
-        msgIndex=0
-        while (msgIndex < result.messageCount):
-            print (result.getMessage(msgIndex))
-            msgIndex = msgIndex+1       
-        layer = result.getOutput(0)
-        layer.visible = True
-        arcpy.mapping.AddLayer(dataFrame, layer, "BOTTOM")
-        arcpy.RefreshActiveView()
-        arcpy.RefreshTOC()
-        self.mxd.save()

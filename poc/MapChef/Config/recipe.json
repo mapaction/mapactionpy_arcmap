@@ -4,7 +4,7 @@
     {
       "index": "1",
       "layerFile": {
-        "name": "Settlement - Places - pt",
+        "name": "Settlements - Places",
         "level": "",
         "detail": "Places"
       },
@@ -14,7 +14,7 @@
     {
       "index": "2",
       "layerFile": {
-        "name": "Cartography - Feather - pt",
+        "name": "Cartography - Feather",
         "detail": "Feather"
       },
       "source": "MapAction",
@@ -23,7 +23,7 @@
     {
       "index": "3",
       "layerFile": {
-        "name": "Elevation - DEM - ras",
+        "name": "Elevation - DEM",
         "level": "Elevation"
       },
       "source": "National, COD (HDX) or GADM",
@@ -32,7 +32,7 @@
     {
       "index": "4",
       "layerFile": {
-        "name": "Admin - Admin1 - py",
+        "name": "Admin - Admin 1",
         "level": "Admin 1"
       },
       "source": "National, COD (HDX) or GADM",
@@ -50,7 +50,7 @@
     {
       "index": "6",
       "layerFile": {
-        "name": "Admin - AffectedCountry - py",
+        "name": "Admin 0 - Affected Country",
         "level": "Admin 0",
         "detail": "Affected Area Polygon"
       },
@@ -60,7 +60,7 @@
     {
       "index": "7",
       "layerFile": {
-        "name": "Admin - SurroundingCountry - py",
+        "name": "Admin 0 - Surrounding Country",
         "level": "Admin 0",
         "detail": "Surrounding Area Polygon"
       },
@@ -70,7 +70,7 @@
     {
       "index": "8",
       "layerFile": {
-        "name": "Physical - Sea - py",
+        "name": "Physical - Sea",
         "level": "",
         "detail": "Sea"
       },
