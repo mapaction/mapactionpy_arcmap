@@ -1,0 +1,100 @@
+
+-r "C:\Users\steve\Source\Repos\mapactionpy_arcmap\poc\MapChef\Config\recipe.json" 
+-l "C:\Users\steve\Source\Repos\mapactionpy_arcmap\poc\MapChef\Config\layerProperties.json" 
+--cmf "D:\MapAction\2018-11-16-SierraCobre" 
+-t "D:\MapAction\2018-11-16-SierraCobre\GIS\3_Mapping\33_MXD_Maps\MA001_scb_country_overview_DEV.mxd"  
+--layerDirectory "D:\MapAction\2018-11-16-SierraCobre\GIS\3_Mapping\38_Initial_Maps_Layer_Files\Reference Map"
+
+* | Admin - Ad 1 Polygon | d:\mapaction\2018-11-16-sierracobre\gis\3_mapping\Data\Admin\lka_admn_ad1_py_s0_wfpocha_pp.shp | 202_admn
+Admin - Ad 2 Polygon | d:\mapaction\2018-11-16-sierracobre\gis\3_mapping\Data\Admin\lka_admn_ad2_py_s0_wfpocha_pp.shp |
+Admin - Ad 3 Polygon | d:\mapaction\2018-11-16-sierracobre\gis\3_mapping\Data\Admin\lka_admn_ad3_py_s0_wfpocha_pp.shp |
+Admin - Ad 4 Polygon | d:\mapaction\2018-11-16-sierracobre\gis\3_mapping\Data\Admin\lka_admn_ad4_py_s0_wfpocha_pp.shp |
+Admin 0 - Affected Country
+Admin 0 - Surrounding Country
+Borders - Admin 0
+Borders - Admin 1 | d:\mapaction\2018-11-16-sierracobre\gis\3_mapping\Data\Admin\lka_admn_ad1_ln_s0_wfpocha_pp 
+Borders - Admin 2
+Borders - Admin 3
+Borders - Admin 4
+Cartography - Feather
+Elevation - Coastline | d:\mapaction\2018-11-16-sierracobre\gis\3_mapping\Data\Elevation\lka_elev_cst_ln_s0_wfpocha_pp.shp | ?
+Elevation - Curvature
+Elevation - DEM
+Elevation - Hillshade
+Legend - Elevation - DEM
+Legend - Elevation
+Legend - Roads
+Legend - Water
+Physical - Rivers | d:\mapaction\2018-11-16-sierracobre\gis\3_mapping\Data\OpenStreetMap\gis.osm_waterways_free_1.shp
+Physical - Sea
+Physical - Waterbodies
+Reference Map Example.mxd
+Reference Map Legend.mxd
+Settlements - Places
+Transport - Airports
+Transport - Rail
+Transport - Roads
+Transport - Seaports
+
+d:\mapaction\2018-11-16-sierracobre\gis\3_mapping\Data\Admin\lka_admn_ad3_py_s0_wfpocha_pp.shp
+d:\mapaction\2018-11-16-sierracobre\gis\3_mapping\Data\Admin\lka_admn_ad2_py_s0_wfpocha_pp.shp
+
+D:\MapAction\2018-11-16-SierraCobre\GIS\2_Active_Data\202_admn
+
+Directory of D:\MapAction\2018-11-16-SierraCobre\GIS\2_Active_Data\202_admn
+
+scr_admn_ad1_py_gadm_bks_gadm.shp
+scb_admn_ad1_py_govn.shp
+scb_admn_ad1_py_sthlnd.shp
+scr_admn_ad1_py_gadm.shp
+
+
+07/07/2019  15:11           312,100 afr_admn_ad0_ln_gadm.shp
+07/07/2019  15:11         5,958,696 afr_admn_ad0_py_gadm.shp
+16/11/2018  11:11            77,324 scb_admn_ad1_ln_govn.shp
+16/11/2018  11:11           333,732 scb_admn_ad1_ln_sthlnd.shp
+16/11/2018  11:10           471,892 scb_admn_ad1_py_govn.shp
+16/11/2018  11:12         7,367,232 scb_admn_ad1_py_sthlnd.shp
+16/11/2018  11:11         1,242,012 scb_admn_ad2_ln_govn.shp
+16/11/2018  11:11         2,782,532 scb_admn_ad2_py_govn.shp
+16/11/2018  11:11         1,980,900 scb_admn_ad3_ln_govn.shp
+16/11/2018  12:26         4,226,716 scb_admn_ad3_py_govn.shp
+07/07/2019  15:11            20,828 scr_admn_ad1_ln_gadm.shp
+07/07/2019  15:11           104,376 scr_admn_ad1_py_gadm.shp
+07/07/2019  15:11            81,196 scr_admn_ad2_ln_gadm.shp
+07/07/2019  15:11           217,048 scr_admn_ad2_py_gadm.shp
+07/07/2019  15:11           176,028 scr_admn_ad3_ln_gadm.shp
+07/07/2019  15:11           377,284 scr_admn_ad3_py_gadm.shp
+
+
+ Directory of D:\MapAction\2018-11-16-SierraCobre\GIS\2_Active_Data\216_imgy
+
+06/10/2017  10:27        74,184,145 gbr_img_aer_ras_su_unknown_mp_tile_0.TIF
+06/10/2017  10:27        83,029,947 gbr_img_aer_ras_su_unknown_mp_tile_1.TIF
+06/10/2017  10:28        80,644,125 gbr_img_aer_ras_su_unknown_mp_tile_2.TIF
+06/10/2017  10:28        76,690,460 gbr_img_aer_ras_su_unknown_mp_tile_3.TIF
+06/10/2017  10:28        89,116,489 gbr_img_aer_ras_su_unknown_mp_tile_4.TIF
+06/10/2017  10:28        82,306,986 gbr_img_aer_ras_su_unknown_mp_tile_5.TIF
+06/10/2017  10:28        77,344,717 gbr_img_aer_ras_su_unknown_mp_tile_6.TIF
+06/10/2017  10:28        77,598,057 gbr_img_aer_ras_su_unknown_mp_tile_7.TIF
+06/10/2017  10:29        72,132,863 gbr_img_aer_ras_su_unknown_mp_tile_8.TIF
+
+,
+    {
+      "index": "11",
+      "layerFile": {
+        "name": "Admin - Ad 3 Polygon",
+        "level": "Admin 3"
+      },
+      "source": "National, COD (HDX) or GADM",
+      "include": []
+    },
+    {
+      "index": "12",
+      "layerFile": {
+        "name": "Admin - Ad 4 Polygon",
+        "level": "Admin 4"
+      },
+      "source": "National, COD (HDX) or GADM",
+      "include": []
+    }

@@ -94,11 +94,16 @@ class MapChef:
 
     def addToLayer(self, dataFrame, dataFile, layer, definitionQuery, display):
         dataDirectory = os.path.dirname(os.path.realpath(dataFile))
-        for lyr in arcpy.mapping.ListLayers(layer):                  #THIS IS THE MISSING PIECE  
+        for lyr in arcpy.mapping.ListLayers(layer):
             print (lyr.name + " " + layer.name)  
             # https://community.esri.com/thread/60097
             base=os.path.basename(dataFile)
-            lyr.replaceDataSource(dataDirectory, "SHAPEFILE_WORKSPACE", os.path.splitext(base)[0])  
+            extension = os.path.splitext(base)[1]
+
+            if (extension.upper() == ".SHP"):
+                lyr.replaceDataSource(dataDirectory, "SHAPEFILE_WORKSPACE", os.path.splitext(base)[0])  
+            if (extension.upper() == ".TIF"):
+                lyr.replaceDataSource(dataDirectory, "RASTER_WORKSPACE", os.path.splitext(base)[0])  
             if (definitionQuery):
                # https://gis.stackexchange.com/questions/90736/setting-definition-query-on-arcpy-layer-from-shapefile
                 lyr.definitionQuery = definitionQuery
@@ -111,22 +116,6 @@ class MapChef:
         arcpy.RefreshTOC()
         arcpy.RefreshActiveView()
         self.mxd.save()
-
-#    def addRasterToLayer(self, dataFrame, dataFile, layerName):
-#        print ("Adding \'" + dataFile + "\' to layer \'" + layerName + "\'")
-#        # Make a layer from the feature class
-#        # https://pro.arcgis.com/en/pro-app/arcpy/classes/result.htm
-#        result = arcpy.MakeRasterLayer_management(dataFile, layerName)
-#        msgIndex=0
-#        while (msgIndex < result.messageCount):
-#            print (result.getMessage(msgIndex))
-#            msgIndex = msgIndex+1       
-#        layer = result.getOutput(0)
-#        layer.visible = True
-#        arcpy.mapping.AddLayer(dataFrame, layer, "BOTTOM")
-#        arcpy.RefreshActiveView()
-#        arcpy.RefreshTOC()
-#        self.mxd.save()
 
     def addLayer(self, dataFrame, dataFile, layerName, definitionQuery, display):
         print ("Adding \'" + dataFile + "\' to layer \'" + layerName + "\'")

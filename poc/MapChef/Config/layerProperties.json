@@ -102,18 +102,36 @@
     {
       "MapFrame": "Main Map",
       "LayerGroup": "Admin Polygons",
-      "LayerName": "Admin - Ad 2 Polygon",
+      "LayerName": "Admin - Ad 1 Polygon",
       "SourceFolder": "202_admn",
-      "RegExp": "^[a-z]{3}_admn_ad2_py_(.*?)_(.*?)_([phm][phm]).shp$",
+      "RegExp": "^[a-z]{3}_admn_ad1_py_(.*?).shp$",
       "DefinitionQuery": "",
       "Display": "Yes"
     },
     {
       "MapFrame": "Main Map",
       "LayerGroup": "Admin Polygons",
-      "LayerName": "Admin - Ad 1 Polygon",
+      "LayerName": "Admin - Ad 2 Polygon",
       "SourceFolder": "202_admn",
-      "RegExp": "^[a-z]{3}_admn_ad1_py_(.*?)_(.*?)_([phm][phm]).shp$",
+      "RegExp": "^[a-z]{3}_admn_ad2_py_(.*?).shp$",
+      "DefinitionQuery": "",
+      "Display": "Yes"
+    },
+    {
+      "MapFrame": "Main Map",
+      "LayerGroup": "Admin Polygons",
+      "LayerName": "Admin - Ad 3 Polygon",
+      "SourceFolder": "202_admn",
+      "RegExp": "^[a-z]{3}_admn_ad3_py_(.*?).shp$",
+      "DefinitionQuery": "",
+      "Display": "Yes"
+    },
+    {
+      "MapFrame": "Main Map",
+      "LayerGroup": "Admin Polygons",
+      "LayerName": "Admin - Ad 4 Polygon",
+      "SourceFolder": "202_admn",
+      "RegExp": "^[a-z]{3}_admn_ad4_py_(.*?).shp$",
       "DefinitionQuery": "",
       "Display": "Yes"
     },
@@ -140,7 +158,16 @@
       "LayerGroup": "Elevation",
       "LayerName": "Physical - Sea",
       "SourceFolder": "220_phys",
-      "RegExp": "^[a-z]{3}_phys_ocn_py_(.*?).shp$",
+      "RegExp": "^[a-z]{3}_phys_on_py_(.*?).shp$",
+      "DefinitionQuery": "",
+      "Display": "Yes"
+    },
+    {
+      "MapFrame": "Main Map",
+      "LayerGroup": "Imagery",
+      "LayerName": "Imagery - Imagery",
+      "SourceFolder": "216_imgy",
+      "RegExp": "^[a-z]{3}_img_aer_ras_su_unknown_mp_tile_\\d*.TIF$",
       "DefinitionQuery": "",
       "Display": "Yes"
     },

@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Config\layerProperties.json" />
+    <Content Include="Config\notes.txt" />
     <Content Include="Config\recipe.json" />
     <Content Include="Images\TableOfContents.png" />
     <Content Include="README.md" />

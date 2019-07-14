@@ -4,65 +4,43 @@
     {
       "index": "1",
       "layerFile": {
-        "name": "Settlements - Places",
-        "level": "",
-        "detail": "Places"
-      },
-      "source": "OpenStreetmap",
-      "include": [ "Capital", "Admin 1 Cities" ]
+        "name": "Settlements - Places"
+      }
     },
     {
       "index": "2",
       "layerFile": {
-        "name": "Cartography - Feather",
-        "detail": "Feather"
-      },
-      "source": "MapAction",
-      "include": []
+        "name": "Cartography - Feather"
+      }
     },
     {
       "index": "3",
       "layerFile": {
-        "name": "Elevation - DEM",
-        "level": "Elevation"
-      },
-      "source": "National, COD (HDX) or GADM",
-      "include": []
+        "name": "Elevation - DEM"
+      }
     },
     {
       "index": "4",
       "layerFile": {
-        "name": "Admin - Admin 1",
-        "level": "Admin 1"
-      },
-      "source": "National, COD (HDX) or GADM",
-      "include": []
+        "name": "Admin - Ad 1 Polygon"
+      }
     },
     {
       "index": "5",
       "layerFile": {
-        "name": "Admin",
-        "level": "Admin 0"
-      },
-      "source": "National, COD (HDX) or GADM",
-      "include": []
+        "name": "Admin"
+      }
     },
     {
       "index": "6",
       "layerFile": {
-        "name": "Admin 0 - Affected Country",
-        "level": "Admin 0",
-        "detail": "Affected Area Polygon"
-      },
-      "source": "National, COD (HDX) or GADM",
-      "include": []
+        "name": "Admin 0 - Affected Country"
+      }
     },
     {
       "index": "7",
       "layerFile": {
-        "name": "Admin 0 - Surrounding Country",
-        "level": "Admin 0",
-        "detail": "Surrounding Area Polygon"
+        "name": "Admin 0 - Surrounding Country"
       },
       "source": "National, COD (HDX) or GADM",
       "include": []
@@ -70,12 +48,14 @@
     {
       "index": "8",
       "layerFile": {
-        "name": "Physical - Sea",
-        "level": "",
-        "detail": "Sea"
-      },
-      "source": "National, COD (HDX) or GADM",
-      "include": []
+        "name": "Physical - Sea"
+      }
+    },
+    {
+      "index": "9",
+      "layerFile": {
+        "name": "Imagery - Imagery"
+      }
     }
   ]
 }
