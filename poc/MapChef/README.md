@@ -24,17 +24,13 @@ The following excerpt is taken from a [recipe.json](Config/recipe.json) file:
     {
       "index": "8",
       "layerFile": {
-        "name": "Physical - Sea - py",
-        "level": "",
-        "detail": "Sea"
-      },
-      "source": "National, COD (HDX) or GADM",
-      "include": []
+        "name": "Physical - Sea"
+      }
     },
 ...
 ```
 
-At present, the only fields which are actually used are:
+#### Fields
 
 #|Field | Description|
 -|------------ | --------------------------------------------------------------|
@@ -117,6 +113,7 @@ After executing, the layers are generated and added to the MXD file, for example
 2|```--layerConfig``` | Path to the ```layerProperties.json``` file.|
 3|```--cmf``` | Path to the Crash Move Folder root. |
 4|```--template``` | Path to the ```MXD``` file.|
+5|```--layerDirectory``` | Path to the Layer File directory. |
 
 ### Example
 
@@ -125,7 +122,8 @@ C:\Python27\ArcGIS10.6\python.exe main.py \
    --recipeFile "C:\Users\steve\Source\Repos\MapChef\MapChef\Config\recipe.json" \
    --layerConfig "C:\Users\steve\Source\Repos\MapChef\MapChef\Config\layerProperties.json" \
    --cmf "D:\MapAction\2018-11-16-SierraCobre" \
-   --template "D:\MapAction\2018-11-16-SierraCobre\GIS\3_Mapping\33_MXD_Maps\MA001_scb_country_overview_DEV.mxd" 
+   --template "D:\MapAction\2018-11-16-SierraCobre\GIS\3_Mapping\33_MXD_Maps\MA001_scb_country_overview_DEV.mxd" \
+   --layerDirectory "D:\MapAction\2018-11-16-SierraCobre\GIS\3_Mapping\38_Initial_Maps_Layer_Files\Reference Map" 
 ```
 
 ### Result
@@ -135,6 +133,14 @@ This map was generated using a recipe with four layers:
 :information_source: No styling yet - :hankey:
 
 ![alt text](Images/Result.png)
+
+### File Types
+
+The current implementation supports the following geospatial file types:
+
+* Shape files       (.shp)
+* TIF files         (.TIF)
+* File Geodatabases (.gdb)
 
 ## Authors
 
