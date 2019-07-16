@@ -4,9 +4,9 @@
       "MapFrame": "Main Map",
       "LayerGroup": "None",
       "LayerName": "Settlements - Places",
-      "SourceFolder": "228_stle",
-      "RegExp": "^[a-z]{3}_stle_stl_pt_(.*?)_(.*?)_([phm][phm]).shp$",
-      "DefinitionQuery": "fclass IN ('national_capital', 'city')",
+      "SourceFolder": "229_stle",
+      "RegExp": "^[a-z]{3}_stle_stl_pt_(.*?)_(.*?)_([phm][phm])_(.*?).shp$",
+      "DefinitionQuery": "place IN ('national_capital', 'city')",
       "Display": "Yes"
     },
     {

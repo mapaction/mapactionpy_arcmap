@@ -80,7 +80,7 @@ class MapChef:
 
     def addRasterToLayer(self, dataFrame, rasterFile, layer, raster, display):
         print ("Adding \'" + rasterFile + os.sep + raster + "\' to layer \'" + layer.name + "\'")
-        for lyr in arcpy.mapping.ListLayers(layer):                  #THIS IS THE MISSING PIECE  
+        for lyr in arcpy.mapping.ListLayers(layer): 
             lyr.replaceDataSource(rasterFile, "FILEGDB_WORKSPACE", raster)
 
             if (display.upper() == "YES"):

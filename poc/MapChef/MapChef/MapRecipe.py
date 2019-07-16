@@ -5,7 +5,7 @@ class MapRecipe:
     def __init__(self, recipeJsonFile):
         self.recipeJsonFile=recipeJsonFile
         self.title = ""
-        self.layers = set();
+        self.layers = list();
 
     def parse(self):
         with open(self.recipeJsonFile) as json_file:  
@@ -13,4 +13,4 @@ class MapRecipe:
             self.title=jsonContents['title']
             for layer in jsonContents['layers']:
                 specification = MapSpec(layer['layerFile'])
-                self.layers.add(specification)
+                self.layers.append(specification)

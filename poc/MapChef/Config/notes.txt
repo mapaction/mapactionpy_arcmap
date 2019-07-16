@@ -98,3 +98,57 @@ scr_admn_ad1_py_gadm.shp
       "source": "National, COD (HDX) or GADM",
       "include": []
     }
+
+
+-r "C:\Users\steve\Source\Repos\mapactionpy_arcmap\poc\MapChef\Config\recipe.json" 
+-l "C:\Users\steve\Source\Repos\mapactionpy_arcmap\poc\MapChef\Config\layerProperties.json" 
+--cmf "D:\MapAction\2018-11-16-SierraCobre" 
+-t "D:\MapAction\2018-11-16-SierraCobre\GIS\3_Mapping\33_MXD_Maps\MA001_scb_country_overview_DEV.mxd"  
+--layerDirectory "D:\MapAction\2018-11-16-SierraCobre\GIS\3_Mapping\38_Initial_Maps_Layer_Files\Reference Map"
+
+
+Do we need to get rid of LOCK files before starting? E.g.
+Moz_envt_fld_py_s1_s1_Sentinal_20_03_2019_flood.shp.MA-LAPTOP92.9348.10364.sr.lock
+
+===========================================================================
+
+Main Map
+========
+D:\MapAction\2019-03-21-Mozambique\GIS\2_Active_Data\229_stle
+	Settlements - Places
+
+D:\MapAction\2019-03-21-Mozambique\GIS\2_Active_Data\202_admn
+    Provinces
+	Borders - Admin 0
+	Borders - Admin 1
+	Admin - Ad 1 Polygon
+	Admin 0 - Affected Country
+
+D:\MapAction\2019-03-21-Mozambique\GIS\2_Active_Data\207_carto
+	Cartography - Feather
+
+D:\MapAction\2019-03-21-Mozambique\GIS\2_Active_Data\232_tran
+	Transport - Airports
+	Transport - Seaports
+	Transport - Rail
+	Transport - Roads
+
+D:\MapAction\2019-03-21-Mozambique\GIS\2_Active_Data\211_elev
+	Elevation - Coastline
+
+D:\MapAction\2019-03-21-Mozambique\GIS\2_Active_Data\221_phys
+	Physical - Lakes
+	Physical - Rivers
+	Physical - Sea
+
+D:\MapAction\2019-03-21-Mozambique\GIS\2_Active_Data\211_elev
+	surrounding_elev_dem_ras_s0_naturalearthdata_pp.tif
+
+Location map
+============
+D:\MapAction\2019-03-21-Mozambique\GIS\2_Active_Data\202_admn
+	afr_admn_ad0_py_s0_gadm_pp
+
+
+"D:\MapAction\2019-06-25 - Automation - El Salvador\GIS\3_Mapping\32_MXD_Templates\arcgis_10_2\MapAction\01 Reference mapping\arcgis_10_2_ma000_reference_portrait_bottom_DEV.mxd"
+
