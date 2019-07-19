@@ -255,18 +255,9 @@
     {
       "MapFrame": "Location Map",
       "LayerGroup": "None",
-      "LayerName": "Location - Admin1",
+      "LayerName": "Location Map - Admin 0 Polygon",
       "SourceFolder": "202_admn",
-      "RegExp": "^[a-z]{3}_admn_ad1_ln_(.*?)_(.*?)_([phm][phm])(_(.+))",
-      "DefinitionQuery": "",
-      "Display": "Yes"
-    },
-    {
-      "MapFrame": "Location Map",
-      "LayerGroup": "None",
-      "LayerName": "Location - Affected Country",
-      "SourceFolder": "202_admn",
-      "RegExp": "^[a-z]{3}_admn_ad0_py_(.*?)_(.*?)_([phm][phm])(_(.+))",
+      "RegExp": "^[a-z]{3}_admn_ad0_py_(.*?)_(.*?)_([phm][phm]).shp$",
       "DefinitionQuery": "",
       "Display": "Yes"
     },

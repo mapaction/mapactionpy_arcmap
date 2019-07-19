@@ -96,6 +96,12 @@
       "layerFile": {
         "name": "Physical - Sea"
       }
+    },
+    {
+      "index": "17",
+      "layerFile": {
+        "name": "Location Map - Admin 0 Polygon"
+      }
     }
   ]
 }
