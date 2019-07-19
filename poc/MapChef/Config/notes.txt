@@ -152,3 +152,12 @@ D:\MapAction\2019-03-21-Mozambique\GIS\2_Active_Data\202_admn
 
 "D:\MapAction\2019-06-25 - Automation - El Salvador\GIS\3_Mapping\32_MXD_Templates\arcgis_10_2\MapAction\01 Reference mapping\arcgis_10_2_ma000_reference_portrait_bottom_DEV.mxd"
 
+
+Layer|Data Source|
+Admin 0 - Affected Country|D:\MapAction\2019-06-25 - Automation - El Salvador\GIS\2_Active_Data\202_admn\slv_admn_ad0_py_s0_unknown_pp.shp
+
+D:\MapAction\2019-06-25 - Automation - El Salvador\GIS\3_Mapping\Data\Admin\
+lka_admn_ad0_py_s0_wfpocha_pp
+
+Data Type S|
+

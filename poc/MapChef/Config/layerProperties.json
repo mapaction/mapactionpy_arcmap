@@ -12,27 +12,36 @@
     {
       "MapFrame": "Main Map",
       "LayerGroup": "Transport Points",
-      "LayerName": "Transport - Airports",
-      "SourceFolder": "232_tran",
-      "RegExp": "^[a-z]{3}_tran_air_pt_(.*?)_(.*?)_([phm][phm]).shp$",
-      "DefinitionQuery": "",
-      "Display": "Yes"
-    },
-    {
-      "MapFrame": "Main Map",
-      "LayerGroup": "Transport Points",
       "LayerName": "Transport - Seaports",
       "SourceFolder": "232_tran",
-      "RegExp": "^[a-z]{3}_trans_por_pt_(.*?)_(.*?)_([phm][phm]).shp$",
+      "RegExp": "^[a-z]{3}_tran_sea_pt_(.*?)_(.*?)_([phm][phm])_(.*?).shp$",
       "DefinitionQuery": "",
       "Display": "Yes"
     },
     {
       "MapFrame": "Main Map",
-      "LayerGroup": "Elevation - Coastline",
-      "LayerName": "Settlement - Places",
+      "LayerGroup": "Admin - lines",
+      "LayerName": "Elevation - Coastline",
       "SourceFolder": "211_elev",
       "RegExp": "^[a-z]{3}_elev_cst_ln_(.*?)_(.*?)_([phm][phm]).shp$",
+      "DefinitionQuery": "",
+      "Display": "Yes"
+    },
+    {
+      "MapFrame": "Main Map",
+      "LayerGroup": "Provinces",
+      "LayerName": "Provinces",
+      "SourceFolder": "202_admn",
+      "RegExp": "^[a-z]{3}_admn_ad1_py_(.*?)_(.*?)_([phm][phm]).shp$",
+      "DefinitionQuery": "",
+      "Display": "Yes"
+    },
+    {
+      "MapFrame": "Main Map",
+      "LayerGroup": "Admin Lines",
+      "LayerName": "Borders - Admin 0",
+      "SourceFolder": "202_admn",
+      "RegExp": "^[a-z]{3}_admn_ad0_ln_(.*?)_(.*?)_([phm][phm]).shp$",
       "DefinitionQuery": "",
       "Display": "Yes"
     },
@@ -65,6 +74,15 @@
     },
     {
       "MapFrame": "Main Map",
+      "LayerGroup": "Transport Points",
+      "LayerName": "Transport - Airports",
+      "SourceFolder": "232_tran",
+      "RegExp": "^[a-z]{3}_tran_air_pt_(.*?)_(.*?)_([phm][phm])_(.*?).shp$",
+      "DefinitionQuery": "",
+      "Display": "Yes"
+    },
+    {
+      "MapFrame": "Main Map",
       "LayerGroup": "Transport Lines",
       "LayerName": "Transport - Road",
       "SourceFolder": "232_tran",
@@ -77,16 +95,16 @@
       "LayerGroup": "None",
       "LayerName": "Cartography - Feather",
       "SourceFolder": "207_carto",
-      "RegExp": "^[a-z]{3}_carto_fea_py_(.*?)_(.*?)_pp_(.*?).shp$",
+      "RegExp": "^[a-z]{3}_carto_fea_py_(.*?)_(.*?)_pp.shp$",
       "DefinitionQuery": "",
       "Display": "Yes"
     },
     {
       "MapFrame": "Main Map",
       "LayerGroup": "Physical",
-      "LayerName": "Physical - Waterbodies",
+      "LayerName": "Physical - Lakes",
       "SourceFolder": "221_phys",
-      "RegExp": "",
+      "RegExp": "^[a-z]{3}_phys_lak_py_(.*?)_(.*?)_([phm][phm]).shp$",
       "DefinitionQuery": "",
       "Display": "Yes"
     },
@@ -96,6 +114,15 @@
       "LayerName": "Physical - Rivers",
       "SourceFolder": "221_phys",
       "RegExp": "^[a-z]{3}_phys_riv_ln_(.*?)_(.*?)_([phm][phm]).shp$",
+      "DefinitionQuery": "",
+      "Display": "Yes"
+    },
+    {
+      "MapFrame": "Main Map",
+      "LayerGroup": "Transport",
+      "LayerName": "Transport - Roads",
+      "SourceFolder": "232_tran",
+      "RegExp": "^[a-z]{3}_tran_rds_ln_(.*?)_(.*?)_([phm][phm]).shp$",
       "DefinitionQuery": "",
       "Display": "Yes"
     },
@@ -157,8 +184,8 @@
       "MapFrame": "Main Map",
       "LayerGroup": "Elevation",
       "LayerName": "Physical - Sea",
-      "SourceFolder": "220_phys",
-      "RegExp": "^[a-z]{3}_phys_on_py_(.*?).shp$",
+      "SourceFolder": "221_phys",
+      "RegExp": "^[a-z]{3}_phys_sea_py_(.*?)_(.*?)_([phm][phm]).shp$",
       "DefinitionQuery": "",
       "Display": "Yes"
     },
@@ -174,9 +201,18 @@
     {
       "MapFrame": "Main Map",
       "LayerGroup": "Elevation",
-      "LayerName": "Elevation - DEM",
+      "LayerName": "Elevation - DEM EXCLUDE",
       "SourceFolder": "211_elev",
       "RegExp": "^Rasters.gdb\/[a-z]{3}_elev_dem_ras_(.*?)$",
+      "DefinitionQuery": "",
+      "Display": "Yes"
+    },
+    {
+      "MapFrame": "Main Map",
+      "LayerGroup": "Elevation",
+      "LayerName": "Elevation - DEM",
+      "SourceFolder": "211_elev",
+      "RegExp": "^[a-z]{3}_elev_dem_ras_(.*?).tif$",
       "DefinitionQuery": "",
       "Display": "Yes"
     },
@@ -215,15 +251,6 @@
       "RegExp": "tbd",
       "DefinitionQuery": "",
       "Display": "No"
-    },
-    {
-      "MapFrame": "Main Map",
-      "LayerGroup": "None",
-      "LayerName": "Elevation - Coastline",
-      "SourceFolder": "211_elev",
-      "RegExp": "^[a-z]{3}_elev_cst_ln_(.*?)_(.*?)_([phm][phm])(_(.+))",
-      "DefinitionQuery": "",
-      "Display": "Yes"
     },
     {
       "MapFrame": "Location Map",

@@ -45,11 +45,14 @@ class MapChef:
             print ("Get data source for layer \'" + layer.name + "\'")
             properties = self.layerProperties.get(layer.name)
             if (properties is not None):             
-                layerFilePath= self.root + "/GIS/3_Mapping/38_Initial_Maps_Layer_Files/Reference Map/" +  properties.layerName + ".lyr"
+                layerFilePath = self.layerDirectory + os.path.sep + properties.layerName + ".lyr"
                 if (os.path.exists(layerFilePath)):
                     self.mxd = arcpy.mapping.MapDocument(self.mxdTemplateFile)
                     self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
                     layerToAdd = arcpy.mapping.Layer(layerFilePath)
+                    if (layerToAdd.isFeatureLayer == True):
+                        if (len(layerToAdd.definitionQuery) > 0):
+                            print (layerToAdd.definitionQuery)                        
                     arcpy.RefreshTOC()
                     arcpy.RefreshActiveView()
                     self.mxd.save()
@@ -86,7 +89,7 @@ class MapChef:
             if (display.upper() == "YES"):
                 lyr.visible = True
             else:
-                lyr.visible = False
+                lyr.visible = False 
             arcpy.mapping.AddLayer(dataFrame, lyr, "BOTTOM")            
         arcpy.RefreshActiveView()
         arcpy.RefreshTOC()
@@ -94,8 +97,8 @@ class MapChef:
 
     def addToLayer(self, dataFrame, dataFile, layer, definitionQuery, display):
         dataDirectory = os.path.dirname(os.path.realpath(dataFile))
+        print ("Layer[" + layer.name + "] - Adding \"" + dataFile + "\"")
         for lyr in arcpy.mapping.ListLayers(layer):
-            print (lyr.name + " " + layer.name)  
             # https://community.esri.com/thread/60097
             base=os.path.basename(dataFile)
             extension = os.path.splitext(base)[1]
