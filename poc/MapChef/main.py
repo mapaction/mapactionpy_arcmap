@@ -30,8 +30,7 @@ def is_valid_directory(parser, arg):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-r", "--recipeFile", dest="recipeFile", required=False, help="path to recipe json file", metavar="FILE", type=lambda x: is_valid_file(parser, x))
-    parser.add_argument("-b", "--cookbook", dest="cookbookFile", required=False, help="path to cookbook json file", metavar="FILE", type=lambda x: is_valid_file(parser, x))
+    parser.add_argument("-b", "--cookbook", dest="cookbookFile", required=True, help="path to cookbook json file", metavar="FILE", type=lambda x: is_valid_file(parser, x))
     parser.add_argument("-l", "--layerConfig", dest="layerConfig", required=True, help="path to layer config json file", metavar="FILE", type=lambda x: is_valid_file(parser, x)) 
     parser.add_argument("-t", "--template", dest="templateFile", required=True, help="path to MXD file", metavar="FILE", type=lambda x: is_valid_file(parser, x)) 
     parser.add_argument("-c", "--cmf", dest="crashMoveFolder", required=True, help="path the Crash Move Folder", metavar="FILE", type=lambda x: is_valid_directory(parser, x)) 
@@ -40,7 +39,6 @@ def main():
  
     args = parser.parse_args()
     cookbookFile=args.cookbookFile
-    recipeFile=args.recipeFile
     layerPropertiesFile=args.layerConfig    
     mxdTemplate=args.templateFile    
     crashMoveFolder=args.crashMoveFolder

@@ -1,7 +1,7 @@
 
 # MapChef
 
-Adds geospatial data to an ArcMap MXD file as separate layers based on a supplied recipe configuration file.
+Adds geospatial data to an ArcMap MXD file based on a recipe from a cookbook configuration file and a product name.
 
 ### Prerequisites
 
@@ -12,31 +12,6 @@ C:\Python27\ArcGIS10.6\python.exe
 ```
 
 ## Configuration Files
-
-
-### Recipe File
-
-The recipe file is a collection of layers.  The intention is that each Map would have it's own recipe json file.
-Layers are added in the index order from the recipe file.
-The following excerpt is taken from a [recipe.json](Config/recipe.json) file:
-```
-...
-    {
-      "index": "8",
-      "layerFile": {
-        "name": "Physical - Sea"
-      }
-    },
-...
-```
-
-#### Fields
-
-#|Field | Description|
--|------------ | --------------------------------------------------------------|
-1|```index``` | Layer index|
-2|```layerFile.Name``` | Layer Name  - Must correlate with a row from the Layer Config file|
-
 
 ### layerConfig File
 
@@ -109,28 +84,28 @@ After executing, the layers are generated and added to the MXD file, for example
 
 #|Field | Description|
 -|------------ | -------------|
-1|```--recipeFile``` | Path to the ```recipe.json``` file.|
+1|```--cookbook`` | Path to the cookbook ```mapCookbook.json``` file.|
 2|```--layerConfig``` | Path to the ```layerProperties.json``` file.|
 3|```--cmf``` | Path to the Crash Move Folder root. |
 4|```--template``` | Path to the ```MXD``` file.|
 5|```--layerDirectory``` | Path to the Layer File directory. |
+6|```--product``` | Name of product (must correlate with a product in the cookbook file). |
 
 ### Example
 
 ```
 C:\Python27\ArcGIS10.6\python.exe main.py \
-   --recipeFile "C:\Users\steve\Source\Repos\MapChef\MapChef\Config\recipe.json" \
-   --layerConfig "C:\Users\steve\Source\Repos\MapChef\MapChef\Config\layerProperties.json" \
-   --cmf "D:\MapAction\2018-11-16-SierraCobre" \
-   --template "D:\MapAction\2018-11-16-SierraCobre\GIS\3_Mapping\33_MXD_Maps\MA001_scb_country_overview_DEV.mxd" \
-   --layerDirectory "D:\MapAction\2018-11-16-SierraCobre\GIS\3_Mapping\38_Initial_Maps_Layer_Files\Reference Map" 
+   --cookbook "D:\MapAction\2019-06-25 - Automation - El Salvador\GIS\3_Mapping\31_Resources\316_Automation\mapCookbook.json" \ 
+   --layerConfig "C:\Users\steve\Source\Repos\mapactionpy_arcmap\poc\MapChef\Config\layerProperties.json" \
+   --cmf "D:\MapAction\2019-06-25 - Automation - El Salvador" \ 
+   --template "D:\MapAction\2019-06-25 - Automation - El Salvador\GIS\3_Mapping\32_MXD_Templates\arcgis_10_2\MapAction\01 Reference mapping\arcgis_10_2_ma000_reference_landscape_bottom_DEV.mxd" \
+   --layerDirectory "D:\MapAction\2019-06-25 - Automation - El Salvador\GIS\3_Mapping\38_Initial_Maps_Layer_Files\All" \
+   --product "Country Overview"
 ```
 
 ### Result
 
-This map was generated using a recipe with four layers: 
-
-:information_source: No styling yet - :hankey:
+This ```Country Overview``` map was generated:
 
 ![alt text](Images/Result.png)
 
