@@ -47,7 +47,7 @@
     <Content Include="Config\layerProperties.json" />
     <Content Include="Config\mapCookbook.json" />
     <Content Include="Config\notes.txt" />
-    <Content Include="Images\TableOfContents.png" />
+    <Content Include="Images\Result.png" />
     <Content Include="README.md" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />

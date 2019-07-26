@@ -13,6 +13,42 @@ C:\Python27\ArcGIS10.6\python.exe
 
 ## Configuration Files
 
+### Cookbook File
+
+The [mapCookbook.json](Config/mapCookbook.json) file is a static configuration file which contains "recipes" for each map product.
+
+This example cookbook only contains a single product: ```Country Overview```.
+```
+{
+  "recipes": [
+    {
+      "product": "Country Overview",
+      "layers": [
+        "Settlements - Places",
+        "Provinces",
+        "Cartography - Feather",
+        "Transport - Airports",
+        "Transport - Seaports",
+        "Elevation - Coastline",
+        "Borders - Admin 0",
+        "Borders - Admin 1",
+        "Transport - Rail",
+        "Transport - Roads",
+        "Physical - Lakes",
+        "Physical - Rivers",
+        "Admin - Ad 1 Polygon",
+        "Admin 0 - Affected Country",
+        "Elevation - DEM",
+        "Physical - Sea",
+        "Location Map - Admin 0 Polygon"
+      ]
+    }
+  ]
+}
+```
+
+The layer names in the "```layers```" array MUST correlate to layer files (```.lyr```) in the specified layer directory.
+
 ### layerConfig File
 
 The Layer Config file ([layerProperties.json](Config/layerProperties.json)) is a static file which defines how to add a particular layer.
@@ -74,9 +110,6 @@ The Layer Config file ([layerProperties.json](Config/layerProperties.json)) is a
 24||Location Map|None|Location - Admin1 - ln|202_admn|^XXX_admn_ad1_ln_(.*?)_(.*?)_([phm][phm])(_(.+))||Yes||
 25||Location Map|None|Location - AffectedCountry - py|202_admn|^XXX_admn_ad0_py_(.*?)_(.*?)_([phm][phm])(_(.+))||Yes||
 26||Location Map|None|Location - SurroundingCountry - py|202_admn|^(?!(XXX))_admn_ad0_py_(.*?)_(.*?)_([phm][phm])(_(.+))||Yes||
-
-After executing, the layers are generated and added to the MXD file, for example:
-![alt text](Images/TableOfContents.png)
 
 ## Execution
 
