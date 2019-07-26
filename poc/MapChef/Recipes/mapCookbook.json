@@ -1,0 +1,26 @@
+{
+  "recipes": [
+    {
+      "product": "Country Overview",
+      "layers": [
+        "Settlements - Places",
+        "Provinces",
+        "Cartography - Feather",
+        "Transport - Airports",
+        "Transport - Seaports",
+        "Elevation - Coastline",
+        "Borders - Admin 0",
+        "Borders - Admin 1",
+        "Transport - Rail",
+        "Transport - Roads",
+        "Physical - Lakes",
+        "Physical - Rivers",
+        "Admin - Ad 1 Polygon",
+        "Admin 0 - Affected Country",
+        "Elevation - DEM",
+        "Physical - Sea",
+        "Location Map - Admin 0 Polygon"
+      ]
+    }
+  ]
+}

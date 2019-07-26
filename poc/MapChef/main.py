@@ -30,22 +30,28 @@ def is_valid_directory(parser, arg):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-r", "--recipeFile", dest="recipeFile", required=True, help="path to recipe json file", metavar="FILE", type=lambda x: is_valid_file(parser, x))
+    parser.add_argument("-r", "--recipeFile", dest="recipeFile", required=False, help="path to recipe json file", metavar="FILE", type=lambda x: is_valid_file(parser, x))
+    parser.add_argument("-b", "--cookbook", dest="cookbookFile", required=False, help="path to cookbook json file", metavar="FILE", type=lambda x: is_valid_file(parser, x))
     parser.add_argument("-l", "--layerConfig", dest="layerConfig", required=True, help="path to layer config json file", metavar="FILE", type=lambda x: is_valid_file(parser, x)) 
     parser.add_argument("-t", "--template", dest="templateFile", required=True, help="path to MXD file", metavar="FILE", type=lambda x: is_valid_file(parser, x)) 
     parser.add_argument("-c", "--cmf", dest="crashMoveFolder", required=True, help="path the Crash Move Folder", metavar="FILE", type=lambda x: is_valid_directory(parser, x)) 
     parser.add_argument("-ld", "--layerDirectory", dest="layerDirectory", required=True, help="path to layer directory", metavar="FILE", type=lambda x: is_valid_directory(parser, x)) 
+    parser.add_argument("-p", "--product", dest="productName", required=True, help="Name of product") 
  
     args = parser.parse_args()
+    cookbookFile=args.cookbookFile
     recipeFile=args.recipeFile
     layerPropertiesFile=args.layerConfig    
     mxdTemplate=args.templateFile    
     crashMoveFolder=args.crashMoveFolder
     layerDirectory=args.layerDirectory
-    clean = True
+    productName=args.productName
+
+    mxd = arcpy.mapping.MapDocument(mxdTemplate)
+
+    chef = MapChef(mxd, cookbookFile, layerPropertiesFile, crashMoveFolder, layerDirectory)
     
-    chef = MapChef(recipeFile, layerPropertiesFile, mxdTemplate, crashMoveFolder, layerDirectory, clean)
-    chef.cook()
+    chef.cook(productName)
 
 if __name__ == '__main__':
     main()
