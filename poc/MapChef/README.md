@@ -23,6 +23,7 @@ This example cookbook only contains a single product: ```Country Overview```.
   "recipes": [
     {
       "product": "Country Overview",
+      "classification": "Core",
       "layers": [
         "Settlements - Places",
         "Provinces",
