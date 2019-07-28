@@ -35,7 +35,8 @@ class MapChef:
                 arcpy.mapping.RemoveLayer(df, lyr)
         self.mxd.save()
 
-    def cook(self, productName):
+    def cook(self, productName, countryName):
+        arcpy.env.addOutputsToMap = False
         self.removeLayers()
         for layer in self.cookbook.layers(productName):
             properties = self.layerProperties.get(layer)
@@ -55,7 +56,7 @@ class MapChef:
                                 if re.match(properties.regExp, fileName):
                                     self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
                                     dataFile = dataFilePath + "/" + fileName
-                                    self.addToLayer(self.dataFrame, dataFile, layerToAdd, properties.definitionQuery, properties.display)
+                                    self.addToLayer(self.dataFrame, dataFile, layerToAdd, properties.definitionQuery, properties.display, countryName)
                         else:
                             parts = properties.regExp.split("/")
                             for root, dirs, files in os.walk(dataFilePath):
@@ -71,6 +72,7 @@ class MapChef:
                                                self.addRasterToLayer(self.dataFrame, rasterFile, layerToAdd, raster, properties.display)    
         arcpy.RefreshTOC()
         arcpy.RefreshActiveView()
+        arcpy.env.addOutputsToMap = True
         self.mxd.save()
 
     def addRasterToLayer(self, dataFrame, rasterFile, layer, raster, display):
@@ -83,7 +85,7 @@ class MapChef:
                 lyr.visible = False 
             arcpy.mapping.AddLayer(dataFrame, lyr, "BOTTOM")            
 
-    def addToLayer(self, dataFrame, dataFile, layer, definitionQuery, display):
+    def addToLayer(self, dataFrame, dataFile, layer, definitionQuery, display, countryName):
         dataDirectory = os.path.dirname(os.path.realpath(dataFile))
         #print ("Layer[" + layer.name + "] - Adding \"" + dataFile + "\"")
         for lyr in arcpy.mapping.ListLayers(layer):
@@ -95,6 +97,7 @@ class MapChef:
             if (extension.upper() == ".TIF"):
                 lyr.replaceDataSource(dataDirectory, "RASTER_WORKSPACE", os.path.splitext(base)[0])  
             if (definitionQuery):
+                definitionQuery = definitionQuery.replace('{COUNTRY_NAME}', countryName)
                # https://gis.stackexchange.com/questions/90736/setting-definition-query-on-arcpy-layer-from-shapefile
                 lyr.definitionQuery = definitionQuery
                 arcpy.SelectLayerByAttribute_management(lyr, "SUBSET_SELECTION", definitionQuery)

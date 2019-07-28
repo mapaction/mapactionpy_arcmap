@@ -168,7 +168,7 @@
       "LayerName": "Admin 0 - Affected Country",
       "SourceFolder": "202_admn",
       "RegExp": "^[a-z]{3}_admn_ad0_py_(.*?)_(.*?)_([phm][phm]).shp$",
-      "DefinitionQuery": "",
+      "DefinitionQuery": "\"ADM0_NAME\" = '{COUNTRY_NAME}'",
       "Display": "Yes"
     },
     {
@@ -177,7 +177,7 @@
       "LayerName": "Admin 0 - Surrounding Country",
       "SourceFolder": "202_admn",
       "RegExp": "^[a-z]{3}_admn_ad0_py_(.*?)_(.*?)_([phm][phm]).shp$",
-      "DefinitionQuery": "",
+      "DefinitionQuery": "NOT \"ADM0_NAME\" = '{COUNTRY_NAME}'",
       "Display": "Yes"
     },
     {
