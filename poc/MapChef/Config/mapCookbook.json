@@ -2,6 +2,7 @@
   "recipes": [
     {
       "product": "Country Overview",
+      "classification":  "Core",
       "layers": [
         "Settlements - Places",
         "Provinces",
