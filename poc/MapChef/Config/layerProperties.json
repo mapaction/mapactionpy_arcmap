@@ -83,15 +83,6 @@
     },
     {
       "MapFrame": "Main Map",
-      "LayerGroup": "Transport Lines",
-      "LayerName": "Transport - Road",
-      "SourceFolder": "232_tran",
-      "RegExp": "^[a-z]{3}_tran_rds_ln_(.*?)_(.*?)_([phm][phm]).shp$",
-      "DefinitionQuery": "",
-      "Display": "Yes"
-    },
-    {
-      "MapFrame": "Main Map",
       "LayerGroup": "None",
       "LayerName": "Cartography - Feather",
       "SourceFolder": "207_carto",
@@ -114,15 +105,6 @@
       "LayerName": "Physical - Rivers",
       "SourceFolder": "221_phys",
       "RegExp": "^[a-z]{3}_phys_riv_ln_(.*?)_(.*?)_([phm][phm]).shp$",
-      "DefinitionQuery": "",
-      "Display": "Yes"
-    },
-    {
-      "MapFrame": "Main Map",
-      "LayerGroup": "Transport",
-      "LayerName": "Transport - Roads",
-      "SourceFolder": "232_tran",
-      "RegExp": "^[a-z]{3}_tran_rds_ln_(.*?)_(.*?)_([phm][phm]).shp$",
       "DefinitionQuery": "",
       "Display": "Yes"
     },
@@ -232,6 +214,15 @@
       "SourceFolder": "211_elev",
       "RegExp": "tbd",
       "DefinitionQuery": "",
+      "Display": "Yes"
+    },
+    {
+      "MapFrame": "Main Map",
+      "LayerGroup": "Transport Lines",
+      "LayerName": "Transport - Roads",
+      "SourceFolder": "232_tran",
+      "RegExp": "^[a-z]{3}_tran_rds_ln_(.*?)_(.*?)_([phm][phm]).shp$",
+      "DefinitionQuery": "highway = 'primary'",
       "Display": "Yes"
     },
     {
