@@ -1,27 +1,253 @@
 {
   "recipes": [
     {
-      "product": "Country Overview",
-      "classification":  "Core",
+      "product": "Reference: Administrative Boundaries & P-Codes",
+      "classification": "Core",
       "layers": [
         "Settlements - Places",
-        "Provinces",
-        "Cartography - Feather",
-        "Transport - Airports",
-        "Transport - Seaports",
-        "Elevation - Coastline",
         "Borders - Admin 0",
         "Borders - Admin 1",
-        "Transport - Rail",
+        "Borders - Admin 2",
+        "Borders - Admin 3",
+        "Borders - Admin 4",
+        "Elevation - Coastline",
+        "Physical - Sea",
+        "Admin 0 - Affected Country",
+        "Admin 0 - Surrounding Country",
+        "Admin - Ad 1 Polygon",
+        "Admin - Ad 2 Polygon",
+        "Admin - Ad 3 Polygon",
+        "Admin - Ad 4 Polygon",
+        "Cartography - Feather",
+        "Location Map - Admin 0 Polygon"
+      ]
+    },
+    {
+      "product": "Country Overview",
+      "classification": "Core",
+      "layers": [
+        "Settlements - Places",
+        "Transport - Airports",
+        "Transport - Seaports",
+        "Cartography - Feather",
+        "Borders - Admin 0",
+        "Borders - Admin 1",
         "Transport - Roads",
+        "Transport - Rail",
         "Physical - Lakes",
         "Physical - Rivers",
         "Admin - Ad 1 Polygon",
         "Admin 0 - Affected Country",
-        "Elevation - DEM",
+        "Admin 0 - Surrounding Country",
         "Physical - Sea",
+        "Elevation - DEM",
+        "Elevation - Hillshade",
         "Location Map - Admin 0 Polygon"
       ]
+    },
+    {
+      "product": "Reference: Topography & Physical Geography",
+      "classification": "Core",
+      "layers": []
+    },
+    {
+      "product": "Reference: Transport",
+      "classification": "Core",
+      "layers": []
+    },
+    {
+      "product": "Baseline Population",
+      "classification": "Core",
+      "layers": []
+    },
+    {
+      "product": "Affected Population",
+      "classification": "Core",
+      "layers": []
+    },
+    {
+      "product": "Infrastructure",
+      "classification": "Core",
+      "layers": []
+    },
+    {
+      "product": "Humanitarian Infrastructure",
+      "classification": "Core",
+      "layers": []
+    },
+    {
+      "product": "Situational Overview - Common Operational Picture",
+      "classification": "Core",
+      "layers": []
+    },
+    {
+      "product": "Who-What-Where",
+      "classification": "Core",
+      "layers": []
+    },
+    {
+      "product": "Reference Map",
+      "classification": "Core",
+      "layers": [
+        "Settlements - Places",
+        "Transport - Airports",
+        "Transport - Seaports",
+        "Cartography - Feather",
+        "Elevation - Coastline",
+        "Borders - Admin 1",
+        "Borders - Admin 2",
+        "Borders - Admin 3",
+        "Borders - Admin 4",
+        "Transport - Lines",
+        "Transport - Rail",
+        "Transport - Roads",
+        "Physical - Waterbodies",
+        "Physical - Rivers",
+        "Admin - Ad 2 Polygon",
+        "Admin - Ad 3 Polygon",
+        "Admin - Ad 4 Polygon",
+        "Admin - Ad 1 Polygon",
+        "Admin 0 - Affected Country",
+        "Admin 0 - Surrounding Country",
+        "Physical - Sea",
+        "Elevation - DEM",
+        "Elevation - Hillshade",
+        "Elevation - Curvature",
+        "Elevation - Coastline",
+        "Borders - Admin 1",
+        "Admin 0 - Affected Country",
+        "Location Map - Admin 0 Polygon"
+      ]
+    },
+    {
+      "product": "Camp Coordination and Camp Management",
+      "classification": "Vulnerability and Access Maps",
+      "layers": []
+    },
+    {
+      "product": "Education",
+      "classification": "Vulnerability and Access Maps",
+      "layers": []
+    },
+    {
+      "product": "Emergency Telecommunications and Communicating with Disaster Affected Communities",
+      "classification": "Vulnerability and Access Maps",
+      "layers": []
+    },
+    {
+      "product": "Food, Security and Nutrition",
+      "classification": "Vulnerability and Access Maps",
+      "layers": []
+    },
+    {
+      "product": "Health",
+      "classification": "Vulnerability and Access Maps",
+      "layers": []
+    },
+    {
+      "product": "Logistics",
+      "classification": "Vulnerability and Access Maps",
+      "layers": []
+    },
+    {
+      "product": "Protection and Security",
+      "classification": "Vulnerability and Access Maps",
+      "layers": []
+    },
+    {
+      "product": "Emergency Shelter",
+      "classification": "Vulnerability and Access Maps",
+      "layers": []
+    },
+    {
+      "product": "Water, Sanitation and Hygiene",
+      "classification": "Vulnerability and Access Maps",
+      "layers": []
+    },
+    {
+      "product": "Armed Conflict and Other Situations of Violence",
+      "classification": "Hazard",
+      "layers": []
+    },
+    {
+      "product": "Biological - Epidemics",
+      "classification": "Hazard",
+      "layers": []
+    },
+    {
+      "product": "Cyclones and Storms",
+      "classification": "Hazard",
+      "layers": []
+    },
+    {
+      "product": "Earthquakes - Search and Rescue",
+      "classification": "Hazard",
+      "layers": []
+    },
+    {
+      "product": "Earthquakes - Seismic Aspects",
+      "classification": "Hazard",
+      "layers": []
+    },
+    {
+      "product": "Floods",
+      "classification": "Hazard",
+      "layers": []
+    },
+    {
+      "product": "Landslides",
+      "classification": "Hazard",
+      "layers": []
+    },
+    {
+      "product": "Munitions and Explosive Remnants of War",
+      "classification": "Hazard",
+      "layers": []
+    },
+    {
+      "product": "Tsunami",
+      "classification": "Hazard",
+      "layers": []
+    },
+    {
+      "product": "Volcanoes",
+      "classification": "Hazard",
+      "layers": []
+    },
+    {
+      "product": "Cash Based Transfers",
+      "classification": "Other",
+      "layers": []
+    },
+    {
+      "product": "Environmental Assessment",
+      "classification": "Other",
+      "layers": []
+    },
+    {
+      "product": "Helicopters",
+      "classification": "Other",
+      "layers": []
+    },
+    {
+      "product": "Languages",
+      "classification": "Other",
+      "layers": []
+    },
+    {
+      "product": "Population Displacement",
+      "classification": "Other",
+      "layers": []
+    },
+    {
+      "product": "Weather - Overview",
+      "classification": "Other",
+      "layers": []
+    },
+    {
+      "product": "Weather - Winterisation",
+      "classification": "Other",
+      "layers": []
     }
   ]
 }
