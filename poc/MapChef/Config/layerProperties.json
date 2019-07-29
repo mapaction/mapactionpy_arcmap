@@ -203,7 +203,7 @@
       "LayerGroup": "Elevation",
       "LayerName": "Elevation - Hillshade",
       "SourceFolder": "211_elev",
-      "RegExp": "^XXX_elev_hsh_ras_(.*?)_(.*?)_([phm][phm])(_(.+))",
+      "RegExp": "^[a-z]{3}_elev_hsh_ras_(.*?)_(.*?)_([phm][phm])(_(.+)).tif$",
       "DefinitionQuery": "",
       "Display": "Yes"
     },
@@ -212,7 +212,7 @@
       "LayerGroup": "Elevation",
       "LayerName": "Elevation - Curvature",
       "SourceFolder": "211_elev",
-      "RegExp": "tbd",
+      "RegExp": "^[a-z]{3}_elev_cur_ras_(.*?)_(.*?)_([phm][phm])(_(.+)).tif$",
       "DefinitionQuery": "",
       "Display": "Yes"
     },
@@ -224,7 +224,16 @@
       "RegExp": "^[a-z]{3}_tran_rds_ln_(.*?)_(.*?)_([phm][phm]).shp$",
       "DefinitionQuery": "highway = 'primary'",
       "Display": "Yes"
-    },
+    },	
+    {
+      "MapFrame": "Main Map",
+      "LayerGroup": "Population",
+      "LayerName": "Population",
+      "SourceFolder": "223_popu",
+      "RegExp": "^[a-z]{3}_popu_pop_ras_(.*?)_(.*?)_([phm][phm]).tif$",
+      "DefinitionQuery": "",
+      "Display": "Yes"
+    },	
     {
       "MapFrame": "Main Map",
       "LayerGroup": "Legend",
