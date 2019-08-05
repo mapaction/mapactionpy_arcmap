@@ -77,11 +77,7 @@ The Layer Config file ([layerProperties.json](mapactionpy_arcmap/Config/layerPro
 6|```DefinitionQuery``` | Definition Query|
 7|```Display``` | Shows if set to 'Yes'|
 
-
 ##### Progress
-:warning: Not all the Regular expressions in the [layerProperties.json](mapactionpy_arcmap/Config/layerProperties.json) file "work".  These will be updated in due course.<br>
-:warning: Only shapefiles and rasters are handled in this version.
-
 
 #|Tested|MapFrame|LayerGroup|LayerName|SourceFolder|RegExp|DefinitionQuery|Display||
 -|-|--------|----------|---------|------------|------|---------------|-------|-|
@@ -105,14 +101,14 @@ The Layer Config file ([layerProperties.json](mapactionpy_arcmap/Config/layerPro
 18|:heavy_check_mark:|Main Map|Admin Polygons|Admin 0 - Surrounding Country|202_admn|^[a-z]{3}_admn_ad0_py_(.*?)_(.*?)_([phm][phm]).shp$|"NOT ""ADM0_NAME"" = '{COUNTRY_NAME}'"|Yes|
 19|:heavy_check_mark:|Main Map|Elevation|Physical - Sea|221_phys|^[a-z]{3}_phys_sea_py_(.*?)_(.*?)_([phm][phm]).shp$||Yes|
 20|:heavy_check_mark:|Main Map|Imagery|Imagery - Imagery|216_imgy|^[a-z]{3}_img_aer_ras_su_unknown_mp_tile_\d*.TIF$||Yes|
-21|:heavy_check_mark:|Main Map|Elevation|Elevation - DEM EXCLUDE|211_elev|^Rasters.gdb/[a-z]{3}_elev_dem_ras_(.*?)$||Yes|
+21||Main Map|Elevation|Elevation - DEM|211_elev|^Rasters.gdb/[a-z]{3}_elev_dem_ras_(.*?)$||Yes|
 22|:heavy_check_mark:|Main Map|Elevation|Elevation - DEM|211_elev|^[a-z]{3}_elev_dem_ras_(.*?).tif$||Yes|
 23|:heavy_check_mark:|Main Map|Elevation|Elevation - Hillshade|211_elev|^[a-z]{3}_elev_hsh_ras_(.*?)_(.*?)_([phm][phm])(_(.+)).tif$||Yes|
 24|:heavy_check_mark:|Main Map|Elevation|Elevation - Curvature|211_elev|^[a-z]{3}_elev_cur_ras_(.*?)_(.*?)_([phm][phm])(_(.+)).tif$||Yes|
 25|:heavy_check_mark:|Main Map|Transport Lines|Transport - Roads|232_tran|^[a-z]{3}_tran_rds_ln_(.*?)_(.*?)_([phm][phm]).shp$|highway = 'primary'|Yes|
 26|:heavy_check_mark:|Main Map|Population|Population|223_popu|^[a-z]{3}_popu_pop_ras_(.*?)_(.*?)_([phm][phm]).tif$||Yes|
-27|:heavy_check_mark:|Main Map|Legend|Legend - Roads|232_tran|^[a-z]{3}_tran_rds_ln_(.*?)_(.*?)_([phm][phm])(_(.+))||No|
-28|:heavy_check_mark:|Main Map|Legend|Legend - Water|221_phys|tbd||No|
+27||Main Map|Legend|Legend - Roads|232_tran|^[a-z]{3}_tran_rds_ln_(.*?)_(.*?)_([phm][phm])(_(.+))||No|
+28||Main Map|Legend|Legend - Water|221_phys|tbd||No|
 29|:heavy_check_mark:|Location Map|None|Location Map - Admin 0 Polygon|202_admn|^[a-z]{3}_admn_ad0_py_(.*?)_(.*?)_([phm][phm]).shp$||Yes|
 30|:heavy_check_mark:|Location Map|None|Location - Surrounding Country|202_admn|^[a-z]{3}_admn_ad0_py_(.*?)_(.*?)_([phm][phm])(_(.+))||Yes|
 
@@ -159,10 +155,6 @@ The current implementation supports the following geospatial file types:
 
 
 ## Packaging
-
-```python setup.py bdist_wheel```
-
-## Installation
 
 ```python setup.py bdist_wheel```
 
