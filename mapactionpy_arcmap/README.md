@@ -155,5 +155,5 @@ The current implementation supports the following geospatial file types:
 
 ## Authors
 
-* **Steve Hurst** - *Initial work* - [poc](https://github.com/mapaction/mapactionpy_arcmap/poc)
+* **Steve Hurst** - [https://github.com/mapaction/mapactionpy_arcmap](https://github.com/mapaction/mapactionpy_arcmap)
 
