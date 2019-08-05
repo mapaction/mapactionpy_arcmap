@@ -15,7 +15,7 @@ C:\Python27\ArcGIS10.6\python.exe
 
 ### Cookbook File
 
-The [mapCookbook.json](Config/mapCookbook.json) file is a static configuration file which contains "recipes" for each map product.
+The [mapCookbook.json](mapactionpy_arcmap/Config/mapCookbook.json) file is a static configuration file which contains "recipes" for each map product.
 
 This example cookbook only contains a single product: ```Country Overview```.
 ```
@@ -52,7 +52,7 @@ The layer names in the "```layers```" array MUST correlate to layer files (```.l
 
 ### layerConfig File
 
-The Layer Config file ([layerProperties.json](Config/layerProperties.json)) is a static file which defines how to add a particular layer.
+The Layer Config file ([layerProperties.json](mapactionpy_arcmap/Config/layerProperties.json)) is a static file which defines how to add a particular layer.
 
 ```
     {
@@ -79,7 +79,7 @@ The Layer Config file ([layerProperties.json](Config/layerProperties.json)) is a
 
 
 ##### Progress
-:warning: Not all the Regular expressions in the [layerProperties.json](Config/layerProperties.json) file "work".  These will be updated in due course.<br>
+:warning: Not all the Regular expressions in the [layerProperties.json](mapactionpy_arcmap/Config/layerProperties.json) file "work".  These will be updated in due course.<br>
 :warning: Only shapefiles and rasters are handled in this version.
 
 
@@ -152,6 +152,11 @@ The current implementation supports the following geospatial file types:
 * Shape files       (.shp)
 * TIF files         (.TIF)
 * File Geodatabases (.gdb)
+
+
+### Packaging
+
+```python setup.py bdist_wheel```
 
 ## Authors
 

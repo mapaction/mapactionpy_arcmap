@@ -27,20 +27,17 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="arcmap_runner.py" />
-    <Compile Include="MapChef\LayerProperties.py" />
-    <Compile Include="MapChef\LayerProperty.py" />
-    <Compile Include="MapChef\MapChef.py" />
-    <Compile Include="MapChef\MapCookbook.py" />
-    <Compile Include="MapChef\MapRecipe.py" />
-    <Compile Include="MapChef\__init__.py">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="LayerProperties.py" />
+    <Compile Include="LayerProperty.py" />
+    <Compile Include="MapChef.py" />
+    <Compile Include="MapCookbook.py" />
+    <Compile Include="MapRecipe.py" />
+    <Compile Include="__init__.py" />
   </ItemGroup>
   <ItemGroup>
     <InterpreterReference Include="Global|PythonCore|2.7-32" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="MapChef\" />
     <Folder Include="Config\" />
     <Folder Include="Images\" />
   </ItemGroup>
@@ -49,7 +46,6 @@
     <Content Include="Config\mapCookbook.json" />
     <Content Include="Config\notes.txt" />
     <Content Include="Images\Result.png" />
-    <Content Include="README.md" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
