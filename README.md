@@ -3,6 +3,23 @@
 
 Adds geospatial data to an ArcMap MXD file based on a recipe from a cookbook configuration file and a product name.
 
+## Installing
+
+To install for development purposes:
+Clone the github repo then from the root of your local clone:
+```
+python -m pip install --user -e .
+```
+
+To install for use non-development purposes:
+Clone the github repo then from the root of your local clone:
+```
+python -m pip install .
+```
+
+todo:
+[] enable installation via pypi.
+
 ### Prerequisites
 
 Python and ArcPy
