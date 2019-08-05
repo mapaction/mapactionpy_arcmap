@@ -85,32 +85,36 @@ The Layer Config file ([layerProperties.json](mapactionpy_arcmap/Config/layerPro
 
 #|Tested|MapFrame|LayerGroup|LayerName|SourceFolder|RegExp|DefinitionQuery|Display||
 -|-|--------|----------|---------|------------|------|---------------|-------|-|
-1|:heavy_check_mark:|Main Map|None|Settlement - Places - pt|228_stle|^[a-z]{3}_stle_stl_pt_(.*?)_(.*?)_([phm][phm]).shp$|fclass IN ('national_capital', 'city')|Yes||
-2||Main Map|Transport Points|Transport - Airports - pt|232_tran|^[a-z]{3}_tran_air_pt_(.*?)_(.*?)_([phm][phm]).shp$||Yes||
-3||Main Map|Transport Points|Transport - Seaports - pt|232_tran|^[a-z]{3}_trans_por_pt_(.*?)_(.*?)_([phm][phm]).shp$||Yes||
-4||Main Map|Elevation - Coastline - ln|Settlement - Places - pt|211_elev|^[a-z]{3}_elev_cst_ln_(.*?)_(.*?)_([phm][phm]).shp$||Yes||
-5||Main Map|Admin Lines|Borders - Admin1 - ln|202_admn|^[a-z]{3}_admn_ad1_ln_(.*?)_(.*?)_([phm][phm]).shp$||Yes||
-6||Location Map|Admin Lines|Borders - Admin2 - ln|202_admn|^[a-z]{3}_admn_ad2_ln_(.*?)_(.*?)_([phm][phm]).shp$||Yes||
-7||Main Map|Transport Lines|Transport - Rail - ln|232_tran|^[a-z]{3}_tran_rrd_ln_(.*?)_(.*?)_([phm][phm]).shp$||Yes||
-8||Main Map|Transport Lines|Transport - Road - ln|232_tran|^[a-z]{3}_tran_rds_ln_(.*?)_(.*?)_([phm][phm]).shp$||Yes||
-9|:heavy_check_mark:|Main Map|None|Cartography - Feather - pt|207_carto|^[a-z]{3}_carto_fea_py_(.*?)_(.*?)_pp_(.*?).shp$||Yes||
-10||Main Map|Physical|Physical - Waterbody - py|221_phys|||Yes||
-11||Main Map|Physical|Physical - River - ln|221_phys|^[a-z]{3}_phys_riv_ln_(.*?)_(.*?)_([phm][phm]).shp$||Yes||
-12||Main Map|Admin Polygons|Admin - Admin2 - py|202_admn|^[a-z]{3}_admn_ad2_py_(.*?)_(.*?)_([phm][phm]).shp$||Yes||
-13||Main Map|Admin Polygons|Admin - Admin1 - py|202_admn|^[a-z]{3}_admn_ad1_py_(.*?)_(.*?)_([phm][phm]).shp$||Yes||
-14||Main Map|Admin Polygons|Admin - AffectedCountry - py|202_admn|^[a-z]{3}_admn_ad0_py_(.*?)_(.*?)_([phm][phm]).shp$||Yes||
-15||Main Map|Admin Polygons|Admin - SurroundingCountry - py|202_admn|^(?!(XXX))_admn_ad0_py_(.*?)_(.*?)_([phm][phm])(_(.+))||Yes||
-16|:heavy_check_mark:|Main Map|Elevation|Physical - Sea - py|220_phys|^[a-z]{3}_phys_ocn_py_(.*?).shp$||Yes||
-17|:heavy_check_mark:|Main Map|Elevation|Elevation - DEM - ras|211_elev|^Rasters.gdb\/[a-z]{3}_elev_dem_ras_(.*?)$||Yes||
-18||Main Map|Elevation|Elevation - Hillshade - ras|211_elev|^Rasters.gdb\/[a-z]{3}_elev_hsh_ras_(.*?)$||Yes||
-19||Main Map|Elevation|Elevation - Curvature - ras|211_elev|^[a-z]{3}_elev_cur_ras_(.*?)_(.*?)_([phm][phm])(_(.+)).tif$||Yes||
-20||Main Map|Legend|Legend - Road - ln|232_tran|^XXX_tran_rds_ln_(.*?)_(.*?)_([phm][phm])(_(.+))||No||
-21||Main Map|Legend|Legend - WaterBody - py|221_phys|tbd||No||
-22||Main Map|Legend|Elevation - Elevation - ras|211_elev|^XXX_elev_dem_ras_(.*?)_(.*?)_([phm][phm])(_(.+))||Yes||
-23||Main Map|None|Location - Coastline - ln|211_elev|^XXX_elev_cst_ln_(.*?)_(.*?)_([phm][phm])(_(.+))||Yes||
-24||Location Map|None|Location - Admin1 - ln|202_admn|^XXX_admn_ad1_ln_(.*?)_(.*?)_([phm][phm])(_(.+))||Yes||
-25||Location Map|None|Location - AffectedCountry - py|202_admn|^XXX_admn_ad0_py_(.*?)_(.*?)_([phm][phm])(_(.+))||Yes||
-26||Location Map|None|Location - SurroundingCountry - py|202_admn|^(?!(XXX))_admn_ad0_py_(.*?)_(.*?)_([phm][phm])(_(.+))||Yes||
+1|:heavy_check_mark:|Main Map|None|Settlements - Places|229_stle|^[a-z]{3}_stle_stl_pt_(.*?)_(.*?)_([phm][phm])_(.*?).shp$|"place IN ('national_capital', 'city')"||Yes|
+2|:heavy_check_mark:|Main Map|Transport Points|Transport - Seaports|232_tran|^[a-z]{3}_tran_sea_pt_(.*?)_(.*?)_([phm][phm])_(.*?).shp$||Yes|
+3|:heavy_check_mark:|Main Map|Admin - lines|Elevation - Coastline|211_elev|^[a-z]{3}_elev_cst_ln_(.*?)_(.*?)_([phm][phm]).shp$||Yes|
+4|:heavy_check_mark:|Main Map|Provinces|Provinces|202_admn|^[a-z]{3}_admn_ad1_py_(.*?)_(.*?)_([phm][phm]).shp$||Yes|
+5|:heavy_check_mark:|Main Map|Admin Lines|Borders - Admin 0|202_admn|^[a-z]{3}_admn_ad0_ln_(.*?)_(.*?)_([phm][phm]).shp$||Yes|
+6|:heavy_check_mark:|Main Map|Admin Lines|Borders - Admin 1|202_admn|^[a-z]{3}_admn_ad1_ln_(.*?)_(.*?)_([phm][phm]).shp$||Yes|
+7|:heavy_check_mark:|Location Map|Admin Lines|Borders - Admin 2|202_admn|^[a-z]{3}_admn_ad2_ln_(.*?)_(.*?)_([phm][phm]).shp$||Yes|
+8|:heavy_check_mark:|Main Map|Transport Lines|Transport - Rail|232_tran|^[a-z]{3}_tran_rrd_ln_(.*?)_(.*?)_([phm][phm]).shp$||Yes|
+9|:heavy_check_mark:|Main Map|Transport Points|Transport - Airports|232_tran|^[a-z]{3}_tran_air_pt_(.*?)_(.*?)_([phm][phm])_(.*?).shp$||Yes|
+10|:heavy_check_mark:|Main Map|None|Cartography - Feather|207_carto|^[a-z]{3}_carto_fea_py_(.*?)_(.*?)_pp.shp$||Yes|
+11|:heavy_check_mark:|Main Map|Physical|Physical - Lakes|221_phys|^[a-z]{3}_phys_lak_py_(.*?)_(.*?)_([phm][phm]).shp$||Yes|
+12|:heavy_check_mark:|Main Map|Physical|Physical - Rivers|221_phys|^[a-z]{3}_phys_riv_ln_(.*?)_(.*?)_([phm][phm]).shp$||Yes|
+13|:heavy_check_mark:|Main Map|Admin Polygons|Admin - Ad 1 Polygon|202_admn|^[a-z]{3}_admn_ad1_py_(.*?).shp$||Yes|
+14|:heavy_check_mark:|Main Map|Admin Polygons|Admin - Ad 2 Polygon|202_admn|^[a-z]{3}_admn_ad2_py_(.*?).shp$||Yes|
+15|:heavy_check_mark:|Main Map|Admin Polygons|Admin - Ad 3 Polygon|202_admn|^[a-z]{3}_admn_ad3_py_(.*?).shp$||Yes|
+16|:heavy_check_mark:|Main Map|Admin Polygons|Admin - Ad 4 Polygon|202_admn|^[a-z]{3}_admn_ad4_py_(.*?).shp$||Yes|
+17|:heavy_check_mark:|Main Map|Admin Polygons|Admin 0 - Affected Country|202_admn|^[a-z]{3}_admn_ad0_py_(.*?)_(.*?)_([phm][phm]).shp$|"""ADM0_NAME"" = '{COUNTRY_NAME}'"|Yes|
+18|:heavy_check_mark:|Main Map|Admin Polygons|Admin 0 - Surrounding Country|202_admn|^[a-z]{3}_admn_ad0_py_(.*?)_(.*?)_([phm][phm]).shp$|"NOT ""ADM0_NAME"" = '{COUNTRY_NAME}'"|Yes|
+19|:heavy_check_mark:|Main Map|Elevation|Physical - Sea|221_phys|^[a-z]{3}_phys_sea_py_(.*?)_(.*?)_([phm][phm]).shp$||Yes|
+20|:heavy_check_mark:|Main Map|Imagery|Imagery - Imagery|216_imgy|^[a-z]{3}_img_aer_ras_su_unknown_mp_tile_\d*.TIF$||Yes|
+21|:heavy_check_mark:|Main Map|Elevation|Elevation - DEM EXCLUDE|211_elev|^Rasters.gdb/[a-z]{3}_elev_dem_ras_(.*?)$||Yes|
+22|:heavy_check_mark:|Main Map|Elevation|Elevation - DEM|211_elev|^[a-z]{3}_elev_dem_ras_(.*?).tif$||Yes|
+23|:heavy_check_mark:|Main Map|Elevation|Elevation - Hillshade|211_elev|^[a-z]{3}_elev_hsh_ras_(.*?)_(.*?)_([phm][phm])(_(.+)).tif$||Yes|
+24|:heavy_check_mark:|Main Map|Elevation|Elevation - Curvature|211_elev|^[a-z]{3}_elev_cur_ras_(.*?)_(.*?)_([phm][phm])(_(.+)).tif$||Yes|
+25|:heavy_check_mark:|Main Map|Transport Lines|Transport - Roads|232_tran|^[a-z]{3}_tran_rds_ln_(.*?)_(.*?)_([phm][phm]).shp$|highway = 'primary'|Yes|
+26|:heavy_check_mark:|Main Map|Population|Population|223_popu|^[a-z]{3}_popu_pop_ras_(.*?)_(.*?)_([phm][phm]).tif$||Yes|
+27|:heavy_check_mark:|Main Map|Legend|Legend - Roads|232_tran|^[a-z]{3}_tran_rds_ln_(.*?)_(.*?)_([phm][phm])(_(.+))||No|
+28|:heavy_check_mark:|Main Map|Legend|Legend - Water|221_phys|tbd||No|
+29|:heavy_check_mark:|Location Map|None|Location Map - Admin 0 Polygon|202_admn|^[a-z]{3}_admn_ad0_py_(.*?)_(.*?)_([phm][phm]).shp$||Yes|
+30|:heavy_check_mark:|Location Map|None|Location - Surrounding Country|202_admn|^[a-z]{3}_admn_ad0_py_(.*?)_(.*?)_([phm][phm])(_(.+))||Yes|
 
 ## Execution
 
@@ -154,7 +158,11 @@ The current implementation supports the following geospatial file types:
 * File Geodatabases (.gdb)
 
 
-### Packaging
+## Packaging
+
+```python setup.py bdist_wheel```
+
+## Installation
 
 ```python setup.py bdist_wheel```
 
