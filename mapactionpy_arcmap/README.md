@@ -103,7 +103,7 @@ The Layer Config file ([layerProperties.json](Config/layerProperties.json)) is a
 16|:heavy_check_mark:|Main Map|Elevation|Physical - Sea - py|220_phys|^[a-z]{3}_phys_ocn_py_(.*?).shp$||Yes||
 17|:heavy_check_mark:|Main Map|Elevation|Elevation - DEM - ras|211_elev|^Rasters.gdb\/[a-z]{3}_elev_dem_ras_(.*?)$||Yes||
 18||Main Map|Elevation|Elevation - Hillshade - ras|211_elev|^Rasters.gdb\/[a-z]{3}_elev_hsh_ras_(.*?)$||Yes||
-19||Main Map|Elevation|Elevation - Curvature - ras|211_elev|tbd||Yes||
+19||Main Map|Elevation|Elevation - Curvature - ras|211_elev|^[a-z]{3}_elev_cur_ras_(.*?)_(.*?)_([phm][phm])(_(.+)).tif$||Yes||
 20||Main Map|Legend|Legend - Road - ln|232_tran|^XXX_tran_rds_ln_(.*?)_(.*?)_([phm][phm])(_(.+))||No||
 21||Main Map|Legend|Legend - WaterBody - py|221_phys|tbd||No||
 22||Main Map|Legend|Elevation - Elevation - ras|211_elev|^XXX_elev_dem_ras_(.*?)_(.*?)_([phm][phm])(_(.+))||Yes||
@@ -124,6 +124,7 @@ The Layer Config file ([layerProperties.json](Config/layerProperties.json)) is a
 4|```--template``` | Path to the ```MXD``` file.|
 5|```--layerDirectory``` | Path to the Layer File directory. |
 6|```--product``` | Name of product (must correlate with a product in the cookbook file). |
+7|```--country``` | Name of country. |
 
 ### Example
 
@@ -134,7 +135,8 @@ C:\Python27\ArcGIS10.6\python.exe main.py \
    --cmf "D:\MapAction\2019-06-25 - Automation - El Salvador" \ 
    --template "D:\MapAction\2019-06-25 - Automation - El Salvador\GIS\3_Mapping\32_MXD_Templates\arcgis_10_2\MapAction\01 Reference mapping\arcgis_10_2_ma000_reference_landscape_bottom_DEV.mxd" \
    --layerDirectory "D:\MapAction\2019-06-25 - Automation - El Salvador\GIS\3_Mapping\38_Initial_Maps_Layer_Files\All" \
-   --product "Country Overview"
+   --product "Country Overview" \
+   --country "El Salvador"
 ```
 
 ### Result

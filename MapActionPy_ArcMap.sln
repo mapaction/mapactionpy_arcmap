@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.539
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "MapChef", "MapChef\MapChef.pyproj", "{E70521E9-D79B-4A3D-A851-A5D44495C63B}"
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "MapActionPy_ArcMap", "mapactionpy_arcmap\mapactionpy_arcmap.pyproj", "{E70521E9-D79B-4A3D-A851-A5D44495C63B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

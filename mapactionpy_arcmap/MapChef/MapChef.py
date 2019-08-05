@@ -45,9 +45,6 @@ class MapChef:
                 if (os.path.exists(layerFilePath)):
                     self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
                     layerToAdd = arcpy.mapping.Layer(layerFilePath)
-                    #if (layerToAdd.isFeatureLayer == True):
-                    #    if (len(layerToAdd.definitionQuery) > 0):
-                    #        print (layerToAdd.definitionQuery)                        
                     dataFilePath= self.root + "/GIS/2_Active_Data/" +  properties.sourceFolder
                     if (os.path.isdir(dataFilePath)):
                         if ("/" not in properties.regExp):
