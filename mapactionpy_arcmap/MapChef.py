@@ -6,6 +6,8 @@ from arcpy import env
 import re
 from MapRecipe import MapRecipe
 from MapCookbook import MapCookbook
+from MapReport import MapReport
+from MapResult import MapResult
 from LayerProperties import LayerProperties
 
 class MapChef:
@@ -38,14 +40,17 @@ class MapChef:
     def cook(self, productName, countryName):
         arcpy.env.addOutputsToMap = False
         self.removeLayers()
+        self.mapReport = MapReport(productName)
         for layer in self.cookbook.layers(productName):
             properties = self.layerProperties.get(layer)
+            # Add layer to the report for later
+            mapResult = MapResult(layer)
             if (properties is not None):             
                 layerFilePath = self.layerDirectory + os.path.sep + properties.layerName + ".lyr"
                 if (os.path.exists(layerFilePath)):
                     self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
                     layerToAdd = arcpy.mapping.Layer(layerFilePath)
-                    dataFilePath= self.root + "/GIS/2_Active_Data/" +  properties.sourceFolder
+                    dataFilePath= os.path.join(self.root, "GIS", "2_Active_Data", properties.sourceFolder)
                     if (os.path.isdir(dataFilePath)):
                         if ("/" not in properties.regExp):
                             onlyfiles = [f for f in listdir(dataFilePath) if isfile(join(dataFilePath, f))]
@@ -54,7 +59,10 @@ class MapChef:
                                     self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
                                     dataFile = dataFilePath + "/" + fileName
                                     self.addToLayer(self.dataFrame, dataFile, layerToAdd, properties.definitionQuery, properties.display, countryName)
+                                    mapResult.dataSource = dataFile
+                                    mapResult.added = True
                         else:
+                            # It's a File Geodatabase
                             parts = properties.regExp.split("/")
                             for root, dirs, files in os.walk(dataFilePath):
                                 for gdb in dirs:
@@ -67,13 +75,24 @@ class MapChef:
                                                rasterLayer = (rasterFile + "\\" + raster)
                                                self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
                                                self.addRasterToLayer(self.dataFrame, rasterFile, layerToAdd, raster, properties.display)    
+                                               mapResult.dataSource = rasterFile
+                                               mapResult.added = True
+                        # If a file hasn't been added, report what was expected
+                        if (mapResult.added == False):
+                            mapResult.message = "Could not find file matching " + properties.sourceFolder + "/" + properties.regExp
+                else:
+                   mapResult.added = False
+                   mapResult.message = "Layer file could not be found"
+            else:
+                mapResult.added = False
+                mapResult.message = "Layer property definition could not be found in the cookbook"
+            self.mapReport.add(mapResult)
         arcpy.RefreshTOC()
         arcpy.RefreshActiveView()
         arcpy.env.addOutputsToMap = True
         self.mxd.save()
 
     def addRasterToLayer(self, dataFrame, rasterFile, layer, raster, display):
-        #print ("Adding \'" + rasterFile + os.sep + raster + "\' to layer \'" + layer + "\'")
         for lyr in arcpy.mapping.ListLayers(layer): 
             lyr.replaceDataSource(rasterFile, "FILEGDB_WORKSPACE", raster)
             if (display.upper() == "YES"):
@@ -84,7 +103,6 @@ class MapChef:
 
     def addToLayer(self, dataFrame, dataFile, layer, definitionQuery, display, countryName):
         dataDirectory = os.path.dirname(os.path.realpath(dataFile))
-        #print ("Layer[" + layer.name + "] - Adding \"" + dataFile + "\"")
         for lyr in arcpy.mapping.ListLayers(layer):
             # https://community.esri.com/thread/60097
             base=os.path.basename(dataFile)
@@ -103,3 +121,6 @@ class MapChef:
             else:
                 lyr.visible = False
             arcpy.mapping.AddLayer(dataFrame, lyr, "BOTTOM")
+
+    def report(self):
+        return self.mapReport.dump()

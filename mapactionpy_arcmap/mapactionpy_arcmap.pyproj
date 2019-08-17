@@ -31,6 +31,8 @@
     <Compile Include="LayerProperty.py" />
     <Compile Include="MapChef.py" />
     <Compile Include="MapCookbook.py" />
+    <Compile Include="MapResult.py" />
+    <Compile Include="MapReport.py" />
     <Compile Include="MapRecipe.py" />
     <Compile Include="__init__.py" />
   </ItemGroup>

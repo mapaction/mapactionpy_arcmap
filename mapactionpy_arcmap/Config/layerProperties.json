@@ -5,8 +5,8 @@
       "LayerGroup": "None",
       "LayerName": "Settlements - Places",
       "SourceFolder": "229_stle",
-      "RegExp": "^[a-z]{3}_stle_stl_pt_(.*?)_(.*?)_([phm][phm])_(.*?).shp$",
-      "DefinitionQuery": "place IN ('national_capital', 'city')",
+      "RegExp": "^[a-z]{3}_stle_stl_pt_(.*?)_(.*?)_([phm][phm])(.*?).shp$",
+      "DefinitionQuery": "place IN ('national_capital', 'city', 'capital')",
       "Display": "Yes"
     },
     {
@@ -41,7 +41,7 @@
       "LayerGroup": "Admin Lines",
       "LayerName": "Borders - Admin 0",
       "SourceFolder": "202_admn",
-      "RegExp": "^[a-z]{3}_admn_ad0_ln_(.*?)_(.*?)_([phm][phm]).shp$",
+      "RegExp": "^[a-z]{3}_admn_ad0_ln_(.*?)_*([phm][phm]).shp$",
       "DefinitionQuery": "",
       "Display": "Yes"
     },
@@ -224,7 +224,7 @@
       "RegExp": "^[a-z]{3}_tran_rds_ln_(.*?)_(.*?)_([phm][phm]).shp$",
       "DefinitionQuery": "highway = 'primary'",
       "Display": "Yes"
-    },	
+    },
     {
       "MapFrame": "Main Map",
       "LayerGroup": "Population",
@@ -233,7 +233,7 @@
       "RegExp": "^[a-z]{3}_popu_pop_ras_(.*?)_(.*?)_([phm][phm]).tif$",
       "DefinitionQuery": "",
       "Display": "Yes"
-    },	
+    },
     {
       "MapFrame": "Main Map",
       "LayerGroup": "Legend",

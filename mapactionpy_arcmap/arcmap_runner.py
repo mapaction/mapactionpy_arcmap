@@ -20,6 +20,7 @@ import argparse
 import os
 from os.path import isfile, join
 from MapChef import MapChef
+from MapReport import MapReport
 
 def is_valid_file(parser, arg):
     if not os.path.exists(arg):
@@ -49,7 +50,7 @@ def main(args):
 
     chef = MapChef(mxd, cookbookFile, layerPropertiesFile, crashMoveFolder, layerDirectory)    
     chef.cook(productName, countryName)
-
+    reportJson = chef.report()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
