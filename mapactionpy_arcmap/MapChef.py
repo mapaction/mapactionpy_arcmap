@@ -31,19 +31,25 @@ class MapChef:
         layerProperties.parse()
         return layerProperties
 
-    def removeLayers(self):
+    def disableLayers(self):
         for df in arcpy.mapping.ListDataFrames(self.mxd):
             for lyr in arcpy.mapping.ListLayers(self.mxd, "", df):
                 lyr.visible = False
 
+    def enableLayers(self):
+        for df in arcpy.mapping.ListDataFrames(self.mxd):
+            for lyr in arcpy.mapping.ListLayers(self.mxd, "", df):
+                lyr.visible = True
+
+    def removeLayers(self):
         for df in arcpy.mapping.ListDataFrames(self.mxd):
             for lyr in arcpy.mapping.ListLayers(self.mxd, "", df):
                 arcpy.mapping.RemoveLayer(df, lyr)
-
         self.mxd.save()
 
     def cook(self, productName, countryName):
         arcpy.env.addOutputsToMap = False
+        self.disableLayers()
         self.removeLayers()
         self.mapReport = MapReport(productName)
         for layer in self.cookbook.layers(productName):
@@ -95,9 +101,7 @@ class MapChef:
 
 
         # Make all layers visible
-        for df in arcpy.mapping.ListDataFrames(self.mxd):
-            for lyr in arcpy.mapping.ListLayers(self.mxd, "", df):
-                lyr.visible = True
+        self.enableLayers()
 
         arcpy.RefreshTOC()
         arcpy.RefreshActiveView()
