@@ -34,7 +34,12 @@ class MapChef:
     def removeLayers(self):
         for df in arcpy.mapping.ListDataFrames(self.mxd):
             for lyr in arcpy.mapping.ListLayers(self.mxd, "", df):
+                lyr.visible = False
+
+        for df in arcpy.mapping.ListDataFrames(self.mxd):
+            for lyr in arcpy.mapping.ListLayers(self.mxd, "", df):
                 arcpy.mapping.RemoveLayer(df, lyr)
+
         self.mxd.save()
 
     def cook(self, productName, countryName):
@@ -46,7 +51,7 @@ class MapChef:
             # Add layer to the report for later
             mapResult = MapResult(layer)
             if (properties is not None):             
-                layerFilePath = self.layerDirectory + os.path.sep + properties.layerName + ".lyr"
+                layerFilePath = os.path.join(self.layerDirectory, (properties.layerName + ".lyr"))
                 if (os.path.exists(layerFilePath)):
                     self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
                     layerToAdd = arcpy.mapping.Layer(layerFilePath)
@@ -87,6 +92,13 @@ class MapChef:
                 mapResult.added = False
                 mapResult.message = "Layer property definition could not be found in the cookbook"
             self.mapReport.add(mapResult)
+
+
+        # Make all layers visible
+        for df in arcpy.mapping.ListDataFrames(self.mxd):
+            for lyr in arcpy.mapping.ListLayers(self.mxd, "", df):
+                lyr.visible = True
+
         arcpy.RefreshTOC()
         arcpy.RefreshActiveView()
         arcpy.env.addOutputsToMap = True
@@ -95,10 +107,7 @@ class MapChef:
     def addRasterToLayer(self, dataFrame, rasterFile, layer, raster, display):
         for lyr in arcpy.mapping.ListLayers(layer): 
             lyr.replaceDataSource(rasterFile, "FILEGDB_WORKSPACE", raster)
-            if (display.upper() == "YES"):
-                lyr.visible = True
-            else:
-                lyr.visible = False 
+            lyr.visible = False 
             arcpy.mapping.AddLayer(dataFrame, lyr, "BOTTOM")            
 
     def addToLayer(self, dataFrame, dataFile, layer, definitionQuery, display, countryName):
@@ -116,10 +125,7 @@ class MapChef:
                # https://gis.stackexchange.com/questions/90736/setting-definition-query-on-arcpy-layer-from-shapefile
                 lyr.definitionQuery = definitionQuery
                 arcpy.SelectLayerByAttribute_management(lyr, "SUBSET_SELECTION", definitionQuery)
-            if (display.upper() == "YES"):
-                lyr.visible = True
-            else:
-                lyr.visible = False
+            lyr.visible = False
             arcpy.mapping.AddLayer(dataFrame, lyr, "BOTTOM")
 
     def report(self):
