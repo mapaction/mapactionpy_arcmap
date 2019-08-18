@@ -57,7 +57,7 @@ class MapChef:
                             for fileName in onlyfiles:
                                 if re.match(properties.regExp, fileName):
                                     self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
-                                    dataFile = dataFilePath + "/" + fileName
+                                    dataFile = os.path.join(dataFilePath, fileName)
                                     self.addToLayer(self.dataFrame, dataFile, layerToAdd, properties.definitionQuery, properties.display, countryName)
                                     mapResult.dataSource = dataFile
                                     mapResult.added = True
