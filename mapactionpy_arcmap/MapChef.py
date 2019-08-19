@@ -69,9 +69,13 @@ class MapChef:
                                 if re.match(properties.regExp, fileName):
                                     self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
                                     dataFile = os.path.join(dataFilePath, fileName)
-                                    self.addToLayer(self.dataFrame, dataFile, layerToAdd, properties.definitionQuery, properties.display, countryName)
+                                    mapResult.added = self.addToLayer(self.dataFrame, dataFile, layerToAdd, properties.definitionQuery, properties.display, countryName)
                                     mapResult.dataSource = dataFile
-                                    mapResult.added = True
+                                    if (mapResult.added == True):
+                                        mapResult.message = "Layer added successfully"
+                                    else:
+                                        mapResult.message = "Unexpected schema.  Could not evaluate expression: " + properties.definitionQuery
+                                    break
                         else:
                             # It's a File Geodatabase
                             parts = properties.regExp.split("/")
@@ -88,8 +92,8 @@ class MapChef:
                                                self.addRasterToLayer(self.dataFrame, rasterFile, layerToAdd, raster, properties.display)    
                                                mapResult.dataSource = rasterFile
                                                mapResult.added = True
-                        # If a file hasn't been added, report what was expected
-                        if (mapResult.added == False):
+                        # If a file hasn't been added, and no other reason given, report what was expected
+                        if ((mapResult.added == False) and (len(mapResult.message) == 0)):
                             mapResult.message = "Could not find file matching " + properties.sourceFolder + "/" + properties.regExp
                 else:
                    mapResult.added = False
@@ -115,6 +119,7 @@ class MapChef:
             arcpy.mapping.AddLayer(dataFrame, lyr, "BOTTOM")            
 
     def addToLayer(self, dataFrame, dataFile, layer, definitionQuery, display, countryName):
+        added = True
         dataDirectory = os.path.dirname(os.path.realpath(dataFile))
         for lyr in arcpy.mapping.ListLayers(layer):
             # https://community.esri.com/thread/60097
@@ -128,9 +133,14 @@ class MapChef:
                 definitionQuery = definitionQuery.replace('{COUNTRY_NAME}', countryName)
                # https://gis.stackexchange.com/questions/90736/setting-definition-query-on-arcpy-layer-from-shapefile
                 lyr.definitionQuery = definitionQuery
-                arcpy.SelectLayerByAttribute_management(lyr, "SUBSET_SELECTION", definitionQuery)
+                try:
+                    arcpy.SelectLayerByAttribute_management(lyr, "SUBSET_SELECTION", definitionQuery)
+                except Exception as e:
+                    added = False
             lyr.visible = False
-            arcpy.mapping.AddLayer(dataFrame, lyr, "BOTTOM")
+            if (added):
+                arcpy.mapping.AddLayer(dataFrame, lyr, "BOTTOM")
+        return added
 
     def report(self):
         return self.mapReport.dump()
