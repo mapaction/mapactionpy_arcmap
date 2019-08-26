@@ -3,23 +3,6 @@
 
 Adds geospatial data to an ArcMap MXD file based on a recipe from a cookbook configuration file and a product name.
 
-## Installing
-
-To install for development purposes:
-Clone the github repo then from the root of your local clone:
-```
-python -m pip install --user -e .
-```
-
-To install for use non-development purposes:
-Clone the github repo then from the root of your local clone:
-```
-python -m pip install .
-```
-
-todo:
-[] enable installation via pypi.
-
 ### Prerequisites
 
 Python and ArcPy
@@ -174,6 +157,37 @@ The current implementation supports the following geospatial file types:
 ## Packaging
 
 ```python setup.py bdist_wheel```
+
+## Installing
+
+To install for development purposes:
+Clone the github repo then from the root of your local clone:
+```
+python -m pip install --user -e .
+```
+
+To install for use non-development purposes:
+Clone the github repo then from the root of your local clone:
+```
+python -m pip install .
+```
+
+todo:
+[] enable installation via pypi.
+
+## Integration with MapAction Toolbar
+
+In order to integrate this `MapActionPy_ArcMap` module with the MapAction Toolbar, the following steps need to be carried out:
+
+:information_source: The "Automation" add-in is in development in the `automation` branch at: https://github.com/mapaction/mapaction-toolbox/tree/automation):
+
+1) A copy of all layer `.lyr` files from the directories under `\GIS\3_Mapping\38_Initial_Maps_Layer_Files\*` were copied to a folder named `All` under the crash move folder at the following location:
+`\GIS\3_Mapping\38_Initial_Maps_Layer_Files\All`
+2) Layer properties file [layerProperties.json](mapactionpy_arcmap/Config/layerProperties.json) copied to new directory under the crash move folder at the following location:
+`\GIS\3_Mapping\31_Resources\316_Automation`
+3) Map cookbook file [mapCookbook.json](mapactionpy_arcmap/Config/mapCookbook.json) copied to directory under the crash move folder at the following location:
+`\GIS\3_Mapping\31_Resources\316_Automation`
+
 
 ## Authors
 
