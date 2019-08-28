@@ -89,7 +89,6 @@ class MapChef:
                                         rasters = arcpy.ListRasters("*")
                                         for raster in rasters:
                                             if re.match(parts[1], raster):
-                                                rasterLayer = (rasterFile + "\\" + raster)
                                                 self.dataFrame = arcpy.mapping.ListDataFrames(
                                                     self.mxd, properties.mapFrame)[0]
                                                 self.addRasterToLayer(self.dataFrame, rasterFile,
