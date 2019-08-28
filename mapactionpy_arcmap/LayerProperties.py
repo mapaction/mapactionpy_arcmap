@@ -1,5 +1,4 @@
 import json
-import os
 from LayerProperty import LayerProperty
 
 
@@ -13,7 +12,7 @@ class LayerProperties:
             jsonContents = json.load(json_file)
             for layer in jsonContents['layerProperties']:
                 property = LayerProperty(layer)
-                #print (property.layerName)
+                # print (property.layerName)
                 self.properties.add(property)
 
     def get(self, layerName):

@@ -17,7 +17,7 @@ class MapReport:
             if (reportIter > 0):
                 resultJson = resultJson + ","
             resultJson = resultJson + report.toJSON()
-            if (report.added == False):
+            if not report.added:
                 failCount = failCount + 1
             reportIter = reportIter + 1
 

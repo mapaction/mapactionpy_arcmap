@@ -1,26 +1,22 @@
-'''
-
-Usage:
-        C:\Python27\ArcGIS10.6\python.exe 
-            --recipeFile "C:\Users\steve\Source\Repos\MapChef\MapChef\Config\recipe.json" 
-            --layerConfig "C:\Users\steve\Source\Repos\MapChef\MapChef\Config\layerProperties.json" 
-            --cmf "D:\MapAction\2018-11-16-SierraCobre" 
-            --template "D:\MapAction\2018-11-16-SierraCobre\GIS\3_Mapping\33_MXD_Maps\MA001_scb_country_overview_DEV.mxd" 
-            --layerDirectory "D:\MapAction\2018-11-16-SierraCobre\GIS\3_Mapping\38_Initial_Maps_Layer_Files\Admin Map"
-
--b "D:\MapAction\2019-06-25 - Automation - El Salvador\GIS\3_Mapping\31_Resources\316_Automation\mapCookbook.json" 
--l "C:\Users\steve\Source\Repos\mapactionpy_arcmap\poc\MapChef\Config\layerProperties.json" 
---cmf "D:\MapAction\2019-06-25 - Automation - El Salvador" -t "D:\MapAction\2019-06-25 - Automation - El Salvador\GIS\3_Mapping\32_MXD_Templates\arcgis_10_2\MapAction\01 Reference mapping\arcgis_10_2_ma000_reference_landscape_bottom_DEV.mxd"  
---layerDirectory "D:\MapAction\2019-06-25 - Automation - El Salvador\GIS\3_Mapping\38_Initial_Maps_Layer_Files\All" 
--p "Country Overview" --country "El Salvador"
-
-'''
+# """
+# Usage:
+# C:\Python27\ArcGIS10.6\python.exe
+# --recipeFile "C:\Users\steve\Source\Repos\MapChef\MapChef\Config\recipe.json"
+# --layerConfig "C:\Users\steve\Source\Repos\MapChef\MapChef\Config\layerProperties.json"
+# --cmf "D:\MapAction\2018-11-16-SierraCobre"
+# --template "D:\MapAction\2018-11-16-SierraCobre\GIS\3_Mapping\33_MXD_Maps\MA001_scb_country_overview_DEV.mxd"
+# --layerDirectory "D:\MapAction\2018-11-16-SierraCobre\GIS\3_Mapping\38_Initial_Maps_Layer_Files\Admin Map"
+# --cmf "D:\MapAction\2019-06-25 - Automation - El Salvador"
+# --t "D:\MapAction\2019-06-25 - Automation - El Salvador\GIS\3_Mapping\32_MXD_Templates\arcgis_10_2\
+# MapAction\01 Reference mapping\arcgis_10_2_ma000_reference_landscape_bottom_DEV.mxd"
+# --layerDirectory "D:\MapAction\2019-06-25 - Automation - El Salvador\GIS\3_Mapping\38_Initial_Maps_Layer_Files\All"
+# -p "Country Overview" --country "El Salvador"
+# """
 
 import argparse
 import os
-from os.path import isfile, join
 from MapChef import MapChef
-from MapReport import MapReport
+import arcpy
 
 
 def is_valid_file(parser, arg):
@@ -54,6 +50,7 @@ def main(args):
     chef = MapChef(mxd, cookbookFile, layerPropertiesFile, crashMoveFolder, layerDirectory)
     chef.cook(productName, countryName)
     reportJson = chef.report()
+    print(reportJson)
 
 
 if __name__ == '__main__':

@@ -2,9 +2,7 @@ import os
 from os import listdir
 from os.path import isfile, join
 import arcpy
-from arcpy import env
 import re
-from MapRecipe import MapRecipe
 from MapCookbook import MapCookbook
 from MapReport import MapReport
 from MapResult import MapResult
@@ -71,12 +69,14 @@ class MapChef:
                                     self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
                                     dataFile = os.path.join(dataFilePath, fileName)
                                     mapResult.added = self.addToLayer(
-                                        self.dataFrame, dataFile, layerToAdd, properties.definitionQuery, properties.display, countryName)
+                                        self.dataFrame, dataFile, layerToAdd, properties.definitionQuery,
+                                        properties.display, countryName)
                                     mapResult.dataSource = dataFile
-                                    if (mapResult.added == True):
+                                    if mapResult.added:
                                         mapResult.message = "Layer added successfully"
                                     else:
-                                        mapResult.message = "Unexpected schema.  Could not evaluate expression: " + properties.definitionQuery
+                                        mapResult.message = ("Unexpected schema.  Could not evaluate expression: "
+                                                             + properties.definitionQuery)
                                     break
                         else:
                             # It's a File Geodatabase
@@ -97,8 +97,9 @@ class MapChef:
                                                 mapResult.dataSource = rasterFile
                                                 mapResult.added = True
                         # If a file hasn't been added, and no other reason given, report what was expected
-                        if ((mapResult.added == False) and (len(mapResult.message) == 0)):
-                            mapResult.message = "Could not find file matching " + properties.sourceFolder + "/" + properties.regExp
+                        if ((mapResult.added is False) and (len(mapResult.message) == 0)):
+                            mapResult.message = ("Could not find file matching "
+                                                 + properties.sourceFolder + "/" + properties.regExp)
                 else:
                     mapResult.added = False
                     mapResult.message = "Layer file could not be found"
@@ -134,11 +135,11 @@ class MapChef:
                 lyr.replaceDataSource(dataDirectory, "RASTER_WORKSPACE", os.path.splitext(base)[0])
             if (definitionQuery):
                 definitionQuery = definitionQuery.replace('{COUNTRY_NAME}', countryName)
-               # https://gis.stackexchange.com/questions/90736/setting-definition-query-on-arcpy-layer-from-shapefile
+                # https://gis.stackexchange.com/questions/90736/setting-definition-query-on-arcpy-layer-from-shapefile
                 lyr.definitionQuery = definitionQuery
                 try:
                     arcpy.SelectLayerByAttribute_management(lyr, "SUBSET_SELECTION", definitionQuery)
-                except Exception as e:
+                except Exception:
                     added = False
             lyr.visible = False
             if (added):

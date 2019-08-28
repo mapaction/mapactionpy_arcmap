@@ -1,7 +1,5 @@
 from unittest import TestCase
 
-import mapactionpy_arcmap
-
 
 class TestArcMapRunner(TestCase):
     def test_alway_fail(self):
