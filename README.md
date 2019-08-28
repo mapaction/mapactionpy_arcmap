@@ -1,6 +1,8 @@
 
 # MapChef
 
+Master branch [![Build Status](https://travis-ci.org/mapaction/mapactionpy_arcmap.svg?branch=master)](https://travis-ci.org/mapaction/mapactionpy_arcmap) [![Coverage Status](https://coveralls.io/repos/github/mapaction/mapactionpy_arcmap/badge.svg?branch=pep8-and-travis)](https://coveralls.io/github/mapaction/mapactionpy_arcmap?branch=master)
+
 Adds geospatial data to an ArcMap MXD file based on a recipe from a cookbook configuration file and a product name.
 
 ### Prerequisites
