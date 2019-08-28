@@ -22,12 +22,14 @@ from os.path import isfile, join
 from MapChef import MapChef
 from MapReport import MapReport
 
+
 def is_valid_file(parser, arg):
     if not os.path.exists(arg):
         parser.error("The file %s does not exist!" % arg)
         return False
     else:
         return arg
+
 
 def is_valid_directory(parser, arg):
     if os.path.isdir(arg):
@@ -36,21 +38,23 @@ def is_valid_directory(parser, arg):
         parser.error("The directory %s does not exist!" % arg)
         return False
 
+
 def main(args):
     args = parser.parse_args()
-    cookbookFile=args.cookbookFile
-    layerPropertiesFile=args.layerConfig    
-    mxdTemplate=args.templateFile    
-    crashMoveFolder=args.crashMoveFolder
-    layerDirectory=args.layerDirectory
-    productName=args.productName
-    countryName=args.countryName
+    cookbookFile = args.cookbookFile
+    layerPropertiesFile = args.layerConfig
+    mxdTemplate = args.templateFile
+    crashMoveFolder = args.crashMoveFolder
+    layerDirectory = args.layerDirectory
+    productName = args.productName
+    countryName = args.countryName
 
     mxd = arcpy.mapping.MapDocument(mxdTemplate)
 
-    chef = MapChef(mxd, cookbookFile, layerPropertiesFile, crashMoveFolder, layerDirectory)    
+    chef = MapChef(mxd, cookbookFile, layerPropertiesFile, crashMoveFolder, layerDirectory)
     chef.cook(productName, countryName)
     reportJson = chef.report()
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
@@ -58,12 +62,17 @@ if __name__ == '__main__':
         'relevant datasets along with other information required to create an'
         'event specific instance of a map.',
     )
-    parser.add_argument("-b", "--cookbook", dest="cookbookFile", required=True, help="path to cookbook json file", metavar="FILE", type=lambda x: is_valid_file(parser, x))
-    parser.add_argument("-l", "--layerConfig", dest="layerConfig", required=True, help="path to layer config json file", metavar="FILE", type=lambda x: is_valid_file(parser, x)) 
-    parser.add_argument("-t", "--template", dest="templateFile", required=True, help="path to MXD file", metavar="FILE", type=lambda x: is_valid_file(parser, x)) 
-    parser.add_argument("-cmf", "--cmf", dest="crashMoveFolder", required=True, help="path the Crash Move Folder", metavar="FILE", type=lambda x: is_valid_directory(parser, x)) 
-    parser.add_argument("-ld", "--layerDirectory", dest="layerDirectory", required=True, help="path to layer directory", metavar="FILE", type=lambda x: is_valid_directory(parser, x)) 
-    parser.add_argument("-p", "--product", dest="productName", required=True, help="Name of product") 
-    parser.add_argument("-c", "--country", dest="countryName", required=True, help="Name of country") 
+    parser.add_argument("-b", "--cookbook", dest="cookbookFile", required=True,
+                        help="path to cookbook json file", metavar="FILE", type=lambda x: is_valid_file(parser, x))
+    parser.add_argument("-l", "--layerConfig", dest="layerConfig", required=True,
+                        help="path to layer config json file", metavar="FILE", type=lambda x: is_valid_file(parser, x))
+    parser.add_argument("-t", "--template", dest="templateFile", required=True,
+                        help="path to MXD file", metavar="FILE", type=lambda x: is_valid_file(parser, x))
+    parser.add_argument("-cmf", "--cmf", dest="crashMoveFolder", required=True,
+                        help="path the Crash Move Folder", metavar="FILE", type=lambda x: is_valid_directory(parser, x))
+    parser.add_argument("-ld", "--layerDirectory", dest="layerDirectory", required=True,
+                        help="path to layer directory", metavar="FILE", type=lambda x: is_valid_directory(parser, x))
+    parser.add_argument("-p", "--product", dest="productName", required=True, help="Name of product")
+    parser.add_argument("-c", "--country", dest="countryName", required=True, help="Name of country")
     args = parser.parse_args()
     main(args)

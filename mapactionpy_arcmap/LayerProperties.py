@@ -1,14 +1,15 @@
-import json 
+import json
 import os
 from LayerProperty import LayerProperty
 
+
 class LayerProperties:
     def __init__(self, layerPropertiesJsonFile):
-        self.layerPropertiesJsonFile=layerPropertiesJsonFile
-        self.properties = set();
+        self.layerPropertiesJsonFile = layerPropertiesJsonFile
+        self.properties = set()
 
     def parse(self):
-        with open(self.layerPropertiesJsonFile) as json_file:  
+        with open(self.layerPropertiesJsonFile) as json_file:
             jsonContents = json.load(json_file)
             for layer in jsonContents['layerProperties']:
                 property = LayerProperty(layer)

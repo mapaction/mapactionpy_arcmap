@@ -10,6 +10,7 @@ from MapReport import MapReport
 from MapResult import MapResult
 from LayerProperties import LayerProperties
 
+
 class MapChef:
     def __init__(self, mxd, cookbookJsonFile, layerPropertiesJsonFile, crashMoveFolder, layerDirectory):
         self.mxd = mxd
@@ -27,7 +28,7 @@ class MapChef:
         return cookbook
 
     def readLayerPropertiesFile(self):
-        layerProperties = LayerProperties(self.layerPropertiesJsonFile) 
+        layerProperties = LayerProperties(self.layerPropertiesJsonFile)
         layerProperties.parse()
         return layerProperties
 
@@ -56,12 +57,12 @@ class MapChef:
             properties = self.layerProperties.get(layer)
             # Add layer to the report for later
             mapResult = MapResult(layer)
-            if (properties is not None):             
+            if (properties is not None):
                 layerFilePath = os.path.join(self.layerDirectory, (properties.layerName + ".lyr"))
                 if (os.path.exists(layerFilePath)):
                     self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
                     layerToAdd = arcpy.mapping.Layer(layerFilePath)
-                    dataFilePath= os.path.join(self.root, "GIS", "2_Active_Data", properties.sourceFolder)
+                    dataFilePath = os.path.join(self.root, "GIS", "2_Active_Data", properties.sourceFolder)
                     if (os.path.isdir(dataFilePath)):
                         if ("/" not in properties.regExp):
                             onlyfiles = [f for f in listdir(dataFilePath) if isfile(join(dataFilePath, f))]
@@ -69,7 +70,8 @@ class MapChef:
                                 if re.match(properties.regExp, fileName):
                                     self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
                                     dataFile = os.path.join(dataFilePath, fileName)
-                                    mapResult.added = self.addToLayer(self.dataFrame, dataFile, layerToAdd, properties.definitionQuery, properties.display, countryName)
+                                    mapResult.added = self.addToLayer(
+                                        self.dataFrame, dataFile, layerToAdd, properties.definitionQuery, properties.display, countryName)
                                     mapResult.dataSource = dataFile
                                     if (mapResult.added == True):
                                         mapResult.message = "Layer added successfully"
@@ -86,23 +88,24 @@ class MapChef:
                                         arcpy.env.workspace = rasterFile
                                         rasters = arcpy.ListRasters("*")
                                         for raster in rasters:
-                                           if re.match(parts[1], raster):
-                                               rasterLayer = (rasterFile + "\\" + raster)
-                                               self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
-                                               self.addRasterToLayer(self.dataFrame, rasterFile, layerToAdd, raster, properties.display)    
-                                               mapResult.dataSource = rasterFile
-                                               mapResult.added = True
+                                            if re.match(parts[1], raster):
+                                                rasterLayer = (rasterFile + "\\" + raster)
+                                                self.dataFrame = arcpy.mapping.ListDataFrames(
+                                                    self.mxd, properties.mapFrame)[0]
+                                                self.addRasterToLayer(self.dataFrame, rasterFile,
+                                                                      layerToAdd, raster, properties.display)
+                                                mapResult.dataSource = rasterFile
+                                                mapResult.added = True
                         # If a file hasn't been added, and no other reason given, report what was expected
                         if ((mapResult.added == False) and (len(mapResult.message) == 0)):
                             mapResult.message = "Could not find file matching " + properties.sourceFolder + "/" + properties.regExp
                 else:
-                   mapResult.added = False
-                   mapResult.message = "Layer file could not be found"
+                    mapResult.added = False
+                    mapResult.message = "Layer file could not be found"
             else:
                 mapResult.added = False
                 mapResult.message = "Layer property definition could not be found in the cookbook"
             self.mapReport.add(mapResult)
-
 
         # Make all layers visible
         self.enableLayers()
@@ -113,22 +116,22 @@ class MapChef:
         self.mxd.save()
 
     def addRasterToLayer(self, dataFrame, rasterFile, layer, raster, display):
-        for lyr in arcpy.mapping.ListLayers(layer): 
+        for lyr in arcpy.mapping.ListLayers(layer):
             lyr.replaceDataSource(rasterFile, "FILEGDB_WORKSPACE", raster)
-            lyr.visible = False 
-            arcpy.mapping.AddLayer(dataFrame, lyr, "BOTTOM")            
+            lyr.visible = False
+            arcpy.mapping.AddLayer(dataFrame, lyr, "BOTTOM")
 
     def addToLayer(self, dataFrame, dataFile, layer, definitionQuery, display, countryName):
         added = True
         dataDirectory = os.path.dirname(os.path.realpath(dataFile))
         for lyr in arcpy.mapping.ListLayers(layer):
             # https://community.esri.com/thread/60097
-            base=os.path.basename(dataFile)
+            base = os.path.basename(dataFile)
             extension = os.path.splitext(base)[1]
             if (extension.upper() == ".SHP"):
-                lyr.replaceDataSource(dataDirectory, "SHAPEFILE_WORKSPACE", os.path.splitext(base)[0])  
+                lyr.replaceDataSource(dataDirectory, "SHAPEFILE_WORKSPACE", os.path.splitext(base)[0])
             if ((extension.upper() == ".TIF") or (extension.upper() == ".IMG")):
-                lyr.replaceDataSource(dataDirectory, "RASTER_WORKSPACE", os.path.splitext(base)[0])  
+                lyr.replaceDataSource(dataDirectory, "RASTER_WORKSPACE", os.path.splitext(base)[0])
             if (definitionQuery):
                 definitionQuery = definitionQuery.replace('{COUNTRY_NAME}', countryName)
                # https://gis.stackexchange.com/questions/90736/setting-definition-query-on-arcpy-layer-from-shapefile

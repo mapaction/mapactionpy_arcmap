@@ -1,13 +1,14 @@
 from MapRecipe import MapRecipe
-import json 
+import json
+
 
 class MapCookbook:
     def __init__(self, cookbookJsonFile):
-        self.cookbookJsonFile=cookbookJsonFile
+        self.cookbookJsonFile = cookbookJsonFile
         self.products = list()
 
     def parse(self):
-        with open(self.cookbookJsonFile) as json_file:  
+        with open(self.cookbookJsonFile) as json_file:
             jsonContents = json.load(json_file)
             for recipe in jsonContents['recipes']:
                 rec = MapRecipe(recipe['product'], recipe['layers'])

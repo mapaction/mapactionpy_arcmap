@@ -1,6 +1,7 @@
 import json
 from datetime import datetime
 
+
 class MapResult:
     def __init__(self, layerName):
         self.layerName = layerName
@@ -16,7 +17,7 @@ class MapResult:
             "layerName": self.layerName,
             "dataSource": self.dataSource,
             "dateStamp": self.timeStamp,
-            "added" : self.added,
+            "added": self.added,
             "message": self.message
         }
         return (json.dumps(result))
