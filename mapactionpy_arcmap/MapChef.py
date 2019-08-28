@@ -127,7 +127,7 @@ class MapChef:
             extension = os.path.splitext(base)[1]
             if (extension.upper() == ".SHP"):
                 lyr.replaceDataSource(dataDirectory, "SHAPEFILE_WORKSPACE", os.path.splitext(base)[0])  
-            if (extension.upper() == ".TIF"):
+            if ((extension.upper() == ".TIF") or (extension.upper() == ".IMG")):
                 lyr.replaceDataSource(dataDirectory, "RASTER_WORKSPACE", os.path.splitext(base)[0])  
             if (definitionQuery):
                 definitionQuery = definitionQuery.replace('{COUNTRY_NAME}', countryName)
