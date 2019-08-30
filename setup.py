@@ -33,8 +33,8 @@ setup(name='mapactionpy_arcmap',
       tests_require=['unittest'],
       zip_safe=False,
       classifiers=[
-        "Development Status :: 2 - Pre-Alpha",
-        "Programming Language :: Python :: 2.7",
-        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
-        "Operating System :: Microsoft :: Windows",
+          "Development Status :: 2 - Pre-Alpha",
+          "Programming Language :: Python :: 2.7",
+          "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+          "Operating System :: Microsoft :: Windows",
       ])
