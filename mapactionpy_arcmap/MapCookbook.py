@@ -21,3 +21,6 @@ class MapCookbook:
                 result = product.layers
                 break
         return result
+
+    def get_products(self):
+        return self.products
