@@ -21,20 +21,10 @@ def is_valid_directory(parser, arg):
         return False
 
 
-def check_undefined_lyrs_in_cookbook(cb, lyrs):
-    pass
-
-
-def check_unused_lyrs_in_lyr_properties(cb, lyrs):
-    pass
-
-
-def check_lyrs_in_config_missing_lyrfile(lyr_props, lyr_dir):
-    pass
-
-
-def check_lyrfiles_in_dir_not_in_lyr_props(lyr_props, lyr_dir):
-    pass
+# def check_undefined_lyrs_in_cookbook(cb, lyrs):
+# def check_unused_lyrs_in_lyr_properties(cb, lyrs):
+# def check_lyrs_in_config_missing_lyrfile(lyr_props, lyr_dir):
+# def check_lyrfiles_in_dir_not_in_lyr_props(lyr_props, lyr_dir):
 
 
 def get_unique_lyr_names(cookbook, lyr_props, lyr_dir):
@@ -74,7 +64,7 @@ def main(args):
         in_lyr_props = l in lp_unique_lyrs
         in_lyr_dir = l in files_unique
 
-        if in_lyr_props:
+        if in_cookbook:
             print("\t".join(map(str, (in_cookbook, in_lyr_props, in_lyr_dir, l))))
 
 

@@ -94,11 +94,14 @@ class MapChef:
                                                 self.addRasterToLayer(self.dataFrame, rasterFile,
                                                                       layerToAdd, raster, properties.display)
                                                 mapResult.dataSource = rasterFile
-                                                mapResult.added = True
                         # If a file hasn't been added, and no other reason given, report what was expected
+                                                mapResult.added = True
                         if ((mapResult.added is False) and (len(mapResult.message) == 0)):
                             mapResult.message = ("Could not find file matching "
                                                  + properties.sourceFolder + "/" + properties.regExp)
+                    else:
+                        mapResult.added = False
+                        mapResult.message = "Could not find directory: " + dataFilePath
                 else:
                     mapResult.added = False
                     mapResult.message = "Layer file could not be found"
