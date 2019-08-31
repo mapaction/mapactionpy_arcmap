@@ -2,7 +2,8 @@ from MapCookbook import MapCookbook
 from LayerProperties import LayerProperties
 import os
 import argparse
-import collections
+# import collections
+
 
 def is_valid_file(parser, arg):
     if not os.path.exists(arg):
@@ -21,12 +22,11 @@ def is_valid_directory(parser, arg):
 
 
 def check_undefined_lyrs_in_cookbook(cb, lyrs):
-    print("layers only in cookbook")
-    print("\n".join(cb_unique_lyrs.difference(lp_unique_lyrs)))
+    pass
+
 
 def check_unused_lyrs_in_lyr_properties(cb, lyrs):
-    print("layers only in layerpros")
-    print("\n".join(lp_unique_lyrs.difference(cb_unique_lyrs)))
+    pass
 
 
 def check_lyrs_in_config_missing_lyrfile(lyr_props, lyr_dir):
@@ -35,6 +35,7 @@ def check_lyrs_in_config_missing_lyrfile(lyr_props, lyr_dir):
 
 def check_lyrfiles_in_dir_not_in_lyr_props(lyr_props, lyr_dir):
     pass
+
 
 def get_unique_lyr_names(cookbook, lyr_props, lyr_dir):
     cb_unique_lyrs = set()
@@ -67,7 +68,7 @@ def main(args):
     all = cb_unique_lyrs.union(lp_unique_lyrs).union(files_unique)
 
     print('in_cookbook?,\t in_layerpros?,\t in_lyr_dir?,\t layername')
-    
+
     for l in all:
         in_cookbook = l in cb_unique_lyrs
         in_lyr_props = l in lp_unique_lyrs
@@ -75,7 +76,6 @@ def main(args):
 
         if in_lyr_props:
             print("\t".join(map(str, (in_cookbook, in_lyr_props, in_lyr_dir, l))))
-
 
 
 if __name__ == "__main__":
@@ -93,7 +93,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     main(args)
 
-#this_dir = os.path.abspath(os.path.dirname(__file__))
-#example_cookbook_path = os.path.join(this_dir, 'Config', 'mapCookbook.json')
-#example_lyr_props__path = os.path.join(
+# this_dir = os.path.abspath(os.path.dirname(__file__))
+# example_cookbook_path = os.path.join(this_dir, 'Config', 'mapCookbook.json')
+# example_lyr_props__path = os.path.join(
 #    this_dir, 'Config', 'layerProperties.json')
