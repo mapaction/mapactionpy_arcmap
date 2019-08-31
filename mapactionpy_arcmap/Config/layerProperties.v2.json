@@ -120,7 +120,7 @@
     {
       "MapFrame": "Main Map",
       "LayerGroup": "Admin Polygons",
-      "LayerName": "mainmap-s0-py-admin2.ly",
+      "LayerName": "mainmap-s0-py-admin2",
       "SourceFolder": "202_admn",
       "RegExp": "^[a-z]{3}_admn_ad2_py_(.*?).shp$",
       "DefinitionQuery": "",

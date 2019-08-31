@@ -17,7 +17,7 @@ find_and_replace = [
     ('Transport - Rail', 'mainmap-s0-ln-rail'),
     ('Physical - Sea', 'mainmap-s0-py-sea'),
     ('Admin - Ad 1 Polygon', 'mainmap-s0-py-admin1'),
-    ('Admin - Ad 2 Polygon', 'mainmap-s0-py-admin2.ly'),
+    ('Admin - Ad 2 Polygon', 'mainmap-s0-py-admin2'),
     ('Elevation - Coastline', 'mainmap-s1-ln-coastline'),
     ('Transport - Roads', 'mainmap-s0-ln-roads'),
     ('Elevation - Curvature', 'mainmap-s0-ras-curvature'),
