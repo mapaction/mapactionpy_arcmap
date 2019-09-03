@@ -47,10 +47,6 @@ find_and_replace = [
 ]
 
 
-
-
-
-
 def update_file(infilepath, outfilepath):
     with open(infilepath, 'r') as infile:
         s = infile.read()
