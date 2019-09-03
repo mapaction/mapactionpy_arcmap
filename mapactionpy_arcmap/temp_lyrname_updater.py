@@ -38,8 +38,17 @@ find_and_replace = [
     ('Elevation - DEM EXCLUDE', 'mainmap-s0-ras-dem'),
     ('Borders - Admin 4', 'mainmap-s3-py-admin4'),
     ('Physical - Waterbodies', 'mainmap-s0-py-waterbodies'),
-    ('Borders - Admin 3', 'mainmap-s2-ln-admin3')
+    ('Borders - Admin 3', 'mainmap-s2-ln-admin3'),
+    ('229_stle', '228_stle'),
+    ('229_stle', '228_stle'),
+    ('232_tran', '230_tran'),
+    ('221_phys', '220_phys'),
+    ('223_popu', '222_popu')
 ]
+
+
+
+
 
 
 def update_file(infilepath, outfilepath):

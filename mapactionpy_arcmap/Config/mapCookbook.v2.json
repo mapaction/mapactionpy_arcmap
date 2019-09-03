@@ -5,7 +5,7 @@
       "classification": "Core",
       "layers": [
         "mainmap-s0-pt-settlements",
-        "Borders - Admin 0",
+        "mainmap-s0-ln-admin0",
         "mainmap-s1-ln-admin1",
         "mainmap-s1-ln-admin2",
         "mainmap-s2-ln-admin3",
@@ -30,7 +30,7 @@
         "mainmap-s0-pt-airports",
         "mainmap-s0-pt-seaports",
         "mainmap-s0-py-feather",
-        "Borders - Admin 0",
+        "mainmap-s0-ln-admin0",
         "mainmap-s1-ln-admin1",
         "mainmap-s0-ln-roads",
         "mainmap-s0-ln-rail",
