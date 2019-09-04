@@ -1,3 +1,4 @@
+from .LabelClass import LabelClass
 from .LayerProperty import LayerProperty
 from .LayerProperties import LayerProperties
 from .MapRecipe import MapRecipe

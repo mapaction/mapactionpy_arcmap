@@ -1,3 +1,5 @@
+from LabelClass import LabelClass
+
 class LayerProperty:
     def __init__(self, row):
        self.mapFrame = row["MapFrame"]
@@ -7,3 +9,6 @@ class LayerProperty:
        self.regExp = row["RegExp"]
        self.definitionQuery = row["DefinitionQuery"]
        self.display = row["Display"]
+       self.labelClasses = list()
+       for labelClass in row["LabelClasses"]:
+           self.labelClasses.append(LabelClass(labelClass))
