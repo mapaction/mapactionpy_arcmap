@@ -69,7 +69,7 @@ class MapChef:
                                 if re.match(properties.regExp, fileName):
                                     self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
                                     dataFile = os.path.join(dataFilePath, fileName)
-                                    mapResult.added = self.addToLayer(self.dataFrame, dataFile, layerToAdd, properties.definitionQuery, properties.display, countryName)
+                                    mapResult.added = self.addToLayer(self.dataFrame, dataFile, layerToAdd, properties.definitionQuery, properties.display, properties.labelClasses, countryName)
                                     mapResult.dataSource = dataFile
                                     if (mapResult.added == True):
                                         mapResult.message = "Layer added successfully"
@@ -87,7 +87,6 @@ class MapChef:
                                         rasters = arcpy.ListRasters("*")
                                         for raster in rasters:
                                            if re.match(parts[1], raster):
-                                               rasterLayer = (rasterFile + "\\" + raster)
                                                self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
                                                self.addRasterToLayer(self.dataFrame, rasterFile, layerToAdd, raster, properties.display)    
                                                mapResult.dataSource = rasterFile
@@ -118,13 +117,19 @@ class MapChef:
             lyr.visible = False 
             arcpy.mapping.AddLayer(dataFrame, lyr, "BOTTOM")            
 
-    def addToLayer(self, dataFrame, dataFile, layer, definitionQuery, display, countryName):
+    def addToLayer(self, dataFrame, dataFile, layer, definitionQuery, display, labelClasses, countryName):
         added = True
         dataDirectory = os.path.dirname(os.path.realpath(dataFile))
         for lyr in arcpy.mapping.ListLayers(layer):
             # https://community.esri.com/thread/60097
             base=os.path.basename(dataFile)
             extension = os.path.splitext(base)[1]
+            if lyr.supports("LABELCLASSES"):
+                for labelClass in labelClasses:
+                    for lblClass in lyr.labelClasses:
+                        if (lblClass.className == labelClass.className):
+                            lblClass.SQLQuery = labelClass.SQLQuery
+                            lblClass.expression = labelClass.expression
             if (extension.upper() == ".SHP"):
                 lyr.replaceDataSource(dataDirectory, "SHAPEFILE_WORKSPACE", os.path.splitext(base)[0])  
             if ((extension.upper() == ".TIF") or (extension.upper() == ".IMG")):
@@ -136,7 +141,7 @@ class MapChef:
                 try:
                     arcpy.SelectLayerByAttribute_management(lyr, "SUBSET_SELECTION", definitionQuery)
                 except Exception as e:
-                    added = False
+                    added = False            
             lyr.visible = False
             if (added):
                 arcpy.mapping.AddLayer(dataFrame, lyr, "BOTTOM")

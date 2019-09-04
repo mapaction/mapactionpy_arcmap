@@ -164,6 +164,25 @@ Data Type S|
 
 C:\Users\steve\AppData\Roaming\Python\Python27\site-packages\mapactionpy-arcmap.egg-link
 
--b "D:\MapAction\2019-06-25 - Automation - El Salvador\GIS\3_Mapping\31_Resources\316_Automation\mapCookbook.json" -l "C:\Users\steve\Source\Repos\mapactionpy_arcmap\mapactionpy_arcmap\Config\layerProperties.json" --cmf "D:\MapAction\2019-06-25 - Automation - El Salvador" -t "D:\MapAction\2019-06-25 - Automation - El Salvador\GIS\3_Mapping\32_MXD_Templates\arcgis_10_2\MapAction\01 Reference mapping\arcgis_10_2_ma000_reference_landscape_bottom_DEV.mxd"  --layerDirectory "D:\MapAction\2019-06-25 - Automation - El Salvador\GIS\3_Mapping\38_Initial_Maps_Layer_Files\All" -p "Country Overview" --country "El Salvador"
--b "D:\MapAction\2019-07-17 - Automation - Mali\GIS\3_Mapping\31_Resources\316_Automation\mapCookbook.json" -l "C:\Users\steve\Source\Repos\mapactionpy_arcmap\mapactionpy_arcmap\Config\layerProperties.json" --cmf "D:\MapAction\2019-07-17 - Automation - Mali" -t "D:\MapAction\2019-07-17 - Automation - Mali\GIS\3_Mapping\32_MXD_Templates\arcgis_10_2\MapAction\01 Reference mapping\arcgis_10_2_ma000_reference_landscape_bottom_DEV.mxd"  --layerDirectory "D:\MapAction\2019-07-17 - Automation - Mali\GIS\3_Mapping\38_Initial_Maps_Layer_Files\All" -p "Country Overview" --country "Mali"
+-b "D:\MapAction\2019-06-25 - Automation - El Salvador\GIS\3_Mapping\31_Resources\316_Automation\mapCookbook.json" -l "C:\Users\steve\Source\Repos\mapactionpy_arcmap\mapactionpy_arcmap\Config\layerProperties.json" --cmf "D:\MapAction\2019-06-25 - Automation - El Salvador" -t "D:\MapAction\2019-06-25 - Automation - El Salvador\GIS\3_Mapping\32_MXD_Templates\arcgis_10_2\MapAction\01 Reference mapping\arcgis_10_2_ma000_reference_landscape_bottom_DEV.mxd"  --layerDirectory "D:\MapAction\2019-06-25 - Automation - El Salvador\GIS\3_Mapping\38_Initial_Maps_Layer_Files\All" -p "Country Overview" --country "SV"
+-b "D:\MapAction\2019-07-17 - Automation - Mali\GIS\3_Mapping\31_Resources\316_Automation\mapCookbook.json" -l "C:\Users\steve\Source\Repos\mapactionpy_arcmap\mapactionpy_arcmap\Config\layerProperties.json" --cmf "D:\MapAction\2019-07-17 - Automation - Mali" -t "D:\MapAction\2019-07-17 - Automation - Mali\GIS\3_Mapping\32_MXD_Templates\arcgis_10_2\MapAction\01 Reference mapping\arcgis_10_2_ma000_reference_landscape_bottom_DEV.mxd"  --layerDirectory "D:\MapAction\2019-07-17 - Automation - Mali\GIS\3_Mapping\38_Initial_Maps_Layer_Files\All" -p "Country Overview" --country "ML"
+
+
+ERROR 000358: Invalid expression
+Failed to execute (SelectLayerByAttribute).
+
+layerToAdd = Admin 0 - Surrounding Country
+dataFile = D:\MapAction\2019-07-17 - Automation - Mali\GIS\2_Active_Data\202_admn\mli_admn_ad0_py_s0_unknown_pp.shp
+ERROR 000358: Invalid expression
+Failed to execute (SelectLayerByAttribute).
+
+layerToAdd = Location Map - Admin 0 Polygon
+dataFile = D:\MapAction\2019-07-17 - Automation - Mali\GIS\2_Active_Data\202_admn\mli_admn_ad0_py_s0_unknown_pp.shp
+Press any key to continue . . 
+
+
+
+-b "C:\Users\steve\Source\Repos\mapactionpy_arcmap\mapactionpy_arcmap\Config\mapCookbook.json"  -l "C:\Users\steve\Source\Repos\mapactionpy_arcmap\mapactionpy_arcmap\Config\layerProperties.json" --cmf "D:\MapAction\2019-07-17-Automation-SriLanka" -t "D:\MapAction\2019-07-17-Automation-SriLanka\GIS\3_Mapping\32_MXD_Templates\arcgis_10_2\MapAction\01 Reference mapping\arcgis_10_2_ma000_reference_landscape_bottom_DEV.mxd"  --layerDirectory "D:\MapAction\2019-07-17-Automation-SriLanka\GIS\3_Mapping\38_Initial_Maps_Layer_Files\20190830_lyrs" -p "Country Overview" --country "Sri Lanka"
+
+C:\Python27\ArcGIS10.6\python.exe C:\Users\steve\Source\Repos\mapactionpy_arcmap\mapactionpy_arcmap\arcmap_runner.py -b "D:\MapAction\2018-11-16-SierraCobre\GIS\3_Mapping\31_Resources\316_Automation\mapCookbook.json"  -l "C:\Users\steve\Source\Repos\mapactionpy_arcmap\mapactionpy_arcmap\Config\layerProperties.json" --cmf "D:\MapAction\2018-11-16-SierraCobre" -t "D:\MapAction\2018-11-16-SierraCobre\GIS\3_Mapping\32_MXD_Templates\arcgis_10_2\MapAction\01 Reference mapping\arcgis_10_2_ma000_reference_landscape_bottom.mxd"  --layerDirectory "D:\MapAction\2018-11-16-SierraCobre\GIS\3_Mapping\38_Initial_Maps_Layer_Files\All" -p "Country Overview" --country "Sierra Cobre"
 
