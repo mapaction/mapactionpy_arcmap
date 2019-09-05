@@ -70,7 +70,7 @@ class MapChef:
                                     dataFile = os.path.join(dataFilePath, fileName)
                                     mapResult.added = self.addToLayer(
                                         self.dataFrame, dataFile, layerToAdd, properties.definitionQuery,
-                                        properties.display, countryName)
+                                        properties.display, properties.labelClasses, countryName)
                                     mapResult.dataSource = dataFile
                                     if mapResult.added:
                                         mapResult.message = "Layer added successfully"
@@ -88,14 +88,13 @@ class MapChef:
                                         arcpy.env.workspace = rasterFile
                                         rasters = arcpy.ListRasters("*")
                                         for raster in rasters:
-                                            if re.match(parts[1], raster):
-                                                self.dataFrame = arcpy.mapping.ListDataFrames(
-                                                    self.mxd, properties.mapFrame)[0]
-                                                self.addRasterToLayer(self.dataFrame, rasterFile,
-                                                                      layerToAdd, raster, properties.display)
-                                                mapResult.dataSource = rasterFile
+                                           if re.match(parts[1], raster):
+                                               self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
+                                               self.addRasterToLayer(self.dataFrame, rasterFile, layerToAdd, raster, properties.display)    
+                                               mapResult.dataSource = rasterFile
+                                               mapResult.added = True
                         # If a file hasn't been added, and no other reason given, report what was expected
-                                                mapResult.added = True
+
                         if ((mapResult.added is False) and (len(mapResult.message) == 0)):
                             mapResult.message = ("Could not find file matching "
                                                  + properties.sourceFolder + "/" + properties.regExp)
@@ -124,13 +123,19 @@ class MapChef:
             lyr.visible = False
             arcpy.mapping.AddLayer(dataFrame, lyr, "BOTTOM")
 
-    def addToLayer(self, dataFrame, dataFile, layer, definitionQuery, display, countryName):
+    def addToLayer(self, dataFrame, dataFile, layer, definitionQuery, display, labelClasses, countryName):
         added = True
         dataDirectory = os.path.dirname(os.path.realpath(dataFile))
         for lyr in arcpy.mapping.ListLayers(layer):
             # https://community.esri.com/thread/60097
             base = os.path.basename(dataFile)
             extension = os.path.splitext(base)[1]
+            if lyr.supports("LABELCLASSES"):
+                for labelClass in labelClasses:
+                    for lblClass in lyr.labelClasses:
+                        if (lblClass.className == labelClass.className):
+                            lblClass.SQLQuery = labelClass.SQLQuery
+                            lblClass.expression = labelClass.expression
             if (extension.upper() == ".SHP"):
                 lyr.replaceDataSource(dataDirectory, "SHAPEFILE_WORKSPACE", os.path.splitext(base)[0])
             if ((extension.upper() == ".TIF") or (extension.upper() == ".IMG")):
@@ -141,8 +146,8 @@ class MapChef:
                 lyr.definitionQuery = definitionQuery
                 try:
                     arcpy.SelectLayerByAttribute_management(lyr, "SUBSET_SELECTION", definitionQuery)
-                except Exception:
-                    added = False
+                except Exception as e:
+                    added = False            
             lyr.visible = False
             if (added):
                 arcpy.mapping.AddLayer(dataFrame, lyr, "BOTTOM")
