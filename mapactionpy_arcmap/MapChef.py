@@ -88,11 +88,13 @@ class MapChef:
                                         arcpy.env.workspace = rasterFile
                                         rasters = arcpy.ListRasters("*")
                                         for raster in rasters:
-                                           if re.match(parts[1], raster):
-                                               self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
-                                               self.addRasterToLayer(self.dataFrame, rasterFile, layerToAdd, raster, properties.display)    
-                                               mapResult.dataSource = rasterFile
-                                               mapResult.added = True
+                                            if re.match(parts[1], raster):
+                                                self.dataFrame = arcpy.mapping.ListDataFrames(
+                                                    self.mxd, properties.mapFrame)[0]
+                                                self.addRasterToLayer(self.dataFrame, rasterFile,
+                                                                      layerToAdd, raster, properties.display)
+                                                mapResult.dataSource = rasterFile
+                                                mapResult.added = True
                         # If a file hasn't been added, and no other reason given, report what was expected
 
                         if ((mapResult.added is False) and (len(mapResult.message) == 0)):
@@ -146,8 +148,9 @@ class MapChef:
                 lyr.definitionQuery = definitionQuery
                 try:
                     arcpy.SelectLayerByAttribute_management(lyr, "SUBSET_SELECTION", definitionQuery)
-                except Exception as e:
-                    added = False            
+                except Exception:
+                    added = False
+
             lyr.visible = False
             if (added):
                 arcpy.mapping.AddLayer(dataFrame, lyr, "BOTTOM")
