@@ -47,7 +47,7 @@ class MapChef:
         self.mxd.save()
 
     # APS 06/09/2019 The `cook()` method is much too long and has too many nested `if`s and `for`s. Please split this
-    # into the several separate private methods for handling the different scenarios, data types, error conditions 
+    # into the several separate private methods for handling the different scenarios, data types, error conditions
     # etc. This refactoring would benefit from adding some unittests surrounding it.
     def cook(self, productName, countryName):
         arcpy.env.addOutputsToMap = False
@@ -82,9 +82,9 @@ class MapChef:
                                     if mapResult.added:
                                         mapResult.message = "Layer added successfully"
                                     else:
-                                        # APS 06/09/2019 Are you sure that this error can only be reached due to a 
-                                        # schema error? Would an error message along the lines of 
-                                        # "Error adding {layerName}. Possibly due to schema error or other cause" 
+                                        # APS 06/09/2019 Are you sure that this error can only be reached due to a
+                                        # schema error? Would an error message along the lines of
+                                        # "Error adding {layerName}. Possibly due to schema error or other cause"
                                         # be appropriate? See github comment
                                         mapResult.message = ("Unexpected schema.  Could not evaluate expression: "
                                                              + properties.definitionQuery)
