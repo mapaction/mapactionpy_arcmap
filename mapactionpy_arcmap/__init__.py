@@ -1,5 +1,5 @@
 from .LabelClass import LabelClass
-from .LayerProperty import LayerProperty
+from .MapLayer import MapLayer
 from .LayerProperties import LayerProperties
 from .MapRecipe import MapRecipe
 from .MapChef import MapChef

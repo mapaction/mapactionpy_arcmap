@@ -9,6 +9,16 @@ from MapResult import MapResult
 from LayerProperties import LayerProperties
 
 class MapChef:
+    """
+    Worker which creates a Map based on a predefined "recipe" from a cookbook 
+
+    Arguments:
+       mxd {MXD file} -- MXD file.
+       cookbookJsonFile {str} -- Path to Map Cookbook json file
+       layerPropertiesJsonFile {str} -- Path to Layer Properties json file
+       crashMoveFolder {str} -- Path to Crash Move Folder
+       layerDirectory {str} -- Path to directory containing all the ESRI layer (.lyr) files referenced in the Map Cookbook 
+    """
     def __init__(self, mxd, cookbookJsonFile, layerPropertiesJsonFile, crashMoveFolder, layerDirectory):
         self.mxd = mxd
         self.cookbookJsonFile = cookbookJsonFile
@@ -19,26 +29,44 @@ class MapChef:
         self.root = crashMoveFolder
         self.layerProperties = self.readLayerPropertiesFile()
 
+    """
+    Reads the mapCookbook.json file 
+
+    Returns:
+        MapCookbook -- Map Cookbook object
+    """
     def readCookbook(self):
         cookbook = MapCookbook(self.cookbookJsonFile)
         cookbook.parse()
         return cookbook
 
+    """
+    Reads all the layer properties from the layerProperties.json file 
+    """
     def readLayerPropertiesFile(self):
         layerProperties = LayerProperties(self.layerPropertiesJsonFile) 
         layerProperties.parse()
         return layerProperties
 
+    """
+    Makes all layers invisible for all data-frames 
+    """
     def disableLayers(self):
         for df in arcpy.mapping.ListDataFrames(self.mxd):
             for lyr in arcpy.mapping.ListLayers(self.mxd, "", df):
                 lyr.visible = False
 
+    """
+    Makes all layers visible for all data-frames 
+    """
     def enableLayers(self):
         for df in arcpy.mapping.ListDataFrames(self.mxd):
             for lyr in arcpy.mapping.ListLayers(self.mxd, "", df):
                 lyr.visible = True
 
+    """
+    Removes all layers for all data-frames 
+    """
     def removeLayers(self):
         for df in arcpy.mapping.ListDataFrames(self.mxd):
             for lyr in arcpy.mapping.ListLayers(self.mxd, "", df):
@@ -74,7 +102,7 @@ class MapChef:
                                 if re.match(properties.regExp, fileName):
                                     self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
                                     dataFile = os.path.join(dataFilePath, fileName)
-                                    mapResult.added = self.addToLayer(self.dataFrame, dataFile, layerToAdd, properties.definitionQuery, properties.display, properties.labelClasses, countryName)
+                                    mapResult.added = self.addDataToLayer(self.dataFrame, dataFile, layerToAdd, properties.definitionQuery, properties.labelClasses, countryName)
                                     mapResult.dataSource = dataFile
                                     if mapResult.added:
                                         mapResult.message = "Layer added successfully"
@@ -97,7 +125,7 @@ class MapChef:
                                         for raster in rasters:
                                            if re.match(parts[1], raster):
                                                self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
-                                               self.addRasterToLayer(self.dataFrame, rasterFile, layerToAdd, raster, properties.display)    
+                                               self.addFileGeodatabaseToLayer(self.dataFrame, rasterFile, layerToAdd, raster)    
                                                mapResult.dataSource = rasterFile
                                                mapResult.added = True
                         # If a file hasn't been added, and no other reason given, report what was expected
@@ -122,15 +150,32 @@ class MapChef:
         arcpy.env.addOutputsToMap = True
         self.mxd.save()
 
-    def addRasterToLayer(self, dataFrame, rasterFile, layer, raster, display):
+    def addFileGeodatabaseToLayer(self, dataFrame, rasterFile, layer, raster):
         for lyr in arcpy.mapping.ListLayers(layer): 
             lyr.replaceDataSource(rasterFile, "FILEGDB_WORKSPACE", raster)
             lyr.visible = False 
             arcpy.mapping.AddLayer(dataFrame, lyr, "BOTTOM")            
 
-    # APS 06/09/2019 Would it be appropriate to name this method `addVectorToLayer` or correspond with
-    # `addRasterToLayer`?
-    def addToLayer(self, dataFrame, dataFile, layer, definitionQuery, display, labelClasses, countryName):
+    """
+    Adds data file to map layer
+
+    Can handle the following file types:
+        * Shapefiles
+        * IMG files
+        * TIF files
+
+    Arguments: 
+        dataFrame {str} -- Name of data frame to add data source file to
+        dataFile {str}  -- Full path to data file
+        layer {arcpy._mapping.Layer} -- Layer to which data is added
+        definitionQuery {str} -- Some layers have a definition query which select specific features based on a SQL query
+        labelClasses {list} -- List of LabelClass objects
+        countryName {str} -- Country name
+
+    Returns:
+        boolean -- added
+    """
+    def addDataToLayer(self, dataFrame, dataFile, layer, definitionQuery, labelClasses, countryName):
         added = True
         dataDirectory = os.path.dirname(os.path.realpath(dataFile))
         for lyr in arcpy.mapping.ListLayers(layer):

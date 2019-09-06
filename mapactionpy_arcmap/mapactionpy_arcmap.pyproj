@@ -28,7 +28,7 @@
     <Compile Include="arcmap_runner.py" />
     <Compile Include="LayerProperties.py" />
     <Compile Include="LabelClass.py" />
-    <Compile Include="LayerProperty.py" />
+    <Compile Include="MapLayer.py" />
     <Compile Include="MapChef.py" />
     <Compile Include="MapCookbook.py" />
     <Compile Include="MapResult.py" />
