@@ -1,7 +1,6 @@
 from MapRecipe import MapRecipe
 import json
 
-
 class MapCookbook:
     def __init__(self, cookbookJsonFile):
         self.cookbookJsonFile = cookbookJsonFile
