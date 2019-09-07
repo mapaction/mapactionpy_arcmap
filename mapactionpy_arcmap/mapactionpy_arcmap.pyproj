@@ -11,7 +11,7 @@
     <Name>MapChef</Name>
     <RootNamespace>MapChef</RootNamespace>
     <LaunchProvider>Web launcher</LaunchProvider>
-    <CommandLineArguments>-l "D:\MapAction\2019-08-31-Bahamas\GIS\3_Mapping\31_Resources\316_Automation\layerProperties.json" -p "Country Overview" --country "Bahamas" -b "D:\MapAction\2019-08-31-Bahamas\GIS\3_Mapping\31_Resources\316_Automation\mapCookbook.json" --cmf "D:\MapAction\2019-08-31-Bahamas" --layerDirectory "D:\MapAction\2019-08-31-Bahamas\GIS\3_Mapping\38_Initial_Maps_Layer_Files\All" -t "D:\MapAction\2019-08-31-Bahamas\GIS\3_Mapping\32_MXD_Templates\arcgis_10_2_reference_landscape_bottom.mxd"</CommandLineArguments>
+    <CommandLineArguments>-b "D:\MapAction\2018-11-16-SierraCobre\GIS\3_Mapping\31_Resources\316_Automation\mapCookbook.json"  -l "D:\MapAction\2018-11-16-SierraCobre\GIS\3_Mapping\31_Resources\316_Automation\layerProperties.json" --cmf "D:\MapAction\2018-11-16-SierraCobre" -t "C:\Users\steve\Source\Repos\mapactionpy_arcmap\mapactionpy_arcmap\MXD\arcgis_10_2_ma000_reference_landscape_bottom_DEV.mxd"  --layerDirectory "D:\MapAction\2018-11-16-SierraCobre\GIS\3_Mapping\38_Initial_Maps_Layer_Files\All" -p "Country Overview" --country "UNITED KINDOM"</CommandLineArguments>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
     <InterpreterId>Global|PythonCore|2.7-32</InterpreterId>
     <WebBrowserUrl>http://localhost</WebBrowserUrl>

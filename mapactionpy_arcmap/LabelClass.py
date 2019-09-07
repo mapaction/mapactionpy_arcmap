@@ -1,5 +1,5 @@
 """
-    Class to enable selection of properties to support labels in a Layer 
+Enables selection of properties to support labels in a Layer 
 """
 class LabelClass:
     def __init__(self, row):
