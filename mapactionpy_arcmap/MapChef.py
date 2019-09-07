@@ -119,15 +119,31 @@ class MapChef:
                             for root, dirs, files in os.walk(dataFilePath):
                                 for gdb in dirs:
                                     if re.match(parts[0], gdb):
-                                        rasterFile = (dataFilePath + "/" + gdb).replace("/", os.sep)
-                                        arcpy.env.workspace = rasterFile
+                                        geoDatabase = (dataFilePath + "/" + gdb).replace("/", os.sep)
+                                        arcpy.env.workspace = geoDatabase
                                         rasters = arcpy.ListRasters("*")
                                         for raster in rasters:
                                            if re.match(parts[1], raster):
                                                self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
-                                               self.addFileGeodatabaseToLayer(self.dataFrame, rasterFile, layerToAdd, raster)    
-                                               mapResult.dataSource = rasterFile
-                                               mapResult.added = True
+                                               mapResult.added = self.addFileGeodatabaseToLayer(self.dataFrame, geoDatabase, layerToAdd, properties.definitionQuery, raster, properties.labelClasses, countryName)    
+                                               mapResult.dataSource = geoDatabase + os.sep + raster
+                                        
+                                        featureClasses = arcpy.ListFeatureClasses()
+                                        for featureClass in featureClasses:
+                                           if re.match(parts[1], featureClass):
+                                               self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
+                                               mapResult.added = self.addFileGeodatabaseToLayer(self.dataFrame, geoDatabase, layerToAdd, properties.definitionQuery, featureClass, properties.labelClasses, countryName)    
+                                               mapResult.dataSource = geoDatabase + os.sep + featureClass
+                                               if mapResult.added:
+                                                   mapResult.message = "Layer added successfully"
+                                               else:
+                                                  # APS 06/09/2019 Are you sure that this error can only be reached due to a
+                                                  # schema error? Would an error message along the lines of
+                                                  # "Error adding {layerName}. Possibly due to schema error or other cause"
+                                                  # be appropriate? See github comment
+                                                  mapResult.message = "Unexpected schema.  Could not evaluate expression: " + properties.definitionQuery
+                                        # Found Geodatabase.  Stop iterating.          
+                                        break
                         # If a file hasn't been added, and no other reason given, report what was expected
                         if ((mapResult.added is False) and (len(mapResult.message) == 0)):
                             mapResult.message = "Could not find file matching " + properties.sourceFolder + "/" + properties.regExp
@@ -150,11 +166,46 @@ class MapChef:
         arcpy.env.addOutputsToMap = True
         self.mxd.save()
 
-    def addFileGeodatabaseToLayer(self, dataFrame, rasterFile, layer, raster):
-        for lyr in arcpy.mapping.ListLayers(layer): 
-            lyr.replaceDataSource(rasterFile, "FILEGDB_WORKSPACE", raster)
-            lyr.visible = False 
-            arcpy.mapping.AddLayer(dataFrame, lyr, "BOTTOM")            
+    """
+    Add File Geodatabase to layer 
+
+    Arguments: 
+        dataFrame {str} -- Name of data frame to add data source file to
+        dataFile {str}  -- Full path to data file
+        layer {arcpy._mapping.Layer} -- Layer to which data is added
+        datasetName {str} -- Dataset name
+        labelClasses {list} -- List of LabelClass objects
+        countryName {str} -- Name of country
+    """
+    def addFileGeodatabaseToLayer(self, dataFrame, dataFile, layer, definitionQuery, datasetName, labelClasses, countryName):
+        datasetTypes = ["ACCESS_WORKSPACE", "ARCINFO_WORKSPACE", "CAD_WORKSPACE", "EXCEL_WORKSPACE", "FILEGDB_WORKSPACE", "OLEDB_WORKSPACE", "PCCOVERAGE_WORKSPACE", "RASTER_WORKSPACE", "SDE_WORKSPACE", "SHAPEFILE_WORKSPACE", "TEXT_WORKSPACE", "TIN_WORKSPACE", "VPF_WORKSPACE"]
+        added = False
+        for lyr in arcpy.mapping.ListLayers(layer):
+            if lyr.supports("LABELCLASSES"):
+                for labelClass in labelClasses:
+                    for lblClass in lyr.labelClasses:
+                        if (lblClass.className == labelClass.className):
+                            lblClass.SQLQuery = labelClass.SQLQuery
+                            lblClass.expression = labelClass.expression
+            if lyr.supports("DATASOURCE"):
+                for datasetType in datasetTypes: 
+                    try:
+                        lyr.replaceDataSource(dataFile, datasetType, datasetName)
+                        added = True
+                        if (definitionQuery):
+                            definitionQuery = definitionQuery.replace('{COUNTRY_NAME}', countryName)
+                            # https://gis.stackexchange.com/questions/90736/setting-definition-query-on-arcpy-layer-from-shapefile
+                            lyr.definitionQuery = definitionQuery
+                            try:
+                                arcpy.SelectLayerByAttribute_management(lyr, "SUBSET_SELECTION", definitionQuery)
+                            except Exception:
+                                added = False            
+                        arcpy.mapping.AddLayer(dataFrame, lyr, "BOTTOM")            
+                        break
+                    except Exception, e:
+                        pass
+                lyr.visible = False 
+        return added
 
     """
     Adds data file to map layer
@@ -173,7 +224,7 @@ class MapChef:
         countryName {str} -- Country name
 
     Returns:
-        boolean -- added
+        boolean -- added (true if successful)
     """
     def addDataToLayer(self, dataFrame, dataFile, layer, definitionQuery, labelClasses, countryName):
         added = True
@@ -205,5 +256,8 @@ class MapChef:
                 arcpy.mapping.AddLayer(dataFrame, lyr, "BOTTOM")
         return added
 
+    """
+    Returns map report in json format 
+    """
     def report(self):
         return self.mapReport.dump()
