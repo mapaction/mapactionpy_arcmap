@@ -82,82 +82,7 @@ class MapChef:
         self.removeLayers()
         self.mapReport = MapReport(productName)
         for layer in self.cookbook.layers(productName):
-            properties = self.layerProperties.get(layer)
-            # Add layer to the report for later
-            mapResult = MapResult(layer)
-            if (properties is not None):             
-                layerFilePath = os.path.join(self.layerDirectory, (properties.layerName + ".lyr"))
-                if (os.path.exists(layerFilePath)):
-                    self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
-                    layerToAdd = arcpy.mapping.Layer(layerFilePath)
-                    # APS 06/09/2019 Please remove hardcoded path. See github comment
-                    dataFilePath = os.path.join(self.root, "GIS", "2_Active_Data", properties.sourceFolder)
-                    if (os.path.isdir(dataFilePath)):
-                        # APS 06/09/2019 I do not understand what you are testing here
-                        # (eg ` if ("/" not in properties.regExp):`).
-                        # Why is a forward slash required in a regex for a filename/featureclass name?
-                        if ("/" not in properties.regExp):
-                            onlyfiles = [f for f in listdir(dataFilePath) if isfile(join(dataFilePath, f))]
-                            for fileName in onlyfiles:
-                                if re.match(properties.regExp, fileName):
-                                    self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
-                                    dataFile = os.path.join(dataFilePath, fileName)
-                                    mapResult.added = self.addDataToLayer(self.dataFrame, dataFile, layerToAdd, properties.definitionQuery, properties.labelClasses, countryName)
-                                    mapResult.dataSource = dataFile
-                                    if mapResult.added:
-                                        mapResult.message = "Layer added successfully"
-                                    else:
-                                        # APS 06/09/2019 Are you sure that this error can only be reached due to a
-                                        # schema error? Would an error message along the lines of
-                                        # "Error adding {layerName}. Possibly due to schema error or other cause"
-                                        # be appropriate? See github comment
-                                        mapResult.message = "Unexpected schema.  Could not evaluate expression: " + properties.definitionQuery
-                                    break
-                        else:
-                            # It's a File Geodatabase
-                            parts = properties.regExp.split("/")
-                            for root, dirs, files in os.walk(dataFilePath):
-                                for gdb in dirs:
-                                    if re.match(parts[0], gdb):
-                                        geoDatabase = (dataFilePath + "/" + gdb).replace("/", os.sep)
-                                        arcpy.env.workspace = geoDatabase
-                                        rasters = arcpy.ListRasters("*")
-                                        for raster in rasters:
-                                           if re.match(parts[1], raster):
-                                               self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
-                                               mapResult.added = self.addFileGeodatabaseToLayer(self.dataFrame, geoDatabase, layerToAdd, properties.definitionQuery, raster, properties.labelClasses, countryName)    
-                                               mapResult.dataSource = geoDatabase + os.sep + raster
-                                        
-                                        featureClasses = arcpy.ListFeatureClasses()
-                                        for featureClass in featureClasses:
-                                           if re.match(parts[1], featureClass):
-                                               self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
-                                               mapResult.added = self.addFileGeodatabaseToLayer(self.dataFrame, geoDatabase, layerToAdd, properties.definitionQuery, featureClass, properties.labelClasses, countryName)    
-                                               mapResult.dataSource = geoDatabase + os.sep + featureClass
-                                               if mapResult.added:
-                                                   mapResult.message = "Layer added successfully"
-                                               else:
-                                                  # APS 06/09/2019 Are you sure that this error can only be reached due to a
-                                                  # schema error? Would an error message along the lines of
-                                                  # "Error adding {layerName}. Possibly due to schema error or other cause"
-                                                  # be appropriate? See github comment
-                                                  mapResult.message = "Unexpected schema.  Could not evaluate expression: " + properties.definitionQuery
-                                        # Found Geodatabase.  Stop iterating.          
-                                        break
-                        # If a file hasn't been added, and no other reason given, report what was expected
-                        if ((mapResult.added is False) and (len(mapResult.message) == 0)):
-                            mapResult.message = "Could not find file matching " + properties.sourceFolder + "/" + properties.regExp
-                    else:
-                        mapResult.added = False
-                        mapResult.message = "Could not find directory: " + dataFilePath
-                else:
-                   mapResult.added = False
-                   mapResult.message = "Layer file could not be found"
-            else:
-                mapResult.added = False
-                mapResult.message = "Layer property definition could not be found in the cookbook"
-            self.mapReport.add(mapResult)
-
+            self.processLayer(layer, countryName)
         # Make all layers visible
         self.enableLayers()
 
@@ -261,3 +186,81 @@ class MapChef:
     """
     def report(self):
         return self.mapReport.dump()
+
+    def processLayer(self, layer, countryName):
+        # Add layer to the report for later
+        mapResult = MapResult(layer)
+
+        properties = self.layerProperties.get(layer)
+        if (properties is not None):             
+            layerFilePath = os.path.join(self.layerDirectory, (properties.layerName + ".lyr"))
+            if (os.path.exists(layerFilePath)):
+                self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
+                layerToAdd = arcpy.mapping.Layer(layerFilePath)
+                # APS 06/09/2019 Please remove hardcoded path. See github comment
+                dataFilePath = os.path.join(self.root, "GIS", "2_Active_Data", properties.sourceFolder)
+                if (os.path.isdir(dataFilePath)):
+                    # APS 06/09/2019 I do not understand what you are testing here
+                    # (eg ` if ("/" not in properties.regExp):`).
+                    # Why is a forward slash required in a regex for a filename/featureclass name?
+                    if ("/" not in properties.regExp):
+                        onlyfiles = [f for f in listdir(dataFilePath) if isfile(join(dataFilePath, f))]
+                        for fileName in onlyfiles:
+                            if re.match(properties.regExp, fileName):
+                                self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
+                                dataFile = os.path.join(dataFilePath, fileName)
+                                mapResult.added = self.addDataToLayer(self.dataFrame, dataFile, layerToAdd, properties.definitionQuery, properties.labelClasses, countryName)
+                                mapResult.dataSource = dataFile
+                                if mapResult.added:
+                                    mapResult.message = "Layer added successfully"
+                                else:
+                                    # APS 06/09/2019 Are you sure that this error can only be reached due to a
+                                    # schema error? Would an error message along the lines of
+                                    # "Error adding {layerName}. Possibly due to schema error or other cause"
+                                    # be appropriate? See github comment
+                                    mapResult.message = "Unexpected schema.  Could not evaluate expression: " + properties.definitionQuery
+                                break
+                    else:
+                        # It's a File Geodatabase
+                        parts = properties.regExp.split("/")
+                        for root, dirs, files in os.walk(dataFilePath):
+                            for gdb in dirs:
+                                if re.match(parts[0], gdb):
+                                    geoDatabase = (dataFilePath + "/" + gdb).replace("/", os.sep)
+                                    arcpy.env.workspace = geoDatabase
+                                    rasters = arcpy.ListRasters("*")
+                                    for raster in rasters:
+                                        if re.match(parts[1], raster):
+                                            self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
+                                            mapResult.added = self.addFileGeodatabaseToLayer(self.dataFrame, geoDatabase, layerToAdd, properties.definitionQuery, raster, properties.labelClasses, countryName)    
+                                            mapResult.dataSource = geoDatabase + os.sep + raster
+                                        
+                                    featureClasses = arcpy.ListFeatureClasses()
+                                    for featureClass in featureClasses:
+                                        if re.match(parts[1], featureClass):
+                                            self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
+                                            mapResult.added = self.addFileGeodatabaseToLayer(self.dataFrame, geoDatabase, layerToAdd, properties.definitionQuery, featureClass, properties.labelClasses, countryName)    
+                                            mapResult.dataSource = geoDatabase + os.sep + featureClass
+                                            if mapResult.added:
+                                                mapResult.message = "Layer added successfully"
+                                            else:
+                                                # APS 06/09/2019 Are you sure that this error can only be reached due to a
+                                                # schema error? Would an error message along the lines of
+                                                # "Error adding {layerName}. Possibly due to schema error or other cause"
+                                                # be appropriate? See github comment
+                                                mapResult.message = "Unexpected schema.  Could not evaluate expression: " + properties.definitionQuery
+                                            # Found Geodatabase.  Stop iterating.          
+                                            break
+                    # If a file hasn't been added, and no other reason given, report what was expected
+                    if ((mapResult.added is False) and (len(mapResult.message) == 0)):
+                        mapResult.message = "Could not find file matching " + properties.sourceFolder + "/" + properties.regExp
+                else:
+                    mapResult.added = False
+                    mapResult.message = "Could not find directory: " + dataFilePath
+            else:
+                mapResult.added = False
+                mapResult.message = "Layer file could not be found"
+        else:
+            mapResult.added = False
+            mapResult.message = "Layer property definition could not be found in the cookbook"
+        self.mapReport.add(mapResult)
