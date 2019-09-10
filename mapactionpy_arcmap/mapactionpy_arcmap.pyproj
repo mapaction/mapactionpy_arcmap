@@ -26,14 +26,14 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="arcmap_runner.py" />
-    <Compile Include="LayerProperties.py" />
-    <Compile Include="LabelClass.py" />
-    <Compile Include="MapLayer.py" />
-    <Compile Include="MapChef.py" />
-    <Compile Include="MapCookbook.py" />
-    <Compile Include="MapResult.py" />
-    <Compile Include="MapReport.py" />
-    <Compile Include="MapRecipe.py" />
+    <Compile Include="layer_properties.py" />
+    <Compile Include="label_class.py" />
+    <Compile Include="map_layer.py" />
+    <Compile Include="map_chef.py" />
+    <Compile Include="map_cookbook.py" />
+    <Compile Include="map_result.py" />
+    <Compile Include="map_report.py" />
+    <Compile Include="map_recipe.py" />
     <Compile Include="__init__.py" />
   </ItemGroup>
   <ItemGroup>

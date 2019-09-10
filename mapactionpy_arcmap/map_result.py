@@ -1,18 +1,17 @@
-"""
-MapResult - result for adding a layer to the Map Product
-"""
-
 import json
 from datetime import datetime
 
 class MapResult:
     """
-    Constructor, initialises new Map Result for the layer
-
-    Arguments:
-       layerName {str} -- name of the map layer being added
+    MapResult - result for adding a layer to the Map Product
     """
     def __init__(self, layerName):
+        """
+        Constructor, initialises new Map Result for the layer
+
+        Arguments:
+           layerName {str} -- name of the map layer being added
+        """
         self.layerName = layerName
         self.dataSource = ""
         now = datetime.now()
@@ -21,12 +20,12 @@ class MapResult:
         self.added = False
         self.message = ""
 
-    """
-    Returns:
-       Json formatted string
-    """
-
     def toJSON(self):
+        """
+        Returns:
+            Json formatted string
+        """
+        # @TODO : USE jsonpickle
         result = {
             "layerName": self.layerName,
             "dataSource": self.dataSource,

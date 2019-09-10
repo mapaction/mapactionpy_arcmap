@@ -15,9 +15,8 @@
 
 import argparse
 import os
-from MapChef import MapChef
+from map_chef import MapChef
 import arcpy
-
 
 def is_valid_file(parser, arg):
     if not os.path.exists(arg):
@@ -26,14 +25,12 @@ def is_valid_file(parser, arg):
     else:
         return arg
 
-
 def is_valid_directory(parser, arg):
     if os.path.isdir(arg):
         return arg
     else:
         parser.error("The directory %s does not exist!" % arg)
         return False
-
 
 def main(args):
     args = parser.parse_args()
