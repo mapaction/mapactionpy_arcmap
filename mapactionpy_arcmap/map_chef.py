@@ -65,7 +65,6 @@ class MapChef:
         if (recipe is not None):
             for layer in recipe.layers:
                 self.processLayer(layer, countryName)
-
         self.enableLayers()
         arcpy.RefreshTOC()
         arcpy.RefreshActiveView()
@@ -152,59 +151,49 @@ class MapChef:
             if (os.path.exists(layerFilePath)):
                 self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
                 layerToAdd = arcpy.mapping.Layer(layerFilePath)
-                dataFilePath = os.path.join(self.crashMoveFolder, "GIS", "2_Active_Data", properties.sourceFolder)
-                # @TODO Use Data Search
-                if (os.path.isdir(dataFilePath)):
-                    # If it's not a File Geodatabase (gdb) the regexp won't contain ".gdb/"
-                    if (".gdb/" not in properties.regExp):
-                        onlyfiles = [f for f in listdir(dataFilePath) if isfile(join(dataFilePath, f))]
-                        for fileName in onlyfiles:
-                            if re.match(properties.regExp, fileName):
+                searchDirectory = os.path.join(self.crashMoveFolder, "GIS", "2_Active_Data")
+                # If it's not a File Geodatabase (gdb) the regexp won't contain ".gdb/"
+                if (".gdb/" not in properties.regExp):
+                    dataFile = self.find(searchDirectory, properties.regExp)
+                    self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
+                    base = os.path.basename(dataFile)
+                    datasetName = os.path.splitext(base)[0]
+                    dataDirectory = os.path.dirname(os.path.realpath(dataFile))
+                    mapResult.added = self.addDataToLayer(self.dataFrame, dataDirectory, layerToAdd, properties.definitionQuery, datasetName, properties.labelClasses, countryName)
+                    mapResult.dataSource = dataFile
+                    if mapResult.added:
+                        mapResult.message = "Layer added successfully"
+                    else:
+                        mapResult.message = "Possibly due to schema error or other cause: " + properties.definitionQuery
+                else:
+                    # It's a File Geodatabase
+                    parts = properties.regExp.split("/")
+                    gdbPath=parts[0]
+                    geoDatabase = self.find(searchDirectory, gdbPath, True)
+                    if (geoDatabase is not None):
+                        arcpy.env.workspace = geoDatabase
+                        rasters = arcpy.ListRasters("*")
+                        for raster in rasters:
+                            if re.match(parts[1], raster):
+                                self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]                                            
+                                mapResult.added = self.addDataToLayer(self.dataFrame, geoDatabase, layerToAdd, properties.definitionQuery, raster, properties.labelClasses, countryName)    
+                                mapResult.dataSource = geoDatabase + os.sep + raster
+                                break
+                        featureClasses = arcpy.ListFeatureClasses()
+                        for featureClass in featureClasses:
+                            if re.match(parts[1], featureClass):
                                 self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
-                                dataFile = os.path.join(dataFilePath, fileName)
-                                base = os.path.basename(dataFile)
-                                datasetName = os.path.splitext(base)[0]
-                                dataDirectory = os.path.dirname(os.path.realpath(dataFile))
-                                mapResult.added = self.addDataToLayer(self.dataFrame, dataDirectory, layerToAdd, properties.definitionQuery, datasetName, properties.labelClasses, countryName)
-                                mapResult.dataSource = dataFile
+                                mapResult.added = self.addDataToLayer(self.dataFrame, geoDatabase, layerToAdd, properties.definitionQuery, featureClass, properties.labelClasses, countryName)    
+                                mapResult.dataSource = geoDatabase + os.sep + featureClass
                                 if mapResult.added:
                                     mapResult.message = "Layer added successfully"
                                 else:
                                     mapResult.message = "Possibly due to schema error or other cause: " + properties.definitionQuery
+                                # Found Geodatabase.  Stop iterating.          
                                 break
-                    else:
-                        # It's a File Geodatabase
-                        parts = properties.regExp.split("/")
-                        for root, dirs, files in os.walk(dataFilePath):
-                            for gdb in dirs:
-                                if re.match(parts[0], gdb):
-                                    geoDatabase = (dataFilePath + "/" + gdb).replace("/", os.sep)
-                                    arcpy.env.workspace = geoDatabase
-                                    rasters = arcpy.ListRasters("*")
-                                    for raster in rasters:
-                                        if re.match(parts[1], raster):
-                                            self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]                                            
-                                            mapResult.added = self.addDataToLayer(self.dataFrame, geoDatabase, layerToAdd, properties.definitionQuery, raster, properties.labelClasses, countryName)    
-                                            mapResult.dataSource = geoDatabase + os.sep + raster
-                                        
-                                    featureClasses = arcpy.ListFeatureClasses()
-                                    for featureClass in featureClasses:
-                                        if re.match(parts[1], featureClass):
-                                            self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
-                                            mapResult.added = self.addDataToLayer(self.dataFrame, geoDatabase, layerToAdd, properties.definitionQuery, featureClass, properties.labelClasses, countryName)    
-                                            mapResult.dataSource = geoDatabase + os.sep + featureClass
-                                            if mapResult.added:
-                                                mapResult.message = "Layer added successfully"
-                                            else:
-                                                mapResult.message = "Possibly due to schema error or other cause: " + properties.definitionQuery
-                                            # Found Geodatabase.  Stop iterating.          
-                                            break
-                    # If a file hasn't been added, and no other reason given, report what was expected
-                    if ((mapResult.added is False) and (len(mapResult.message) == 0)):
-                        mapResult.message = "Could not find file matching " + properties.sourceFolder + "/" + properties.regExp
-                else:
-                    mapResult.added = False
-                    mapResult.message = "Could not find directory: " + dataFilePath
+                # If a file hasn't been added, and no other reason given, report what was expected
+                if ((mapResult.added is False) and (len(mapResult.message) == 0)):
+                    mapResult.message = "Could not find file matching " + properties.regExp
             else:
                 mapResult.added = False
                 mapResult.message = "Layer file could not be found"
@@ -212,3 +201,27 @@ class MapChef:
             mapResult.added = False
             mapResult.message = "Layer property definition could not be found in the cookbook"
         self.mapReport.add(mapResult)
+
+    def find(self, rootdir, regexp, gdb=False):
+        returnPath = ""
+        regexp = regexp.replace("^", "\\\\")
+        regexp = regexp.replace("/", "\\\\")
+        regexp = ".*" + regexp
+        re.compile(regexp)
+        for root, dirs, files in os.walk(os.path.abspath(rootdir)):
+            if (gdb == False):
+                for file in files:
+                    filePath=os.path.join(root, file)
+                    z = re.match(regexp, filePath)
+                    if (z):
+                        if not(filePath.endswith("lock")):
+                            returnPath=filePath
+                            break
+            else:
+                for dir in dirs:
+                    dirPath=os.path.join(root, dir)
+                    z = re.match(regexp, dirPath)
+                    if (z):
+                        returnPath=dirPath
+                        break
+        return returnPath

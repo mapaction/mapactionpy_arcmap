@@ -9,7 +9,6 @@ class MapLayer:
        """
        self.mapFrame = row["MapFrame"]
        self.layerName = row["LayerName"]
-       self.sourceFolder = row["SourceFolder"]
        self.regExp = row["RegExp"]
        self.definitionQuery = row["DefinitionQuery"]
        self.display = row["Display"]
