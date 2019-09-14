@@ -2,6 +2,7 @@ import os
 from os import listdir
 from os.path import isfile, join
 import arcpy
+import jsonpickle
 import re
 from map_cookbook import MapCookbook
 from map_report import MapReport
@@ -141,7 +142,7 @@ class MapChef:
     Returns map report in json format 
     """
     def report(self):
-        return self.mapReport.dump()
+        return(jsonpickle.encode(self.mapReport, unpicklable = False))
 
     def processLayer(self, layer, countryName):
         mapResult = MapResult(layer)

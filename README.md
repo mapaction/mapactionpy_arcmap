@@ -9,8 +9,6 @@ Adds geospatial data to an ArcMap MXD file based on a recipe from a cookbook con
 
 Python and ArcPy
 
-```python -m pip install jsonpickle```
-
 ```
 C:\Python27\ArcGIS10.6\python.exe
 ```
@@ -20,6 +18,10 @@ C:\Python27\ArcGIS10.6\python.exe
 ```python setup.py bdist_wheel```
 
 ## Installing
+
+```
+python -m pip install jsonpickle
+```
 
 To install for development purposes:
 Clone the github repo then from the root of your local clone:
@@ -51,22 +53,22 @@ This example cookbook only contains a single product: ```Country Overview```.
       "product": "Country Overview",
       "classification": "Core",
       "layers": [
-        "Settlements - Places",
-        "Provinces",
-        "Cartography - Feather",
-        "Transport - Airports",
-        "Transport - Seaports",
-        "Elevation - Coastline",
+        "mainmap-s0-pt-settlements",
+        "mainmap-s0-pt-airports",
+        "mainmap-s0-pt-seaports",
+        "mainmap-s0-py-feather",
         "Borders - Admin 0",
-        "Borders - Admin 1",
-        "Transport - Rail",
-        "Transport - Roads",
-        "Physical - Lakes",
-        "Physical - Rivers",
-        "Admin - Ad 1 Polygon",
-        "Admin 0 - Affected Country",
-        "Elevation - DEM",
-        "Physical - Sea",
+        "mainmap-s1-ln-admin1",
+        "mainmap-s0-ln-roads",
+        "mainmap-s0-ln-rail",
+        "mainmap-s0-py-waterbodies",
+        "mainmap-s0-ln-rivers",
+        "mainmap-s0-py-admin1",
+        "mainmap-s0-py-affectedcountry",
+        "mainmap-s0-py-surroundingcountries",
+        "mainmap-s0-py-sea",
+        "mainmap-s0-ras-dem",
+        "mainmap-s0-ras-hillshade",
         "Location Map - Admin 0 Polygon"
       ]
     }
@@ -83,12 +85,22 @@ The Layer Config file ([layerProperties.json](mapactionpy_arcmap/Config/layerPro
 ```
     {
       "MapFrame": "Main Map",
-      "LayerGroup": "Elevation",
-      "LayerName": "Physical - Sea - py",
-      "SourceFolder": "220_phys",
-      "RegExp": "^[a-z]{3}_phys_ocn_py_(.*?).shp$",
-      "DefinitionQuery": "None",
-      "Display": "Yes"
+      "LayerName": "mainmap-s0-pt-settlements",
+      "RegExp": "^[a-z]{3}_stle_stl_pt_(.*?)_(.*?)_([phm][phm])(.*?).shp$",
+      "DefinitionQuery": "place IN ('national_capital', 'city', 'capital')",
+      "Display": "Yes",
+      "LabelClasses": [
+        {
+          "className": "National Capital",
+          "expression": "[name]",
+          "SQLQuery": "(\"place\" = 'national_capital')"
+        },
+        {
+          "className": "Admin 1 Capital",
+          "expression": "[name]",
+          "SQLQuery": "(\"place\" = 'city')"
+        }
+      ]
     },
 ```
 
@@ -96,12 +108,11 @@ The Layer Config file ([layerProperties.json](mapactionpy_arcmap/Config/layerPro
 #|Field | Description|
 -|------------ | -------------|
 1|```MapFrame``` | Name of the Map Frame that the layer is to be added to|
-2|```LayerGroup``` | Layer Group (:warning: NOT CURRENTLY IN USE)|
-3|```LayerName``` | Name of the Layer.  This must correlate with the ```layerFile.Name``` field in the ```recipe.json``` file.  |
-4|```SourceFolder``` | Folder under the &lt;root&gt;```/GIS/2_Active_Data``` directory|
-5|```RegExp``` | Regular Expression.  Used when selecting files to display|
-6|```DefinitionQuery``` | Definition Query|
-7|```Display``` | Shows if set to 'Yes'|
+2|```LayerName``` | Name of the Layer.  This must correlate with the ```layerFile.Name``` field in the ```mapCookbook.json``` file.  |
+3|```RegExp``` | Regular Expression.  Used when selecting files to display|
+4|```DefinitionQuery``` | Definition Query|
+5|```Display``` | Shows if set to 'Yes'|
+5|```LabelClasses``` | Details for displaying labels|
 
 ## Execution
 
@@ -113,8 +124,8 @@ The Layer Config file ([layerProperties.json](mapactionpy_arcmap/Config/layerPro
 2|```--layerConfig``` | Path to the ```layerProperties.json``` file.|
 3|```--cmf``` | Path to the Crash Move Folder root. |
 4|```--template``` | Path to the ```MXD``` file.|
-6|```--product``` | Name of product (must correlate with a product in the cookbook file). |
-7|```--country``` | Name of country. |
+5|```--product``` | Name of product (must correlate with a product in the cookbook file). |
+6|```--country``` | Name of country. |
 
 ### Example
 
@@ -134,23 +145,14 @@ This ```Country Overview``` map was generated:
 
 ![alt text](Images/Result.png)
 
-### File Types
-
-The current implementation supports the following geospatial file types:
-
-* Shape files       (.shp)
-* TIF files         (.TIF)
-* File Geodatabases (.gdb)
-
-
 ## Integration with MapAction Toolbar
 
 In order to integrate this `MapActionPy_ArcMap` module with the MapAction Toolbar, the following steps need to be carried out:
 
 :information_source: The "Automation" add-in is in development in the `automation` branch at: https://github.com/mapaction/mapaction-toolbox/tree/automation):
 
-1) A copy of all layer `.lyr` files from the directories under `\GIS\3_Mapping\38_Initial_Maps_Layer_Files\*` were copied to a folder named `All` under the crash move folder at the following location:
-`\GIS\3_Mapping\38_Initial_Maps_Layer_Files\All`
+1) All layer `.lyr` files should be made available under the crash move folder at the following location:
+`\GIS\3_Mapping\31_Resources\312_Layer_files`
 2) Layer properties file [layerProperties.json](mapactionpy_arcmap/Config/layerProperties.json) copied to new directory under the crash move folder at the following location:
 `\GIS\3_Mapping\31_Resources\316_Automation`
 3) Map cookbook file [mapCookbook.json](mapactionpy_arcmap/Config/mapCookbook.json) copied to directory under the crash move folder at the following location:

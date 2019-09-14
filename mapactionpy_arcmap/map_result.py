@@ -19,18 +19,3 @@ class MapResult:
         self.timeStamp = now.strftime("%d/%m/%Y %H:%M:%S")
         self.added = False
         self.message = ""
-
-    def toJSON(self):
-        """
-        Returns:
-            Json formatted string
-        """
-        # @TODO : USE jsonpickle
-        result = {
-            "layerName": self.layerName,
-            "dataSource": self.dataSource,
-            "dateStamp": self.timeStamp,
-            "added": self.added,
-            "message": self.message
-        }
-        return (json.dumps(result))
