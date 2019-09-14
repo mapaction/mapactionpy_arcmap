@@ -112,7 +112,7 @@ The Layer Config file ([layerProperties.json](mapactionpy_arcmap/Config/layerPro
 3|```RegExp``` | Regular Expression.  Used when selecting files to display|
 4|```DefinitionQuery``` | Definition Query|
 5|```Display``` | Shows if set to 'Yes'|
-5|```LabelClasses``` | Details for displaying labels|
+6|```LabelClasses``` | Details for displaying labels|
 
 ## Execution
 
