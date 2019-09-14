@@ -13,7 +13,7 @@ class MapCookbook:
         Arguments:
            cookbookJsonFile {str} -- path to Map Cookbook json file "mapCookbook.json"
         """
-        # @TODO Add valiation + 
+        # @TODO Add validation + 
         # pass in LayerProperties object, and validate
         self.cookbookJsonFile = cookbookJsonFile
         #self.products = list()
@@ -28,7 +28,6 @@ class MapCookbook:
             jsonContents = json.load(json_file)
             for recipe in jsonContents['recipes']:
                 rec = MapRecipe(recipe['product'], recipe['layers'])
-                #self.products.append(rec)
                 self.products[recipe['product']] = rec
 
     def get_product_layers(self, productName):
