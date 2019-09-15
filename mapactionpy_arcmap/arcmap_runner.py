@@ -57,16 +57,23 @@ if __name__ == '__main__':
         'event specific instance of a map.',
     )
     parser.add_argument("-b", "--cookbook", dest="cookbookFile", required=True,
-                        help="path to cookbook json file", metavar="FILE", type=lambda x: is_valid_file(parser, x))
+                        help="path to cookbook json file", metavar="FILE", 
+                        type=lambda x: is_valid_file(parser, x))
     parser.add_argument("-l", "--layerConfig", dest="layerConfig", required=True,
-                        help="path to layer config json file", metavar="FILE", type=lambda x: is_valid_file(parser, x))
+                        help="path to layer config json file", metavar="FILE", 
+                        type=lambda x: is_valid_file(parser, x))
     parser.add_argument("-t", "--template", dest="templateFile", required=True,
-                        help="path to MXD file", metavar="FILE", type=lambda x: is_valid_file(parser, x))
+                        help="path to MXD file", metavar="FILE", 
+                        type=lambda x: is_valid_file(parser, x))
     parser.add_argument("-cmf", "--cmf", dest="crashMoveFolder", required=True,
-                        help="path the Crash Move Folder", metavar="FILE", type=lambda x: is_valid_directory(parser, x))
+                        help="path the Crash Move Folder", metavar="FILE", 
+                        type=lambda x: is_valid_directory(parser, x))
     parser.add_argument("-ld", "--layerDirectory", dest="layerDirectory", required=True,
-                        help="path to layer directory", metavar="FILE", type=lambda x: is_valid_directory(parser, x))
-    parser.add_argument("-p", "--product", dest="productName", required=True, help="Name of product")
-    parser.add_argument("-c", "--country", dest="countryName", required=True, help="Name of country")
+                        help="path to layer directory", metavar="FILE", 
+                        type=lambda x: is_valid_directory(parser, x))
+    parser.add_argument("-p", "--product", dest="productName", required=True, 
+                        help="Name of product")
+    parser.add_argument("-c", "--country", dest="countryName", required=True, 
+                        help="Name of country")
     args = parser.parse_args()
     main(args)
