@@ -53,4 +53,3 @@ class MapCookbook:
                 result = product
                 break
         return result
-
