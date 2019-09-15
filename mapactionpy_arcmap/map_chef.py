@@ -81,7 +81,7 @@ class MapChef:
         dataFrame {str} -- Name of data frame to add data source file to
         dataFile {str}  -- Full path to data file
         layer {arcpy._mapping.Layer} -- Layer to which data is added
-        definitionQuery {str} -- Some layers have a definition query which select specific features based on a SQL query
+        definitionQuery {str} -- Some layers have a definition query which select specific features from a SQL query
         labelClasses {list} -- List of LabelClass objects
         countryName {str} -- Country name
 
@@ -122,7 +122,6 @@ class MapChef:
                     
                     if ((added == True) and (definitionQuery)):
                         definitionQuery = definitionQuery.replace('{COUNTRY_NAME}', countryName)
-                        # https://gis.stackexchange.com/questions/90736/setting-definition-query-on-arcpy-layer-from-shapefile
                         lyr.definitionQuery = definitionQuery
                         try:
                             arcpy.SelectLayerByAttribute_management(lyr, "SUBSET_SELECTION", definitionQuery)
@@ -169,7 +168,8 @@ class MapChef:
                         if mapResult.added:
                             mapResult.message = "Layer added successfully"
                         else:
-                            mapResult.message = "Possibly due to schema error or other cause: " + properties.definitionQuery
+                            mapResult.message = "Possibly due to schema error or other cause: " + \
+                                properties.definitionQuery
                 else:
                     # It's a File Geodatabase
                     parts = properties.regExp.split("/")
@@ -210,7 +210,8 @@ class MapChef:
                             break
                         else:
                             if (len(mapResult.dataSource) > 0):
-                                mapResult.message = "Possibly due to schema error or other cause: " + properties.definitionQuery
+                                mapResult.message = "Possibly due to schema error or other cause: " + \
+                                    properties.definitionQuery
                                 break
                             # Otherwise, whizz around again
                  # If a file hasn't been added, and no other reason given, report what was expected
