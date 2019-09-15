@@ -11,7 +11,7 @@ from layer_properties import LayerProperties
 
 class MapChef:
     """
-    Worker which creates a Map based on a predefined "recipe" from a cookbook 
+    Worker which creates a Map based on a predefined "recipe" from a cookbook
     """
     def __init__(self, mxd, cookbookJsonFile, layerPropertiesJsonFile, crashMoveFolder, layerDirectory):
         """
@@ -31,7 +31,7 @@ class MapChef:
 
     def disableLayers(self):
         """
-        Makes all layers invisible for all data-frames 
+        Makes all layers invisible for all data-frames
         """
         for df in arcpy.mapping.ListDataFrames(self.mxd):
             for lyr in arcpy.mapping.ListLayers(self.mxd, "", df):
@@ -39,7 +39,7 @@ class MapChef:
 
     def enableLayers(self):
         """
-        Makes all layers visible for all data-frames 
+        Makes all layers visible for all data-frames
         """
         for df in arcpy.mapping.ListDataFrames(self.mxd):
             for lyr in arcpy.mapping.ListLayers(self.mxd, "", df):
@@ -47,7 +47,7 @@ class MapChef:
 
     def removeLayers(self):
         """
-        Removes all layers for all data-frames 
+        Removes all layers for all data-frames
         """
         for df in arcpy.mapping.ListDataFrames(self.mxd):
             for lyr in arcpy.mapping.ListLayers(self.mxd, "", df):
@@ -77,7 +77,7 @@ class MapChef:
         * IMG files
         * TIF files
 
-    Arguments: 
+    Arguments:
         dataFrame {str} -- Name of data frame to add data source file to
         dataFile {str}  -- Full path to data file
         layer {arcpy._mapping.Layer} -- Layer to which data is added
@@ -91,17 +91,17 @@ class MapChef:
 
     def addDataToLayer(self, dataFrame, dataFile, layer, definitionQuery, datasetName, labelClasses, countryName):
         datasetTypes = ["SHAPEFILE_WORKSPACE",
-                        "RASTER_WORKSPACE", 
-                        "FILEGDB_WORKSPACE", 
+                        "RASTER_WORKSPACE",
+                        "FILEGDB_WORKSPACE",
                         "ACCESS_WORKSPACE",
-                        "ARCINFO_WORKSPACE", 
-                        "CAD_WORKSPACE", 
-                        "EXCEL_WORKSPACE", 
-                        "OLEDB_WORKSPACE", 
-                        "PCCOVERAGE_WORKSPACE", 
-                        "SDE_WORKSPACE", 
-                        "TEXT_WORKSPACE", 
-                        "TIN_WORKSPACE", 
+                        "ARCINFO_WORKSPACE",
+                        "CAD_WORKSPACE",
+                        "EXCEL_WORKSPACE",
+                        "OLEDB_WORKSPACE",
+                        "PCCOVERAGE_WORKSPACE",
+                        "SDE_WORKSPACE",
+                        "TEXT_WORKSPACE",
+                        "TIN_WORKSPACE",
                         "VPF_WORKSPACE"]
         added = False
         for lyr in arcpy.mapping.ListLayers(layer):
@@ -113,29 +113,29 @@ class MapChef:
                             lblClass.expression = labelClass.expression
             if lyr.supports("DATASOURCE"): # An annotation layer does notsupport DATASOURCE
                 for datasetType in datasetTypes:
-                    # 
+                    #
                     try:
                         lyr.replaceDataSource(dataFile, datasetType, datasetName)
                         added = True
                     except Exception, e:
                         pass
-                    
+      
                     if ((added == True) and (definitionQuery)):
                         definitionQuery = definitionQuery.replace('{COUNTRY_NAME}', countryName)
                         lyr.definitionQuery = definitionQuery
                         try:
                             arcpy.SelectLayerByAttribute_management(lyr, "SUBSET_SELECTION", definitionQuery)
                         except Exception:
-                            added = False            
-							   
+                            added = False
+							
                     if (added == True):
-                        arcpy.mapping.AddLayer(dataFrame, lyr, "BOTTOM")            
+                        arcpy.mapping.AddLayer(dataFrame, lyr, "BOTTOM")
                         break
-                lyr.visible = False 
+                lyr.visible = False
         return added
 
     """
-    Returns map report in json format 
+    Returns map report in json format
     """
     def report(self):
         return(jsonpickle.encode(self.mapReport, unpicklable = False))
@@ -143,7 +143,7 @@ class MapChef:
     def processLayer(self, layer, countryName):
         mapResult = MapResult(layer)
         properties = self.layerProperties.properties.get(layer, None)
-        if (properties is not None):             
+        if (properties is not None):
             layerFilePath = os.path.join(self.layerDirectory, (properties.layerName + ".lyr"))
             if (os.path.exists(layerFilePath)):
                 self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
@@ -157,12 +157,12 @@ class MapChef:
                         base = os.path.basename(dataFile)
                         datasetName = os.path.splitext(base)[0]
                         dataDirectory = os.path.dirname(os.path.realpath(dataFile))
-                        mapResult.added = self.addDataToLayer(self.dataFrame, 
-                                                              dataDirectory, 
-                                                              layerToAdd, 
-                                                              properties.definitionQuery, 
-                                                              datasetName, 
-                                                              properties.labelClasses, 
+                        mapResult.added = self.addDataToLayer(self.dataFrame,
+                                                              dataDirectory,
+                                                              layerToAdd,
+                                                              properties.definitionQuery,
+                                                              datasetName,
+                                                              properties.labelClasses,
                                                               countryName)
                         mapResult.dataSource = dataFile
                         if mapResult.added:
@@ -180,30 +180,30 @@ class MapChef:
                         rasters = arcpy.ListRasters("*")
                         for raster in rasters:
                             if re.match(parts[1], raster):
-                                self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]                                            
-                                mapResult.added = self.addDataToLayer(self.dataFrame, 
-                                                                      geoDatabase, 
-                                                                      layerToAdd, 
-                                                                      properties.definitionQuery, 
-                                                                      raster, 
+                                self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]                              
+                                mapResult.added = self.addDataToLayer(self.dataFrame,
+                                                                      geoDatabase,
+                                                                      layerToAdd,
+                                                                      properties.definitionQuery,
+                                                                      raster,
                                                                       properties.
-                                                                      labelClasses, 
-                                                                      countryName)    
+                                                                      labelClasses,
+                                                                      countryName)
                                 mapResult.dataSource = geoDatabase + os.sep + raster
                                 break
                         featureClasses = arcpy.ListFeatureClasses()
                         for featureClass in featureClasses:
                             if re.match(parts[1], featureClass):
                                 self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
-                                mapResult.added = self.addDataToLayer(self.dataFrame, 
-                                                                      geoDatabase, 
-                                                                      layerToAdd, 
-                                                                      properties.definitionQuery, 
-                                                                      featureClass, 
-                                                                      properties.labelClasses, 
-                                                                      countryName)    
+                                mapResult.added = self.addDataToLayer(self.dataFrame,
+                                                                      geoDatabase,
+                                                                      layerToAdd,
+                                                                      properties.definitionQuery,
+                                                                      featureClass,
+                                                                      properties.labelClasses,
+                                                                      countryName)
                                 mapResult.dataSource = geoDatabase + os.sep + featureClass
-                                # Found Geodatabase.  Stop iterating.          
+                                # Found Geodatabase.  Stop iterating.
                                 break
                         if mapResult.added:
                             mapResult.message = "Layer added successfully"
