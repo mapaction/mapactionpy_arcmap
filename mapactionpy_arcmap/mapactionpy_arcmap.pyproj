@@ -11,7 +11,7 @@
     <Name>MapChef</Name>
     <RootNamespace>MapChef</RootNamespace>
     <LaunchProvider>Web launcher</LaunchProvider>
-    <CommandLineArguments>-b "C:\Users\steve\Source\Repos\mapactionpy_arcmap\mapactionpy_arcmap\Config\mapCookbook.json"  -l "C:\Users\steve\Source\Repos\mapactionpy_arcmap\mapactionpy_arcmap\Config\layerProperties.json" --cmf "D:\MapAction\2019-06-25 - Automation - El Salvador" -t "C:\Users\steve\Source\Repos\mapactionpy_arcmap\mapactionpy_arcmap\MXD\arcgis_10_2_ma000_reference_landscape_bottom_DEV.mxd"  --layerDirectory "C:\Users\steve\Source\Repos\mapactionpy_arcmap\mapactionpy_arcmap\Layers" -p "Reference: Administrative Boundaries &amp; P-Codes" --country "El Salvador"</CommandLineArguments>
+    <CommandLineArguments>-b "D:\MapAction\2018-11-16-SierraCobre\GIS\3_Mapping\31_Resources\316_Automation\mapCookbook.json"  -l "D:\MapAction\2018-11-16-SierraCobre\GIS\3_Mapping\31_Resources\316_Automation\layerProperties.json" --cmf "D:\MapAction\2018-11-16-SierraCobre" -t "C:\Users\steve\Source\Repos\mapactionpy_arcmap\mapactionpy_arcmap\MXD\arcgis_10_2_ma000_reference_landscape_bottom_DEV.mxd"  --layerDirectory "D:\MapAction\2018-11-16-SierraCobre\GIS\3_Mapping\38_Initial_Maps_Layer_Files\All" -p "Country Overview" --country "UNITED KINDOM"</CommandLineArguments>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
     <InterpreterId>Global|PythonCore|2.7-32</InterpreterId>
     <WebBrowserUrl>http://localhost</WebBrowserUrl>
@@ -26,14 +26,14 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="arcmap_runner.py" />
-    <Compile Include="LayerProperties.py" />
-    <Compile Include="LabelClass.py" />
-    <Compile Include="LayerProperty.py" />
-    <Compile Include="MapChef.py" />
-    <Compile Include="MapCookbook.py" />
-    <Compile Include="MapResult.py" />
-    <Compile Include="MapReport.py" />
-    <Compile Include="MapRecipe.py" />
+    <Compile Include="layer_properties.py" />
+    <Compile Include="label_class.py" />
+    <Compile Include="map_layer.py" />
+    <Compile Include="map_chef.py" />
+    <Compile Include="map_cookbook.py" />
+    <Compile Include="map_result.py" />
+    <Compile Include="map_report.py" />
+    <Compile Include="map_recipe.py" />
     <Compile Include="__init__.py" />
   </ItemGroup>
   <ItemGroup>
