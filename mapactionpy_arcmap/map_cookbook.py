@@ -1,10 +1,12 @@
 from map_recipe import MapRecipe
 import json
 
+
 class MapCookbook:
     """
-    MapCookbook - Contains recipes for Map Products 
+    MapCookbook - Contains recipes for Map Products
     """
+
     def __init__(self, cookbookJsonFile):
         """
         Sets path for Map Cookbook json file.
@@ -13,7 +15,7 @@ class MapCookbook:
         Arguments:
            cookbookJsonFile {str} -- path to Map Cookbook json file "mapCookbook.json"
         """
-        # @TODO Add validation + 
+        # @TODO Add validation +
         # pass in LayerProperties object, and validate
         self.cookbookJsonFile = cookbookJsonFile
         self.products = {}

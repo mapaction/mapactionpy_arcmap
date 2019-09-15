@@ -1,6 +1,4 @@
 import os
-from os import listdir
-from os.path import isfile, join
 import arcpy
 import jsonpickle
 import re
@@ -9,10 +7,12 @@ from map_report import MapReport
 from map_result import MapResult
 from layer_properties import LayerProperties
 
+
 class MapChef:
     """
     Worker which creates a Map based on a predefined "recipe" from a cookbook
     """
+
     def __init__(self, mxd, cookbookJsonFile, layerPropertiesJsonFile, crashMoveFolder, layerDirectory):
         """
         Arguments:
@@ -111,24 +111,24 @@ class MapChef:
                         if (lblClass.className == labelClass.className):
                             lblClass.SQLQuery = labelClass.SQLQuery
                             lblClass.expression = labelClass.expression
-            if lyr.supports("DATASOURCE"): # An annotation layer does notsupport DATASOURCE
+            if lyr.supports("DATASOURCE"):  # An annotation layer does notsupport DATASOURCE
                 for datasetType in datasetTypes:
                     #
                     try:
                         lyr.replaceDataSource(dataFile, datasetType, datasetName)
                         added = True
-                    except Exception, e:
+                    except Exception:
                         pass
-      
-                    if ((added == True) and (definitionQuery)):
+
+                    if ((added is True) and (definitionQuery)):
                         definitionQuery = definitionQuery.replace('{COUNTRY_NAME}', countryName)
                         lyr.definitionQuery = definitionQuery
                         try:
                             arcpy.SelectLayerByAttribute_management(lyr, "SUBSET_SELECTION", definitionQuery)
                         except Exception:
                             added = False
-							
-                    if (added == True):
+
+                    if (added is True):
                         arcpy.mapping.AddLayer(dataFrame, lyr, "BOTTOM")
                         break
                 lyr.visible = False
@@ -137,8 +137,9 @@ class MapChef:
     """
     Returns map report in json format
     """
+
     def report(self):
-        return(jsonpickle.encode(self.mapReport, unpicklable = False))
+        return(jsonpickle.encode(self.mapReport, unpicklable=False))
 
     def processLayer(self, layer, countryName):
         mapResult = MapResult(layer)
@@ -151,7 +152,7 @@ class MapChef:
                 searchDirectory = os.path.join(self.crashMoveFolder, "GIS", "2_Active_Data")
                 # If it's not a File Geodatabase (gdb) the regexp won't contain ".gdb/"
                 if (".gdb/" not in properties.regExp):
-                    dataFiles=self.find(searchDirectory, properties.regExp)
+                    dataFiles = self.find(searchDirectory, properties.regExp)
                     for dataFile in (dataFiles):
                         self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
                         base = os.path.basename(dataFile)
@@ -173,14 +174,14 @@ class MapChef:
                 else:
                     # It's a File Geodatabase
                     parts = properties.regExp.split("/")
-                    gdbPath=parts[0]
+                    gdbPath = parts[0]
                     geoDatabases = self.find(searchDirectory, gdbPath, True)
                     for geoDatabase in geoDatabases:
                         arcpy.env.workspace = geoDatabase
                         rasters = arcpy.ListRasters("*")
                         for raster in rasters:
                             if re.match(parts[1], raster):
-                                self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]                              
+                                self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
                                 mapResult.added = self.addDataToLayer(self.dataFrame,
                                                                       geoDatabase,
                                                                       layerToAdd,
@@ -214,7 +215,7 @@ class MapChef:
                                     properties.definitionQuery
                                 break
                             # Otherwise, whizz around again
-                 # If a file hasn't been added, and no other reason given, report what was expected
+                # If a file hasn't been added, and no other reason given, report what was expected
                 if ((mapResult.added is False) and (len(mapResult.message) == 0)):
                     mapResult.message = "Could not find file matching " + properties.regExp
             else:
@@ -232,16 +233,16 @@ class MapChef:
         regexp = ".*" + regexp
         re.compile(regexp)
         for root, dirs, files in os.walk(os.path.abspath(rootdir)):
-            if (gdb == False):
+            if (gdb is False):
                 for file in files:
-                    filePath=os.path.join(root, file)
+                    filePath = os.path.join(root, file)
                     z = re.match(regexp, filePath)
                     if (z):
                         if not(filePath.endswith("lock")):
                             returnPaths.append(filePath)
             else:
                 for dir in dirs:
-                    dirPath=os.path.join(root, dir)
+                    dirPath = os.path.join(root, dir)
                     z = re.match(regexp, dirPath)
                     if (z):
                         returnPaths.append(dirPath)

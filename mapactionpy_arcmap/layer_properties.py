@@ -1,11 +1,12 @@
 import json
 from map_layer import MapLayer
 
+
 class LayerProperties:
     def __init__(self, layerPropertiesJsonFile):
         # @TODO Integrate validation utility here...
         self.layerPropertiesJsonFile = layerPropertiesJsonFile
-        self.properties = {} # Dictionary
+        self.properties = {}  # Dictionary
         self._parse()
 
     def _parse(self):

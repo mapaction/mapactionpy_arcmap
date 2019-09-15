@@ -1,9 +1,11 @@
 from datetime import datetime
 
+
 class MapResult:
     """
     MapResult - result for adding a layer to the Map Product
     """
+
     def __init__(self, layerName):
         """
         Constructor, initialises new Map Result for the layer
