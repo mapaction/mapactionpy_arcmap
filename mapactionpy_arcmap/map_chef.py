@@ -158,7 +158,13 @@ class MapChef:
                         base = os.path.basename(dataFile)
                         datasetName = os.path.splitext(base)[0]
                         dataDirectory = os.path.dirname(os.path.realpath(dataFile))
-                        mapResult.added = self.addDataToLayer(self.dataFrame, dataDirectory, layerToAdd, properties.definitionQuery, datasetName, properties.labelClasses, countryName)
+                        mapResult.added = self.addDataToLayer(self.dataFrame, 
+                                                              dataDirectory, 
+                                                              layerToAdd, 
+                                                              properties.definitionQuery, 
+                                                              datasetName, 
+                                                              properties.labelClasses, 
+                                                              countryName)
                         mapResult.dataSource = dataFile
                         if mapResult.added:
                             mapResult.message = "Layer added successfully"
@@ -175,14 +181,27 @@ class MapChef:
                         for raster in rasters:
                             if re.match(parts[1], raster):
                                 self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]                                            
-                                mapResult.added = self.addDataToLayer(self.dataFrame, geoDatabase, layerToAdd, properties.definitionQuery, raster, properties.labelClasses, countryName)    
+                                mapResult.added = self.addDataToLayer(self.dataFrame, 
+                                                                      geoDatabase, 
+                                                                      layerToAdd, 
+                                                                      properties.definitionQuery, 
+                                                                      raster, 
+                                                                      properties.
+                                                                      labelClasses, 
+                                                                      countryName)    
                                 mapResult.dataSource = geoDatabase + os.sep + raster
                                 break
                         featureClasses = arcpy.ListFeatureClasses()
                         for featureClass in featureClasses:
                             if re.match(parts[1], featureClass):
                                 self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
-                                mapResult.added = self.addDataToLayer(self.dataFrame, geoDatabase, layerToAdd, properties.definitionQuery, featureClass, properties.labelClasses, countryName)    
+                                mapResult.added = self.addDataToLayer(self.dataFrame, 
+                                                                      geoDatabase, 
+                                                                      layerToAdd, 
+                                                                      properties.definitionQuery, 
+                                                                      featureClass, 
+                                                                      properties.labelClasses, 
+                                                                      countryName)    
                                 mapResult.dataSource = geoDatabase + os.sep + featureClass
                                 # Found Geodatabase.  Stop iterating.          
                                 break

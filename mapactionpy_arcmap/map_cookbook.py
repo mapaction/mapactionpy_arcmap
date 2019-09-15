@@ -16,7 +16,6 @@ class MapCookbook:
         # @TODO Add validation + 
         # pass in LayerProperties object, and validate
         self.cookbookJsonFile = cookbookJsonFile
-        #self.products = list()
         self.products = {}
         self._parse()
 
