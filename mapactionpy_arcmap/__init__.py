@@ -1,3 +1,4 @@
+# flake8: noqa
 from .label_class import LabelClass
 from .map_layer import MapLayer
 from .layer_properties import LayerProperties
