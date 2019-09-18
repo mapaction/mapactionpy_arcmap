@@ -1,4 +1,3 @@
-
 # MapChef
 
 Master branch [![Build Status](https://travis-ci.org/mapaction/mapactionpy_arcmap.svg?branch=master)](https://travis-ci.org/mapaction/mapactionpy_arcmap) [![Coverage Status](https://coveralls.io/repos/github/mapaction/mapactionpy_arcmap/badge.svg?branch=pep8-and-travis)](https://coveralls.io/github/mapaction/mapactionpy_arcmap?branch=master)
@@ -131,7 +130,7 @@ The Layer Config file ([layerProperties.json](mapactionpy_arcmap/Config/layerPro
 
 ```
 C:\Python27\ArcGIS10.6\python.exe main.py \
-   --cookbook "D:\MapAction\2019-06-25 - Automation - El Salvador\GIS\3_Mapping\31_Resources\316_Automation\mapCookbook.json" \ 
+   --cookbook "D:\MapAction\2019-06-25 - Automation - El Salvador\GIS\3_Mapping\31_Resources\31A_Automation\mapCookbook.json" \ 
    --layerConfig "C:\Users\steve\Source\Repos\mapactionpy_arcmap\poc\MapChef\Config\layerProperties.json" \
    --cmf "D:\MapAction\2019-06-25 - Automation - El Salvador" \ 
    --template "D:\MapAction\2019-06-25 - Automation - El Salvador\GIS\3_Mapping\32_MXD_Templates\arcgis_10_2\MapAction\01 Reference mapping\arcgis_10_2_ma000_reference_landscape_bottom_DEV.mxd" \
@@ -154,9 +153,9 @@ In order to integrate this `MapActionPy_ArcMap` module with the MapAction Toolba
 1) All layer `.lyr` files should be made available under the crash move folder at the following location:
 `\GIS\3_Mapping\31_Resources\312_Layer_files`
 2) Layer properties file [layerProperties.json](mapactionpy_arcmap/Config/layerProperties.json) copied to new directory under the crash move folder at the following location:
-`\GIS\3_Mapping\31_Resources\316_Automation`
+`\GIS\3_Mapping\31_Resources\31A_Automation`
 3) Map cookbook file [mapCookbook.json](mapactionpy_arcmap/Config/mapCookbook.json) copied to directory under the crash move folder at the following location:
-`\GIS\3_Mapping\31_Resources\316_Automation`
+`\GIS\3_Mapping\31_Resources\31A_Automation`
 
 
 ## Authors
