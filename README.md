@@ -6,36 +6,66 @@ Adds geospatial data to an ArcMap MXD file based on a recipe from a cookbook con
 
 ### Prerequisites
 
-Python and ArcPy
+* Python and ArcPy
 
-```
-C:\Python27\ArcGIS10.6\python.exe
-```
+    ```
+    C:\Python27\ArcGIS10.6\python.exe
+    ```
+* ArcMap MapAction templates.
+* Complete data scrable using Crash Move Folder Version xx.
 
 ## Packaging
 
 ```python setup.py bdist_wheel```
 
 ## Installing
+1) Clone
+git clone https://github.com/mapaction/mapactionpy_arcmap/
+2) Change Directory at the command line
+    ```cd mapactionpy_arcmap```
+3) Run package ```python setup.py bdist_wheel```
+4) Install
+    ```
+    python -m pip install jsonpickle
+    python -m pip install --user -e .
+    ```
+    To install for use non-development purposes:
+    Clone the github repo then from the root of your local clone:
+    ```
+    python -m pip install .
+    ```
+5) If required, uninstall the ArcMap Esri Add-In.
+6) Reinstall ArcMap Esri Add-In using file here:
+    https://drive.google.com/open?id=14TJCqA6rDrnu6VmRTHSLXFrDBr8FADGP
+6) Restart ArcMap and ensure the 'Map Generation Tool' is available within the MapAction toolbar.
+7) To run the 'Map Generation Tool' the following paths MUST exist:
+    ```  
+    <Crash Move Folder> \GIS\3_Mapping\31_Resources\312_Layer_files\
+    ```
+    This must contain the Layer files (.lyr) which correspond with the names quoted in the mapCookbook.json file.
 
-```
-python -m pip install jsonpickle
-```
+8) Move the layerProperties.json and mapCookbook.json files from the Git repository to:
+    ```
+    <Crash Move Folder> \GIS\3_Mapping\31_Resources\31A_Automation\
+    ```
+    i.e.
+    ```
+    <Crash Move Folder> \GIS\3_Mapping\31_Resources\31A_Automation\layerProperties.json
+    <Crash Move Folder> \GIS\3_Mapping\31_Resources\31A_Automation\mapCookbook.json
+    ```
 
-To install for development purposes:
-Clone the github repo then from the root of your local clone:
-```
-python -m pip install --user -e .
-```
+## Integration with MapAction Toolbar
 
-To install for use non-development purposes:
-Clone the github repo then from the root of your local clone:
-```
-python -m pip install .
-```
+In order to integrate this `MapActionPy_ArcMap` module with the MapAction Toolbar, the following steps need to be carried out:
 
-todo:
-[] enable installation via pypi.
+:information_source: The "Automation" add-in is in development in the `automation` branch at: https://github.com/mapaction/mapaction-toolbox/tree/automation):
+
+1) All layer `.lyr` files should be made available under the crash move folder at the following location:
+`\GIS\3_Mapping\31_Resources\312_Layer_files`
+2) Layer properties file [layerProperties.json](mapactionpy_arcmap/Config/layerProperties.json) copied to new directory under the crash move folder at the following location:
+`\GIS\3_Mapping\31_Resources\31A_Automation`
+3) Map cookbook file [mapCookbook.json](mapactionpy_arcmap/Config/mapCookbook.json) copied to directory under the crash move folder at the following location:
+`\GIS\3_Mapping\31_Resources\31A_Automation`
 
 
 ## Configuration Files
@@ -104,27 +134,29 @@ The Layer Config file ([layerProperties.json](mapactionpy_arcmap/Config/layerPro
 ```
 
 #### Fields   
-#|Field | Description|
--|------------ | -------------|
-1|```MapFrame``` | Name of the Map Frame that the layer is to be added to|
-2|```LayerName``` | Name of the Layer.  This must correlate with the ```layerFile.Name``` field in the ```mapCookbook.json``` file.  |
-3|```RegExp``` | Regular Expression.  Used when selecting files to display|
-4|```DefinitionQuery``` | Definition Query|
-5|```Display``` | Shows if set to 'Yes'|
-6|```LabelClasses``` | Details for displaying labels|
+
+| # | Field           | Description                                                                                                    |
+|---|-----------------|----------------------------------------------------------------------------------------------------------------|
+| 1 | MapFrame        | Name of the Map Frame that the layer is to be added to                                                         |
+| 2 | LayerName       | Name of the Layer. This must correlate with the ```layerFile.Name``` field in the ```mapCookbook.json``` file. |
+| 3 | RegExp          | Regular Expression.  Used when selecting files to display                                                      |
+| 4 | DefinitionQuery | Definition Query                                                                                               |
+| 5 | Display         | Shows if set to 'Yes'                                                                                          |
+| 6 | LabelClasses    | Details for displaying labels                                                                                  |
 
 ## Execution
 
 ### Parameters
 
-#|Field | Description|
--|------------ | -------------|
-1|```--cookbook`` | Path to the cookbook ```mapCookbook.json``` file.|
-2|```--layerConfig``` | Path to the ```layerProperties.json``` file.|
-3|```--cmf``` | Path to the Crash Move Folder root. |
-4|```--template``` | Path to the ```MXD``` file.|
-5|```--product``` | Name of product (must correlate with a product in the cookbook file). |
-6|```--country``` | Name of country. |
+| # | Field         | Description                                                           |
+|---|---------------|-----------------------------------------------------------------------|
+| 1 | --cookbook    | Path to the cookbook ```mapCookbook.json``` file.                     |
+| 2 | --layerConfig | Path to the ```layerProperties.json``` file.                          |
+| 3 | --cmf         | Path to the Crash Move Folder root.                                   |
+| 4 | --template    | Path to the ```MXD``` file.                                           |
+| 5 | --product     | Name of product (must correlate with a product in the cookbook file). |
+| 6 | --country     | Name of country.                                                      |
+
 
 ### Example
 
@@ -144,21 +176,12 @@ This ```Country Overview``` map was generated:
 
 ![alt text](Images/Result.png)
 
-## Integration with MapAction Toolbar
-
-In order to integrate this `MapActionPy_ArcMap` module with the MapAction Toolbar, the following steps need to be carried out:
-
-:information_source: The "Automation" add-in is in development in the `automation` branch at: https://github.com/mapaction/mapaction-toolbox/tree/automation):
-
-1) All layer `.lyr` files should be made available under the crash move folder at the following location:
-`\GIS\3_Mapping\31_Resources\312_Layer_files`
-2) Layer properties file [layerProperties.json](mapactionpy_arcmap/Config/layerProperties.json) copied to new directory under the crash move folder at the following location:
-`\GIS\3_Mapping\31_Resources\31A_Automation`
-3) Map cookbook file [mapCookbook.json](mapactionpy_arcmap/Config/mapCookbook.json) copied to directory under the crash move folder at the following location:
-`\GIS\3_Mapping\31_Resources\31A_Automation`
-
 
 ## Authors
 
 * **Steve Hurst** - [https://github.com/mapaction/mapactionpy_arcmap](https://github.com/mapaction/mapactionpy_arcmap)
+* **Steve Penson**
 
+
+todo:
+[] enable installation via pypi.

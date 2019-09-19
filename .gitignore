@@ -10,3 +10,5 @@
 # Visual Studio Code settings
 /.vscode
 .coverage
+
+.idea/
