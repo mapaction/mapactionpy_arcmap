@@ -15,12 +15,15 @@ def get_dev_build_number():
     if travis_build:
         return '.dev{}'.format(travis_build)
     else:
-        ver = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD'])
-        return '+local.{}'.format(ver.decode('ascii').strip())
+        try:
+            ver = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD'])
+            return '+local.{}'.format(ver.decode('ascii').strip())
+        except Exception:
+            return ''
 
 
 setup(name='mapactionpy_arcmap',
-      version='0.2{}'.format(get_dev_build_number()),
+      version='0.3{}'.format(get_dev_build_number()),
       description='Used to drive ArcMap',
       long_description=readme(),
       long_description_content_type="text/markdown",
