@@ -21,8 +21,128 @@
     },
     {
       "MapFrame": "Main Map",
+      "LayerName": "mainmap-s1-pt-settlements",
+      "RegExp": "^[a-z]{3}_stle_stl_pt_(.*?)_(.*?)_([phm][phm])(.*?).shp$",
+      "DefinitionQuery": "place IN ('national_capital', 'city', 'capital')",
+      "Display": "Yes",
+      "LabelClasses": [
+        {
+          "className": "National Capital",
+          "expression": "[name]",
+          "SQLQuery": "(\"place\" = 'national_capital')"
+        },
+        {
+          "className": "Admin 1 Capital",
+          "expression": "[name]",
+          "SQLQuery": "(\"place\" = 'city')"
+        },
+        {
+          "className": "Admin 2 Capital",
+          "expression": "[name]",
+          "SQLQuery": "(\"place\" = 'town')"
+        }
+      ]
+    },
+    {
+      "MapFrame": "Main Map",
       "LayerName": "mainmap-s0-pt-seaports",
       "RegExp": "^[a-z]{3}_tran_sea_pt_(.*?)_(.*?)_([phm][phm])_(.*?).shp$",
+      "DefinitionQuery": "",
+      "Display": "Yes",
+      "LabelClasses": []
+    },
+    {
+      "MapFrame": "Main Map",
+      "LayerName": "mainmap-s0-pt-airports",
+      "RegExp": "^[a-z]{3}_tran_air_pt_(.*?)_(.*?)_([phm][phm])(.*?).shp$",
+      "DefinitionQuery": "type IN ('medium_airport', 'large_airport')",
+      "Display": "Yes",
+      "LabelClasses": []
+    },
+    {
+      "MapFrame": "Main Map",
+      "LayerName": "mainmap-s0-ln-surroundingcountries",
+      "RegExp": "^[a-z]{3}_admn_adx_ln_(.*?)_(.*?)_*([phm][phm])(.*?).shp$",
+      "DefinitionQuery": "",
+      "Display": "Yes",
+      "LabelClasses": []
+    },
+    {
+      "MapFrame": "Main Map",
+      "LayerName": "mainmap-s0-ln-admin0",
+      "RegExp": "^[a-z]{3}_admn_ad0_ln_(.*?)_(.*?)_*([phm][phm])(.*?).shp$",
+      "DefinitionQuery": "",
+      "Display": "Yes",
+      "LabelClasses": []
+    },
+    {
+      "MapFrame": "Main Map",
+      "LayerName": "mainmap-s0-ln-admin1",
+      "RegExp": "^[a-z]{3}_admn_ad1_ln_(.*?)_(.*?)_([phm][phm])(.*?).shp$",
+      "DefinitionQuery": "",
+      "Display": "Yes",
+      "LabelClasses": []
+    },
+    {
+      "MapFrame": "Main Map",
+      "LayerName": "mainmap-s1-ln-admin1",
+      "RegExp": "^[a-z]{3}_admn_ad1_ln_(.*?)_(.*?)_([phm][phm])(.*?).shp$",
+      "DefinitionQuery": "",
+      "Display": "Yes",
+      "LabelClasses": []
+    },
+    {
+      "MapFrame": "Main Map",
+      "LayerName": "mainmap-s0-ln-admin2",
+      "RegExp": "^[a-z]{3}_admn_ad2_ln_(.*?)_(.*?)_([phm][phm])(.*?).shp$",
+      "DefinitionQuery": "",
+      "Display": "Yes",
+      "LabelClasses": []
+    },
+    {
+      "MapFrame": "Main Map",
+      "LayerName": "mainmap-s1-ln-admin2",
+      "RegExp": "^[a-z]{3}_admn_ad2_ln_(.*?)_(.*?)_([phm][phm])(.*?).shp$",
+      "DefinitionQuery": "",
+      "Display": "Yes",
+      "LabelClasses": []
+    },
+    {
+      "MapFrame": "Main Map",
+      "LayerName": "mainmap-s1-ln-admin3",
+      "RegExp": "^[a-z]{3}_admn_ad3_ln_(.*?)_(.*?)_([phm][phm])(.*?).shp$",
+      "DefinitionQuery": "",
+      "Display": "Yes",
+      "LabelClasses": []
+    },
+    {
+      "MapFrame": "Main Map",
+      "LayerName": "mainmap-s0-ln-roads",
+      "RegExp": "^[a-z]{3}_tran_rds_ln_(.*?)_(.*?)_([phm][phm])(.*?).shp$",
+      "DefinitionQuery": "fclass = 'primary'",
+      "Display": "Yes",
+      "LabelClasses": []
+    },
+    {
+      "MapFrame": "Main Map",
+      "LayerName": "mainmap-s0-ln-rail",
+      "RegExp": "^[a-z]{3}_tran_rrd_ln_(.*?)_(.*?)_([phm][phm])(.*?).shp$",
+      "DefinitionQuery": "",
+      "Display": "Yes",
+      "LabelClasses": []
+    },
+    {
+      "MapFrame": "Main Map",
+      "LayerName": "mainmap-s0-ln-rivers",
+      "RegExp": "^[a-z]{3}_phys_riv_ln_(.*?)_(.*?)_([phm][phm])(.*?).shp$",
+      "DefinitionQuery": "fclass IN ('river')",
+      "Display": "Yes",
+      "LabelClasses": []
+    },
+    {
+      "MapFrame": "Main Map",
+      "LayerName": "mainmap-s0-ln-coastline",
+      "RegExp": "^[a-z]{3}_elev_cst_ln_(.*?)_(.*?)_([phm][phm]).shp$",
       "DefinitionQuery": "",
       "Display": "Yes",
       "LabelClasses": []
@@ -37,89 +157,74 @@
     },
     {
       "MapFrame": "Main Map",
-      "LayerName": "mainmap-s0-py-admin1",
-      "RegExp": "^[a-z]{3}_admn_ad1_py_(.*?)_(.*?)_([phm][phm]).shp$",
+      "LayerName": "legend-s0-ln-road",
+      "RegExp": "^[a-z]{3}_tran_rds_ln_(.*?)_(.*?)_([phm][phm])(.*?).shp$",
       "DefinitionQuery": "",
-      "Display": "Yes",
-      "LabelClasses": []
-
-    },
-    {
-      "MapFrame": "Main Map",
-      "LayerName": "Borders - Admin 0",
-      "RegExp": "^[a-z]{3}_admn_ad0_ln_(.*?)_*([phm][phm]).shp$",
-      "DefinitionQuery": "",
-      "Display": "Yes",
+      "Display": "No",
       "LabelClasses": []
     },
     {
       "MapFrame": "Main Map",
-      "LayerName": "mainmap-s1-ln-admin1",
-      "RegExp": "^[a-z]{3}_admn_ad1_ln_(.*?)_(.*?)_([phm][phm]).shp$",
+      "LayerName": "legend-s0-py-waterbodies",
+      "RegExp": "^[a-z]{3}_phys_lak_py_(.*?)_(.*?)_([phm][phm])(.*?).shp$",
       "DefinitionQuery": "",
-      "Display": "Yes",
-      "LabelClasses": []
-    },
-    {
-      "MapFrame": "Location Map",
-      "LayerName": "mainmap-s1-ln-admin2",
-      "RegExp": "^[a-z]{3}_admn_ad2_ln_(.*?)_(.*?)_([phm][phm]).shp$",
-      "DefinitionQuery": "",
-      "Display": "Yes",
-      "LabelClasses": []
-    },
-    {
-      "MapFrame": "Main Map",
-      "LayerName": "mainmap-s0-ln-rail",
-      "RegExp": "^[a-z]{3}_tran_rrd_ln_(.*?)_(.*?)_([phm][phm]).shp$",
-      "DefinitionQuery": "",
-      "Display": "Yes",
-      "LabelClasses": []
-    },
-    {
-      "MapFrame": "Main Map",
-      "LayerName": "mainmap-s0-pt-airports",
-      "RegExp": "^[a-z]{3}_tran_air_pt_(.*?)_(.*?)_([phm][phm])_(.*?).shp$",
-      "DefinitionQuery": "",
-      "Display": "Yes",
-      "LabelClasses": []
-    },
-    {
-      "MapFrame": "Main Map",
-      "LayerName": "mainmap-s0-py-feather",
-      "RegExp": "^[a-z]{3}_carto_fea_py_(.*?)_(.*?)_pp.shp$",
-      "DefinitionQuery": "",
-      "Display": "Yes",
-      "LabelClasses": []
-    },
-    {
-      "MapFrame": "Main Map",
-      "LayerName": "mainmap-s0-py-waterbodies",
-      "RegExp": "^[a-z]{3}_phys_lak_py_(.*?)_(.*?)_([phm][phm]).shp$",
-      "DefinitionQuery": "",
-      "Display": "Yes",
-      "LabelClasses": []
-    },
-    {
-      "MapFrame": "Main Map",
-      "LayerName": "mainmap-s0-ln-rivers",
-      "RegExp": "^[a-z]{3}_phys_riv_ln_(.*?)_(.*?)_([phm][phm]).shp$",
-      "DefinitionQuery": "",
-      "Display": "Yes",
+      "Display": "No",
       "LabelClasses": []
     },
     {
       "MapFrame": "Main Map",
       "LayerName": "mainmap-s0-py-admin1",
-      "RegExp": "^[a-z]{3}_admn_ad1_py_(.*?).shp$",
+      "RegExp": "^[a-z]{3}_admn_ad1_py_(.*?)_(.*?)_([phm][phm])(.*?).shp$",
       "DefinitionQuery": "",
       "Display": "Yes",
+      "LabelClasses": [
+        {
+          "className": "Admin 1 Name and PCode",
+          "expression": "[ADM1_NAME] &vbNewLine & [ADM1_PCODE]",
+          "SQLQuery": "(\"ADM0_NAME\" = '{COUNTRY_NAME}'"
+        }
+      ]
+    },
+    {
+      "MapFrame": "Main Map",
+      "LayerName": "mainmap-s1-py-admin1",
+      "RegExp": "^[a-z]{3}_admn_ad1_py_(.*?)_(.*?)_([phm][phm])(.*?).shp$",
+      "DefinitionQuery": "",
+      "Display": "Yes",
+      "LabelClasses": [
+        {
+          "className": "Admin 1 Name and PCode",
+          "expression": "[ADM1_NAME] &vbNewLine & [ADM1_PCODE]",
+          "SQLQuery": "(\"ADM0_NAME\" = '{COUNTRY_NAME}'"
+        }
+      ]
+    },
+    {
+      "MapFrame": "Main Map",
+      "LayerName": "mainmap-s1-py-ddpadmin1",
+      "RegExp": "^[a-z]{3}_admn_ad1_py_(.*?)_(.*?)_([phm][phm])(.*?).shp$",
+      "DefinitionQuery": "",
+      "Display": "No",
       "LabelClasses": []
     },
     {
       "MapFrame": "Main Map",
       "LayerName": "mainmap-s0-py-admin2",
-      "RegExp": "^[a-z]{3}_admn_ad2_py_(.*?).shp$",
+      "RegExp": "^[a-z]{3}_admn_ad2_py_(.*?)_(.*?)_([phm][phm])(.*?).shp$",
+      "DefinitionQuery": "",
+      "Display": "Yes",
+      "LabelClasses": [
+        {
+          "className": "Admin 2 Name and PCode",
+          "expression": "[ADM2_NAME] &vbNewLine & [ADM2_PCODE]",
+          "SQLQuery": "(\"ADM0_NAME\" = '{COUNTRY_NAME}'"
+        }
+      ]
+    },
+    {
+      "MapFrame": "Main Map",
+      "LayerName": "mainmap-s1-py-admin2",
+      "RegExp": "^[a-z]{3}_admn_ad2_py_(.*?)_(.*?)_([phm][phm])(.*?).shp$",
       "DefinitionQuery": "",
       "Display": "Yes",
       "LabelClasses": []
@@ -127,7 +232,7 @@
     {
       "MapFrame": "Main Map",
       "LayerName": "mainmap-s2-py-admin3",
-      "RegExp": "^[a-z]{3}_admn_ad3_py_(.*?).shp$",
+      "RegExp": "^[a-z]{3}_admn_ad3_py_(.*?)_(.*?)_([phm][phm])(.*?).shp$",
       "DefinitionQuery": "",
       "Display": "Yes",
       "LabelClasses": []
@@ -135,7 +240,31 @@
     {
       "MapFrame": "Main Map",
       "LayerName": "mainmap-s3-py-admin4",
-      "RegExp": "^[a-z]{3}_admn_ad4_py_(.*?).shp$",
+      "RegExp": "^[a-z]{3}_admn_ad4_py_(.*?)_(.*?)_([phm][phm])(.*?).shp$",
+      "DefinitionQuery": "",
+      "Display": "Yes",
+      "LabelClasses": []
+    },
+    {
+      "MapFrame": "Main Map",
+      "LayerName": "mainmap-s0-py-sea",
+      "RegExp": "^[a-z]{3}_phys_sea_py_(.*?)_(.*?)_pp(.*?).shp$",
+      "DefinitionQuery": "",
+      "Display": "Yes",
+      "LabelClasses": []
+    },
+    {
+      "MapFrame": "Main Map",
+      "LayerName": "mainmap-s0-py-feather",
+      "RegExp": "^[a-z]{3}_carto_fea_py_(.*?)_(.*?)_pp(.*?).shp$",
+      "DefinitionQuery": "",
+      "Display": "Yes",
+      "LabelClasses": []
+    },
+    {
+      "MapFrame": "Main Map",
+      "LayerName": "mainmap-s0-py-waterbodies",
+      "RegExp": "^[a-z]{3}_phys_lak_py_(.*?)_(.*?)_([phm][phm])(.*?).shp$",
       "DefinitionQuery": "",
       "Display": "Yes",
       "LabelClasses": []
@@ -143,7 +272,7 @@
     {
       "MapFrame": "Main Map",
       "LayerName": "mainmap-s0-py-affectedcountry",
-      "RegExp": "^[a-z]{3}_admn_ad0_py_(.*?)_(.*?)_([phm][phm]).shp$",
+      "RegExp": "^[a-z]{3}_admn_adx_py_(.*?)_(.*?)_([phm][phm])(.*?).shp$",
       "DefinitionQuery": "\"ADM0_NAME\" = '{COUNTRY_NAME}'",
       "Display": "Yes",
       "LabelClasses": []
@@ -151,15 +280,15 @@
     {
       "MapFrame": "Main Map",
       "LayerName": "mainmap-s0-py-surroundingcountries",
-      "RegExp": "^[a-z]{3}_admn_ad0_py_(.*?)_(.*?)_([phm][phm]).shp$",
-      "DefinitionQuery": "NOT \"ADM0_NAME\" = '{COUNTRY_NAME}'",
+      "RegExp": "^[a-z]{3}_admn_adx_py_(.*?)_(.*?)_([phm][phm])(.*?).shp$",
+      "DefinitionQuery": "\"ADM0_NAME\" <> '{COUNTRY_NAME}'",
       "Display": "Yes",
       "LabelClasses": []
     },
     {
       "MapFrame": "Main Map",
       "LayerName": "mainmap-s0-py-sea",
-      "RegExp": "^[a-z]{3}_phys_sea_py_(.*?)_(.*?)_([phm][phm]).shp$",
+      "RegExp": "^[a-z]{3}_phys_sea_py_(.*?)_(.*?)_([phm][phm])(.*?).shp$",
       "DefinitionQuery": "",
       "Display": "Yes",
       "LabelClasses": []
@@ -182,8 +311,16 @@
     },
     {
       "MapFrame": "Main Map",
+      "LayerName": "mainmap-s0-ras-population",
+      "RegExp": "^[a-z]{3}_popu_pop_ras_(.*?)_(.*?)_([phm][phm])(.*?).tif$",
+      "DefinitionQuery": "",
+      "Display": "Yes",
+      "LabelClasses": []
+    },
+    {
+      "MapFrame": "Main Map",
       "LayerName": "mainmap-s0-ras-dem",
-      "RegExp": "^[a-z]{3}_elev_dem_ras_(.*?).tif$",
+      "RegExp": "^[a-z]{3}_elev_dem_ras_(.*?)_(.*?)_([phm][phm])(.*?).tif$",
       "DefinitionQuery": "",
       "Display": "Yes",
       "LabelClasses": []
@@ -191,7 +328,7 @@
     {
       "MapFrame": "Main Map",
       "LayerName": "mainmap-s0-ras-hillshade",
-      "RegExp": "^[a-z]{3}_elev_hsh_ras_(.*?)_(.*?)_([phm][phm])(_(.+)).tif$",
+      "RegExp": "^[a-z]{3}_elev_hsh_ras_(.*?)_(.*?)_([phm][phm])(.*?).tif$",
       "DefinitionQuery": "",
       "Display": "Yes",
       "LabelClasses": []
@@ -199,47 +336,47 @@
     {
       "MapFrame": "Main Map",
       "LayerName": "mainmap-s0-ras-curvature",
-      "RegExp": "^[a-z]{3}_elev_cur_ras_(.*?)_(.*?)_([phm][phm])(_(.+)).tif$",
+      "RegExp": "^[a-z]{3}_elev_cur_ras_(.*?)_(.*?)_([phm][phm])(.*?).tif$",
       "DefinitionQuery": "",
       "Display": "Yes",
       "LabelClasses": []
     },
     {
       "MapFrame": "Main Map",
-      "LayerName": "mainmap-s0-ln-roads",
-      "RegExp": "^[a-z]{3}_tran_rds_ln_(.*?)_(.*?)_([phm][phm]).shp$",
-      "DefinitionQuery": "highway = 'primary'",
-      "Display": "Yes",
-      "LabelClasses": []
-    },
-    {
-      "MapFrame": "Main Map",
-      "LayerName": "Population",
-      "RegExp": "^[a-z]{3}_popu_pop_ras_(.*?)_(.*?)_([phm][phm]).tif$",
+      "LayerName": "mainmap-s0-ras-population",
+      "RegExp": "^[a-z]{3}_popu_pop_ras_(.*?)_(.*?)_([phm][phm])(.*?).tif$",
       "DefinitionQuery": "",
       "Display": "Yes",
       "LabelClasses": []
     },
     {
-      "MapFrame": "Main Map",
-      "LayerName": "legend-s0-ln-road",
-      "RegExp": "^[a-z]{3}_tran_rds_ln_(.*?)_(.*?)_([phm][phm])(_(.+))",
+      "MapFrame": "Location Map",
+      "LayerName": "locationmap-s0-ln-coastline",
+      "RegExp": "^[a-z]{3}_elev_cst_ln_s0_(.*?)_([phm][phm])(.*?).shp$",
       "DefinitionQuery": "",
-      "Display": "No",
+      "Display": "Yes",
       "LabelClasses": []
     },
     {
-      "MapFrame": "Main Map",
-      "LayerName": "legend-s0-py-waterbodies",
-      "RegExp": "tbd",
+      "MapFrame": "Location Map",
+      "LayerName": "locationmap-s0-ln-admin1",
+      "RegExp": "^[a-z]{3}_admn_ad1_ln_s0_(.*?)_([phm][phm])(.*?).shp$",
+      "DefinitionQuery": "",
+      "Display": "Yes",
+      "LabelClasses": []
+    },
+    {
+      "MapFrame": "Location Map",
+      "LayerName": "locationmap-s1-ln-admin2",
+      "RegExp": "^[a-z]{3}_admn_ad2_ln_(.*?)_(.*?)_([phm][phm])(.*?).shp$",
       "DefinitionQuery": "",
       "Display": "No",
       "LabelClasses": []
     },
     {
       "MapFrame": "Location Map",
-      "LayerName": "Location Map - Admin 0 Polygon",
-      "RegExp": "^[a-z]{3}_admn_ad0_py_(.*?)_(.*?)_([phm][phm]).shp$",
+      "LayerName": "locationmap-s0-ln-affectedcountry",
+      "RegExp": "^[a-z]{3}_admn_ad0_ln_s0_(.*?)_([phm][phm])(.*?).shp$",
       "DefinitionQuery": "",
       "Display": "Yes",
       "LabelClasses": []
@@ -247,8 +384,8 @@
     {
       "MapFrame": "Location Map",
       "LayerName": "locationmap-s0-py-surroundingcountries",
-      "RegExp": "^[a-z]{3}_admn_ad0_py_(.*?)_(.*?)_([phm][phm])(_(.+))",
-      "DefinitionQuery": "",
+      "RegExp": "^[a-z]{3}_admn_adx_py_s0_(.*?)_([phm][phm])(.*?).shp$",
+      "DefinitionQuery": "\"ADM0_NAME\" <> '{COUNTRY_NAME}'",
       "Display": "Yes",
       "LabelClasses": []
     }

@@ -1,92 +1,114 @@
 {
   "recipes": [
     {
-      "product": "Reference: Administrative Boundaries & P-Codes",
+	  "category": "Reference",
+      "product": "Reference: Country Overview with Admin 1 Boundaries & P-Codes",
       "classification": "Core",
       "layers": [
         "mainmap-s0-pt-settlements",
-        "Borders - Admin 0",
-        "mainmap-s1-ln-admin1",
-        "mainmap-s1-ln-admin2",
-        "mainmap-s2-ln-admin3",
-        "mainmap-s3-py-admin4",
-        "mainmap-s1-ln-coastline",
-        "mainmap-s0-py-sea",
-        "mainmap-s0-py-affectedcountry",
+        "mainmap-s0-ln-surroundingcountries",
+        "mainmap-s0-ln-admin1",
+        "mainmap-s0-ln-coastline",
+        "mainmap-s0-py-feather",
         "mainmap-s0-py-surroundingcountries",
         "mainmap-s0-py-admin1",
-        "mainmap-s0-py-admin2",
-        "mainmap-s2-py-admin3",
-        "mainmap-s3-py-admin4",
-        "mainmap-s0-py-feather",
-        "Location Map - Admin 0 Polygon"
+        "mainmap-s0-py-sea",
+        "locationmap-s0-ln-admin1",
+        "locationmap-s0-ln-affectedcountry",
+		"locationmap-s0-ln-coastline",
+		"locationmap-s0-py-surroundingcountries"
       ]
     },
     {
-      "product": "Country Overview",
+	  "category": "Reference",
+      "product": "Reference: Country Overview with Admin 1 & 2 Boundaries & P-Codes",
+      "classification": "Core",
+      "layers": [
+        "mainmap-s0-pt-settlements",
+        "mainmap-s0-ln-surroundingcountries",
+        "mainmap-s0-ln-admin1",
+        "mainmap-s0-ln-admin2",
+        "mainmap-s0-ln-coastline",
+        "mainmap-s0-py-feather",
+        "mainmap-s0-py-surroundingcountries",
+        "mainmap-s0-py-admin1",
+        "mainmap-s0-py-admin2",
+        "mainmap-s0-py-sea",
+        "locationmap-s0-ln-admin1",
+        "locationmap-s0-ln-affectedcountry",
+		"locationmap-s0-ln-coastline",
+		"locationmap-s0-py-surroundingcountries"
+      ]
+    },
+    {
+	  "category": "Reference",
+      "product": "Reference: Country Overview with Transport",
       "classification": "Core",
       "layers": [
         "mainmap-s0-pt-settlements",
         "mainmap-s0-pt-airports",
         "mainmap-s0-pt-seaports",
-        "mainmap-s0-py-feather",
-        "Borders - Admin 0",
-        "mainmap-s1-ln-admin1",
+        "mainmap-s0-ln-coastline",
+        "mainmap-s0-ln-surroundingcountries",
+        "mainmap-s0-ln-admin1",
         "mainmap-s0-ln-roads",
         "mainmap-s0-ln-rail",
-        "mainmap-s0-py-waterbodies",
+        "mainmap-s0-py-admin1",
+        "mainmap-s0-py-feather",
+        "mainmap-s0-py-surroundingcountries",
+        "mainmap-s0-py-sea",
+        "locationmap-s0-ln-admin1",
+        "locationmap-s0-ln-affectedcountry",
+		"locationmap-s0-ln-coastline",
+		"locationmap-s0-py-surroundingcountries"
+      ]
+    },
+    {
+	  "category": "Reference",
+      "product": "Reference: Country Overview with Topography & Physical Geography",
+      "classification": "Core",
+      "layers": [
+        "mainmap-s0-pt-settlements",
+        "mainmap-s1-ln-coastline",
+        "mainmap-s0-ln-surroundingcountries",
+        "mainmap-s0-ln-admin1",
         "mainmap-s0-ln-rivers",
         "mainmap-s0-py-admin1",
-        "mainmap-s0-py-affectedcountry",
+        "mainmap-s0-py-feather",
         "mainmap-s0-py-surroundingcountries",
         "mainmap-s0-py-sea",
         "mainmap-s0-ras-dem",
         "mainmap-s0-ras-hillshade",
-        "Location Map - Admin 0 Polygon"
+        "locationmap-s0-ln-admin1",
+        "locationmap-s0-ln-affectedcountry",
+		"locationmap-s0-ln-coastline",
+		"locationmap-s0-py-surroundingcountries"
       ]
     },
     {
-      "product": "Reference: Topography & Physical Geography",
+	  "category": "DDP Reference",
+      "product": "Reference: Atlas Admin 1 plus Admin 2 Boundaries & P-Codes",
       "classification": "Core",
-      "layers": []
+      "layers": [
+        "mainmap-s1-pt-settlements",
+        "mainmap-s0-ln-surroundingcountries",
+        "mainmap-s1-ln-admin1",
+        "mainmap-s1-ln-admin2",
+        "mainmap-s0-ln-coastline",
+        "mainmap-s0-py-feather",
+        "mainmap-s0-py-surroundingcountries",
+        "mainmap-s1-py-admin1",
+        "mainmap-s1-py-admin2",
+        "mainmap-s0-py-sea",
+        "mainmap-s1-py-ddpadmin1",
+        "locationmap-s0-ln-admin1",
+        "locationmap-s0-ln-affectedcountry",
+		"locationmap-s0-ln-coastline",
+		"locationmap-s0-py-surroundingcountries"
+      ]
     },
     {
-      "product": "Reference: Transport",
-      "classification": "Core",
-      "layers": []
-    },
-    {
-      "product": "Baseline Population",
-      "classification": "Core",
-      "layers": []
-    },
-    {
-      "product": "Affected Population",
-      "classification": "Core",
-      "layers": []
-    },
-    {
-      "product": "Infrastructure",
-      "classification": "Core",
-      "layers": []
-    },
-    {
-      "product": "Humanitarian Infrastructure",
-      "classification": "Core",
-      "layers": []
-    },
-    {
-      "product": "Situational Overview - Common Operational Picture",
-      "classification": "Core",
-      "layers": []
-    },
-    {
-      "product": "Who-What-Where",
-      "classification": "Core",
-      "layers": []
-    },
-    {
-      "product": "Reference Map",
+      "product": "Reference Map - unsure whether to keep as duplication",
       "classification": "Core",
       "layers": [
         "mainmap-s0-pt-settlements",
@@ -97,7 +119,6 @@
         "mainmap-s1-ln-admin1",
         "mainmap-s1-ln-admin2",
         "mainmap-s2-ln-admin3",
-        "mainmap-s3-py-admin4",
         "Transport - Lines",
         "mainmap-s0-ln-rail",
         "mainmap-s0-ln-roads",
@@ -106,7 +127,6 @@
         "mainmap-s0-py-admin2",
         "mainmap-s2-py-admin3",
         "mainmap-s3-py-admin4",
-        "mainmap-s0-py-admin1",
         "mainmap-s0-py-affectedcountry",
         "mainmap-s0-py-surroundingcountries",
         "mainmap-s0-py-sea",
@@ -114,138 +134,215 @@
         "mainmap-s0-ras-hillshade",
         "mainmap-s0-ras-curvature",
         "mainmap-s1-ln-coastline",
-        "mainmap-s1-ln-admin1",
         "mainmap-s0-py-affectedcountry",
-        "Location Map - Admin 0 Polygon"
+		"locationmap-s0-ln-coastline",
+		"locationmap-s0-ln-admin1",
+        "locationmap-s0-ln-affectedcountry",
+		"locationmap-s0-py-surroundingcountries"
       ]
     },
     {
-      "product": "Camp Coordination and Camp Management",
+	  "category": "Thematic",
+      "product": "Thematic: Baseline Population",
+      "classification": "Core",
+      "layers": [
+        "mainmap-s0-ln-admin1",
+	    "mainmap-s1-ln-coastline",
+        "mainmap-s0-ln-surroundingcountries",
+        "mainmap-s0-py-admin1",
+        "mainmap-s0-py-feather",
+        "mainmap-s0-py-surroundingcountries",
+        "mainmap-s0-py-sea",
+		"mainmap-s0-ras-population",
+        "locationmap-s0-ln-admin1",
+	  	"locationmap-s0-ln-coastline",
+        "locationmap-s0-ln-affectedcountry",
+		"locationmap-s0-py-surroundingcountries"
+	  ]
+    },
+    {
+	  "category": "Thematic",
+      "product": "Thematic: Affected Population",
+      "classification": "Core",
+      "layers": []
+    },
+    {
+	  "category": "Thematic",
+      "product": "Thematic: Infrastructure",
+      "classification": "Core",
+      "layers": []
+    },
+    {
+	  "category": "Thematic",
+      "product": "Thematic: Humanitarian Infrastructure",
+      "classification": "Core",
+      "layers": []
+    },
+    {
+	  "category": "Thematic",
+      "product": "Thematic: Situational Overview - Common Operational Picture",
+      "classification": "Core",
+      "layers": []
+    },
+    {
+	  "category": "Thematic",
+      "product": "Thematic: Who-What-Where",
+      "classification": "Core",
+      "layers": []
+    },
+    {
+	  "category": "Thematic",
+      "product": "Thematic: Camp Coordination and Camp Management",
       "classification": "Vulnerability and Access Maps",
       "layers": []
     },
     {
-      "product": "Education",
+	  "category": "Thematic",
+      "product": "Thematic: Education",
       "classification": "Vulnerability and Access Maps",
       "layers": []
     },
     {
-      "product": "Emergency Telecommunications and Communicating with Disaster Affected Communities",
+	  "category": "Thematic",
+      "product": "Thematic: Emergency Telecommunications and Communicating with Disaster Affected Communities",
       "classification": "Vulnerability and Access Maps",
       "layers": []
     },
     {
-      "product": "Food, Security and Nutrition",
+	  "category": "Thematic",
+      "product": "Thematic: Food, Security and Nutrition",
       "classification": "Vulnerability and Access Maps",
       "layers": []
     },
     {
-      "product": "Health",
+	  "category": "Thematic",
+      "product": "Thematic: Health",
       "classification": "Vulnerability and Access Maps",
       "layers": []
     },
     {
-      "product": "Logistics",
+	  "category": "Thematic",
+      "product": "Thematic: Logistics",
       "classification": "Vulnerability and Access Maps",
       "layers": []
     },
     {
-      "product": "Protection and Security",
+	  "category": "Thematic",
+      "product": "Thematic: Protection and Security",
       "classification": "Vulnerability and Access Maps",
       "layers": []
     },
     {
-      "product": "Emergency Shelter",
+	  "category": "Thematic",
+      "product": "Thematic: Emergency Shelter",
       "classification": "Vulnerability and Access Maps",
       "layers": []
     },
     {
-      "product": "Water, Sanitation and Hygiene",
+	  "category": "Thematic",
+      "product": "Thematic: Water, Sanitation and Hygiene",
       "classification": "Vulnerability and Access Maps",
       "layers": []
     },
     {
-      "product": "Armed Conflict and Other Situations of Violence",
+	  "category": "Thematic",
+      "product": "Thematic: Armed Conflict and Other Situations of Violence",
       "classification": "Hazard",
       "layers": []
     },
     {
-      "product": "Biological - Epidemics",
+	  "category": "Thematic",
+      "product": "Thematic: Biological - Epidemics",
       "classification": "Hazard",
       "layers": []
     },
     {
-      "product": "Cyclones and Storms",
+	  "category": "Thematic",
+      "product": "Thematic: Cyclones and Storms",
       "classification": "Hazard",
       "layers": []
     },
     {
-      "product": "Earthquakes - Search and Rescue",
+	  "category": "Thematic",
+      "product": "Thematic: Earthquakes - Search and Rescue",
       "classification": "Hazard",
       "layers": []
     },
     {
-      "product": "Earthquakes - Seismic Aspects",
+	  "category": "Thematic",
+      "product": "Thematic: Earthquakes - Seismic Aspects",
       "classification": "Hazard",
       "layers": []
     },
     {
-      "product": "Floods",
+	  "category": "Thematic",
+      "product": "Thematic: Floods",
       "classification": "Hazard",
       "layers": []
     },
     {
-      "product": "Landslides",
+	  "category": "Thematic",
+      "product": "Thematic: Landslides",
       "classification": "Hazard",
       "layers": []
     },
     {
-      "product": "Munitions and Explosive Remnants of War",
+	  "category": "Thematic",
+      "product": "Thematic: Munitions and Explosive Remnants of War",
       "classification": "Hazard",
       "layers": []
     },
     {
-      "product": "Tsunami",
+	  "category": "Thematic",
+      "product": "Thematic: Tsunami",
       "classification": "Hazard",
       "layers": []
     },
     {
-      "product": "Volcanoes",
+	  "category": "Thematic",
+      "product": "Thematic: Volcanoes",
       "classification": "Hazard",
       "layers": []
     },
     {
-      "product": "Cash Based Transfers",
+	  "category": "Thematic",
+      "product": "Thematic: Cash Based Transfers",
       "classification": "Other",
       "layers": []
     },
     {
-      "product": "Environmental Assessment",
+	  "category": "Thematic",
+      "product": "Thematic: Environmental Assessment",
       "classification": "Other",
       "layers": []
     },
     {
-      "product": "Helicopters",
+	  "category": "Thematic",
+      "product": "Thematic: Helicopters",
       "classification": "Other",
       "layers": []
     },
     {
-      "product": "Languages",
+	  "category": "Thematic",
+      "product": "Thematic: Languages",
       "classification": "Other",
       "layers": []
     },
     {
-      "product": "Population Displacement",
+	  "category": "Thematic",
+      "product": "Thematic: Population Displacement",
       "classification": "Other",
       "layers": []
     },
     {
-      "product": "Weather - Overview",
+	  "category": "Thematic",
+      "product": "Thematic: Weather - Overview",
       "classification": "Other",
       "layers": []
     },
     {
-      "product": "Weather - Winterisation",
+	  "category": "Thematic",
+      "product": "Thematic: Weather - Winterisation",
       "classification": "Other",
       "layers": []
     }
