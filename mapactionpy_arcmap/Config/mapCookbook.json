@@ -1,9 +1,11 @@
 {
   "recipes": [
     {
+	  "mapnumber": "MA001",
 	  "category": "Reference",
-      "product": "Reference: Country Overview with Admin 1 Boundaries & P-Codes",
+      "product": "Country Overview with Admin 1 Boundaries & P-Codes",
       "classification": "Core",
+	  "export": "Yes",
       "layers": [
         "mainmap-s0-pt-settlements",
         "mainmap-s0-ln-surroundingcountries",
@@ -20,9 +22,11 @@
       ]
     },
     {
+	  "mapnumber": "MA002",
 	  "category": "Reference",
-      "product": "Reference: Country Overview with Admin 1 & 2 Boundaries & P-Codes",
+      "product": "Country Overview with Admin 1 & 2 Boundaries & P-Codes",
       "classification": "Core",
+	  "export": "Yes",
       "layers": [
         "mainmap-s0-pt-settlements",
         "mainmap-s0-ln-surroundingcountries",
@@ -41,9 +45,11 @@
       ]
     },
     {
+	  "mapnumber": "MA003",
 	  "category": "Reference",
-      "product": "Reference: Country Overview with Transport",
+      "product": "Country Overview with Transport",
       "classification": "Core",
+	  "export": "Yes",
       "layers": [
         "mainmap-s0-pt-settlements",
         "mainmap-s0-pt-airports",
@@ -64,9 +70,11 @@
       ]
     },
     {
+	  "mapnumber": "MA004",
 	  "category": "Reference",
-      "product": "Reference: Country Overview with Topography & Physical Geography",
+      "product": "Country Overview with Topography & Physical Geography",
       "classification": "Core",
+	  "export": "Yes",
       "layers": [
         "mainmap-s0-pt-settlements",
         "mainmap-s1-ln-coastline",
@@ -86,9 +94,11 @@
       ]
     },
     {
+	  "mapnumber": "MA005",
 	  "category": "DDP Reference",
-      "product": "Reference: Atlas Admin 1 plus Admin 2 Boundaries & P-Codes",
+      "product": "Atlas Admin 1 Boundaries & P-Codes plus Admin 2 Boundaries",
       "classification": "Core",
+	  "export": "No",
       "layers": [
         "mainmap-s1-pt-settlements",
         "mainmap-s0-ln-surroundingcountries",
@@ -108,8 +118,58 @@
       ]
     },
     {
-      "product": "Reference Map - unsure whether to keep as duplication",
+	  "mapnumber": "MA006",
+	  "category": "DDP Reference",
+      "product": "Atlas Admin 2 Boundaries & P-Codes plus Admin 3 Boundaries",
       "classification": "Core",
+	  "export": "No",
+      "layers": [
+        "mainmap-s1-pt-settlements",
+        "mainmap-s0-ln-surroundingcountries",
+        "mainmap-s1-ln-admin1",
+        "mainmap-s1-ln-admin2",
+        "mainmap-s0-ln-coastline",
+        "mainmap-s0-py-feather",
+        "mainmap-s0-py-surroundingcountries",
+        "mainmap-s1-py-admin1",
+        "mainmap-s1-py-admin2",
+        "mainmap-s0-py-sea",
+        "mainmap-s1-py-ddpadmin1",
+        "locationmap-s0-ln-admin1",
+        "locationmap-s0-ln-affectedcountry",
+		"locationmap-s0-ln-coastline",
+		"locationmap-s0-py-surroundingcountries"
+      ]
+    },
+    {
+	  "mapnumber": "MA005",
+	  "category": "DDP Reference",
+      "product": "Atlas Admin 3 Boundaries & P-Codes plus Admin 4 Boundaries",
+      "classification": "Core",
+	  "export": "No",
+      "layers": [
+        "mainmap-s1-pt-settlements",
+        "mainmap-s0-ln-surroundingcountries",
+        "mainmap-s1-ln-admin1",
+        "mainmap-s1-ln-admin2",
+        "mainmap-s0-ln-coastline",
+        "mainmap-s0-py-feather",
+        "mainmap-s0-py-surroundingcountries",
+        "mainmap-s1-py-admin1",
+        "mainmap-s1-py-admin2",
+        "mainmap-s0-py-sea",
+        "mainmap-s1-py-ddpadmin1",
+        "locationmap-s0-ln-admin1",
+        "locationmap-s0-ln-affectedcountry",
+		"locationmap-s0-ln-coastline",
+		"locationmap-s0-py-surroundingcountries"
+      ]
+    },
+    {
+	  "mapnumber": "MAnnn",
+      "product": "unsure whether to keep as duplication",
+      "classification": "Core",
+	  "export": "Yes",
       "layers": [
         "mainmap-s0-pt-settlements",
         "mainmap-s0-pt-airports",
@@ -142,9 +202,11 @@
       ]
     },
     {
+	  "mapnumber": "MA011",
 	  "category": "Thematic",
-      "product": "Thematic: Baseline Population",
+      "product": "Baseline Population",
       "classification": "Core",
+	  "export": "Yes",
       "layers": [
         "mainmap-s0-ln-admin1",
 	    "mainmap-s1-ln-coastline",
@@ -161,189 +223,251 @@
 	  ]
     },
     {
+	  "mapnumber": "MA012",
 	  "category": "Thematic",
-      "product": "Thematic: Affected Population",
+      "product": "Affected Population",
       "classification": "Core",
+	  "export": "Yes",
       "layers": []
     },
     {
+	  "mapnumber": "MA013",
 	  "category": "Thematic",
-      "product": "Thematic: Infrastructure",
+      "product": "Infrastructure",
       "classification": "Core",
+	  "export": "Yes",
       "layers": []
     },
     {
+	  "mapnumber": "MA014",
 	  "category": "Thematic",
-      "product": "Thematic: Humanitarian Infrastructure",
+      "product": "Humanitarian Infrastructure",
       "classification": "Core",
+	  "export": "Yes",
       "layers": []
     },
     {
+	  "mapnumber": "MA015",
 	  "category": "Thematic",
-      "product": "Thematic: Situational Overview - Common Operational Picture",
+      "product": "Situational Overview - Common Operational Picture",
       "classification": "Core",
+	  "export": "Yes",
       "layers": []
     },
     {
+	  "mapnumber": "MA016",
 	  "category": "Thematic",
-      "product": "Thematic: Who-What-Where",
+      "product": "Camp Coordination and Camp Management",
+      "classification": "Vulnerability and Access Maps",
+	  "export": "Yes",
+      "layers": []
+    },
+    {
+	  "mapnumber": "MA021",
+	  "category": "Thematic",
+      "product": "Who-What-Where",
       "classification": "Core",
+	  "export": "Yes",
       "layers": []
     },
     {
+	  "mapnumber": "MA022",
 	  "category": "Thematic",
-      "product": "Thematic: Camp Coordination and Camp Management",
+      "product": "Education",
       "classification": "Vulnerability and Access Maps",
+	  "export": "Yes",
       "layers": []
     },
     {
+	  "mapnumber": "MA023",
 	  "category": "Thematic",
-      "product": "Thematic: Education",
+      "product": "Emergency Telecommunications and Communicating with Disaster Affected Communities",
       "classification": "Vulnerability and Access Maps",
+	  "export": "Yes",
       "layers": []
     },
     {
+	  "mapnumber": "MA024",
 	  "category": "Thematic",
-      "product": "Thematic: Emergency Telecommunications and Communicating with Disaster Affected Communities",
+      "product": "Food, Security and Nutrition",
       "classification": "Vulnerability and Access Maps",
+	  "export": "Yes",
       "layers": []
     },
     {
+	  "mapnumber": "MA025",
 	  "category": "Thematic",
-      "product": "Thematic: Food, Security and Nutrition",
+      "product": "Health",
       "classification": "Vulnerability and Access Maps",
+	  "export": "Yes",
       "layers": []
     },
     {
+	  "mapnumber": "MA026",
 	  "category": "Thematic",
-      "product": "Thematic: Health",
+      "product": "Logistics",
       "classification": "Vulnerability and Access Maps",
+	  "export": "Yes",
       "layers": []
     },
     {
+	  "mapnumber": "MA027",
 	  "category": "Thematic",
-      "product": "Thematic: Logistics",
+      "product": "Protection and Security",
       "classification": "Vulnerability and Access Maps",
+	  "export": "Yes",
       "layers": []
     },
     {
+	  "mapnumber": "MA028",
 	  "category": "Thematic",
-      "product": "Thematic: Protection and Security",
+      "product": "Emergency Shelter",
       "classification": "Vulnerability and Access Maps",
+	  "export": "Yes",
       "layers": []
     },
     {
+	  "mapnumber": "MA029",
 	  "category": "Thematic",
-      "product": "Thematic: Emergency Shelter",
+      "product": "Water, Sanitation and Hygiene",
       "classification": "Vulnerability and Access Maps",
+	  "export": "Yes",
       "layers": []
     },
     {
+	  "mapnumber": "MA041",
 	  "category": "Thematic",
-      "product": "Thematic: Water, Sanitation and Hygiene",
-      "classification": "Vulnerability and Access Maps",
-      "layers": []
-    },
-    {
-	  "category": "Thematic",
-      "product": "Thematic: Armed Conflict and Other Situations of Violence",
+      "product": "Armed Conflict and Other Situations of Violence",
       "classification": "Hazard",
+	  "export": "Yes",
       "layers": []
     },
     {
+	  "mapnumber": "MA042",
 	  "category": "Thematic",
-      "product": "Thematic: Biological - Epidemics",
+      "product": "Biological - Epidemics",
       "classification": "Hazard",
+	  "export": "Yes",
       "layers": []
     },
     {
+	  "mapnumber": "MA043",
 	  "category": "Thematic",
-      "product": "Thematic: Cyclones and Storms",
+      "product": "Cyclones and Storms",
       "classification": "Hazard",
+	  "export": "Yes",
       "layers": []
     },
     {
+	  "mapnumber": "MA044",
 	  "category": "Thematic",
-      "product": "Thematic: Earthquakes - Search and Rescue",
+      "product": "Earthquakes - Search and Rescue",
       "classification": "Hazard",
+	  "export": "Yes",
       "layers": []
     },
     {
+	  "mapnumber": "MA045",
 	  "category": "Thematic",
-      "product": "Thematic: Earthquakes - Seismic Aspects",
+      "product": "Earthquakes - Seismic Aspects",
       "classification": "Hazard",
+	  "export": "Yes",
       "layers": []
     },
     {
+	  "mapnumber": "MA046",
 	  "category": "Thematic",
-      "product": "Thematic: Floods",
+      "product": "Floods",
       "classification": "Hazard",
+	  "export": "Yes",
       "layers": []
     },
     {
+	  "mapnumber": "MA047",
 	  "category": "Thematic",
-      "product": "Thematic: Landslides",
+      "product": "Landslides",
       "classification": "Hazard",
+	  "export": "Yes",
       "layers": []
     },
     {
+	  "mapnumber": "MA048",
 	  "category": "Thematic",
-      "product": "Thematic: Munitions and Explosive Remnants of War",
+      "product": "Munitions and Explosive Remnants of War",
       "classification": "Hazard",
+	  "export": "Yes",
       "layers": []
     },
     {
+	  "mapnumber": "MA049",
 	  "category": "Thematic",
-      "product": "Thematic: Tsunami",
+      "product": "Tsunami",
       "classification": "Hazard",
+	  "export": "Yes",
       "layers": []
     },
     {
+	  "mapnumber": "MA050",
 	  "category": "Thematic",
-      "product": "Thematic: Volcanoes",
+      "product": "Volcanoes",
       "classification": "Hazard",
+	  "export": "Yes",
       "layers": []
     },
     {
+	  "mapnumber": "MA051",
 	  "category": "Thematic",
-      "product": "Thematic: Cash Based Transfers",
+      "product": "Cash Based Transfers",
       "classification": "Other",
+	  "export": "Yes",
       "layers": []
     },
     {
+	  "mapnumber": "MA052",
 	  "category": "Thematic",
-      "product": "Thematic: Environmental Assessment",
+      "product": "Environmental Assessment",
       "classification": "Other",
+	  "export": "Yes",
       "layers": []
     },
     {
+	  "mapnumber": "MA053",
 	  "category": "Thematic",
-      "product": "Thematic: Helicopters",
+      "product": "Helicopters",
       "classification": "Other",
+	  "export": "Yes",
       "layers": []
     },
     {
+	  "mapnumber": "MA054",
 	  "category": "Thematic",
-      "product": "Thematic: Languages",
+      "product": "Languages",
       "classification": "Other",
+	  "export": "Yes",
       "layers": []
     },
     {
+	  "mapnumber": "MA055",
 	  "category": "Thematic",
-      "product": "Thematic: Population Displacement",
+      "product": "Population Displacement",
       "classification": "Other",
+	  "export": "Yes",
       "layers": []
     },
     {
+	  "mapnumber": "MA056",
 	  "category": "Thematic",
-      "product": "Thematic: Weather - Overview",
+      "product": "Weather - Overview",
       "classification": "Other",
+	  "export": "Yes",
       "layers": []
     },
     {
+	  "mapnumber": "MA057",
 	  "category": "Thematic",
-      "product": "Thematic: Weather - Winterisation",
+      "product": "Weather - Winterisation",
       "classification": "Other",
+	  "export": "Yes",
       "layers": []
     }
   ]

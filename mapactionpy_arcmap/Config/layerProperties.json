@@ -62,7 +62,7 @@
     {
       "MapFrame": "Main Map",
       "LayerName": "mainmap-s0-ln-surroundingcountries",
-      "RegExp": "^[a-z]{3}_admn_adx_ln_(.*?)_(.*?)_*([phm][phm])(.*?).shp$",
+      "RegExp": "^[a-z]{3}_admn_ad0_ln_(.*?)_(.*?)_*([phm][phm])(.*?).shp$",
       "DefinitionQuery": "",
       "Display": "Yes",
       "LabelClasses": []
@@ -272,7 +272,7 @@
     {
       "MapFrame": "Main Map",
       "LayerName": "mainmap-s0-py-affectedcountry",
-      "RegExp": "^[a-z]{3}_admn_adx_py_(.*?)_(.*?)_([phm][phm])(.*?).shp$",
+      "RegExp": "^[a-z]{3}_admn_ad0_py_(.*?)_(.*?)_([phm][phm])(.*?).shp$",
       "DefinitionQuery": "\"ADM0_NAME\" = '{COUNTRY_NAME}'",
       "Display": "Yes",
       "LabelClasses": []
@@ -280,7 +280,7 @@
     {
       "MapFrame": "Main Map",
       "LayerName": "mainmap-s0-py-surroundingcountries",
-      "RegExp": "^[a-z]{3}_admn_adx_py_(.*?)_(.*?)_([phm][phm])(.*?).shp$",
+      "RegExp": "^[a-z]{3}_admn_ad0_py_(.*?)_(.*?)_([phm][phm])(.*?).shp$",
       "DefinitionQuery": "\"ADM0_NAME\" <> '{COUNTRY_NAME}'",
       "Display": "Yes",
       "LabelClasses": []
@@ -384,7 +384,7 @@
     {
       "MapFrame": "Location Map",
       "LayerName": "locationmap-s0-py-surroundingcountries",
-      "RegExp": "^[a-z]{3}_admn_adx_py_s0_(.*?)_([phm][phm])(.*?).shp$",
+      "RegExp": "^[a-z]{3}_admn_ad0_py_s0_(.*?)_([phm][phm])(.*?).shp$",
       "DefinitionQuery": "\"ADM0_NAME\" <> '{COUNTRY_NAME}'",
       "Display": "Yes",
       "LabelClasses": []
