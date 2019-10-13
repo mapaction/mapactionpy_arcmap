@@ -6,6 +6,7 @@ from map_cookbook import MapCookbook
 from map_report import MapReport
 from map_result import MapResult
 from layer_properties import LayerProperties
+from datetime import datetime
 
 
 class MapChef:
@@ -61,6 +62,7 @@ class MapChef:
         self.mapReport = MapReport(productName)
         recipe = self.cookbook.products.get(productName, None)
         if (recipe is not None):
+            self.updateTextElements(productName, countryName, recipe.mapnumber)
             for layer in recipe.layers:
                 self.processLayer(layer, countryName)
         self.enableLayers()
@@ -247,3 +249,16 @@ class MapChef:
                     if (z):
                         returnPaths.append(dirPath)
         return returnPaths
+
+    def updateTextElements(self, productName, countryName, mapNumber):
+        for elm in arcpy.mapping.ListLayoutElements(self.mxd, "TEXT_ELEMENT"):
+            if elm.name == "country":
+                elm.text = countryName
+            if elm.name == "title":
+                elm.text = productName
+            if elm.name == "create_date_time":
+                elm.text = datetime.utcnow().strftime("%d-%b-%Y %H:%M UTC")
+            if elm.name == "map_no":
+                elm.text = mapNumber
+
+        self.mxd.save()
