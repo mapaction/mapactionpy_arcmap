@@ -14,9 +14,16 @@
 # """
 
 import argparse
+import decimal
+import json
 import os
+import urllib2
+import requests
 from map_chef import MapChef
+from map_cookbook import MapCookbook
 import arcpy
+from shutil import copyfile
+from slugify import slugify
 
 
 def is_valid_file(parser, arg):
@@ -34,17 +41,109 @@ def is_valid_directory(parser, arg):
         parser.error("The directory %s does not exist!" % arg)
         return False
 
+def deduceTemplate(countryName, cookbookFile, crashMoveFolder, productName):
+    gisFolder="GIS"
+    arcGisVersion="arcgis_10_6"
+    mappingDir="3_Mapping"
+    templateDirectoryName="32_MXD_Templates"
+    mapDirectoryName="33_MXD_Maps"
+
+    orientation = getOrientation(countryName)
+    # Need to get the theme from the recipe to get the path to the MXD
+    cookbook = MapCookbook(cookbookFile)
+    recipe = cookbook.products[productName]
+
+    templateDirectoryPath = os.path.join(crashMoveFolder, gisFolder, mappingDir, templateDirectoryName, arcGisVersion)
+
+    if not(os.path.isdir(templateDirectoryPath)):
+        print("Error: Could not find source template directory: " + templateDirectoryPath)
+        print("Exiting.")
+        sys.exit(1)
+
+
+    if (recipe.category.lower() == "reference"):
+        templateFileName=arcGisVersion + "_" + recipe.category + "_" + orientation + "_bottom.mxd"
+    elif (recipe.category.lower() == "thematic"):
+        templateFileName=arcGisVersion + "_" + recipe.category + "_" + orientation + ".mxd"
+    else:
+        print("Error: Could not get source MXD from: " + templateDirectoryPath)
+        print("Exiting.")
+        sys.exit(1)
+
+    mapDirectoryPath = os.path.join(crashMoveFolder, gisFolder, mappingDir, mapDirectoryName)
+
+    if not(os.path.isdir(mapDirectoryPath)):
+        print("Error: Could not find target directory: " + mapDirectoryPath)
+        print("Exiting.")
+        sys.exit(1)
+
+    srcTemplateFile = os.path.join(templateDirectoryPath, templateFileName)
+
+    mapNumberDirectory=os.path.join(mapDirectoryPath, recipe.mapnumber)
+
+    if not(os.path.isdir(mapNumberDirectory)):
+        os.mkdir(mapNumberDirectory)
+
+    mapFileName=recipe.mapnumber+"_"+ slugify(productName) + ".mxd"
+
+    copiedFile= os.path.join(mapNumberDirectory, mapFileName)
+    copyfile(srcTemplateFile, copiedFile)
+    return (copiedFile)
+
+
+def getOrientation(countryName):
+    url = "https://nominatim.openstreetmap.org/search?country=" + countryName.replace(" ", "+") + "&format=json"
+    resp = requests.get(url=url)
+
+    jsonObject = resp.json() 
+
+    extentsSet = False
+    boundingbox = [0, 0, 0, 0]
+    for country in jsonObject:
+        if country['class'] == "boundary" and country['type'] == "administrative":
+            boundingbox = country['boundingbox']
+            extentsSet = True
+            break
+    if extentsSet == True:
+        D = decimal.Decimal
+
+        minx = D(boundingbox[2])
+        miny = D(boundingbox[0])
+        maxx = D(boundingbox[3])
+        maxy = D(boundingbox[1])
+
+        orientation = "portrait"
+
+        # THIS DOESN'T WORK FOR FIJI/ NZ
+        xdiff=abs(maxx-minx)
+        ydiff=abs(maxy-miny)
+
+        #print("http://bboxfinder.com/#<miny>,<minx>,<maxy>,<maxx>")
+        #print("http://bboxfinder.com/#" + str(miny) + ","+ str(minx) + ","+ str(maxy) + ","+ str(maxx))
+
+        if xdiff > ydiff:
+            orientation = "landscape"
+        return orientation
+    else:
+        print("Error: Could not derive country extent from " + url)
+        print("Exiting.")
+        sys.exit(1)
+           
 
 def main(args):
     args = parser.parse_args()
     cookbookFile = args.cookbookFile
     layerPropertiesFile = args.layerConfig
-    mxdTemplate = args.templateFile
     crashMoveFolder = args.crashMoveFolder
     layerDirectory = args.layerDirectory
     productName = args.productName
     countryName = args.countryName
 
+    mxdTemplate = None
+    if args.templateFile:
+        mxdTemplate = args.templateFile
+    else:
+        mxdTemplate = deduceTemplate(countryName, cookbookFile, crashMoveFolder, productName)
     mxd = arcpy.mapping.MapDocument(mxdTemplate)
 
     chef = MapChef(mxd, cookbookFile, layerPropertiesFile, crashMoveFolder, layerDirectory)
@@ -65,7 +164,7 @@ if __name__ == '__main__':
     parser.add_argument("-l", "--layerConfig", dest="layerConfig", required=True,
                         help="path to layer config json file", metavar="FILE",
                         type=lambda x: is_valid_file(parser, x))
-    parser.add_argument("-t", "--template", dest="templateFile", required=True,
+    parser.add_argument("-t", "--template", dest="templateFile", required=False,
                         help="path to MXD file", metavar="FILE",
                         type=lambda x: is_valid_file(parser, x))
     parser.add_argument("-cmf", "--cmf", dest="crashMoveFolder", required=True,

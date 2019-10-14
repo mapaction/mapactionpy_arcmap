@@ -20,7 +20,8 @@ Adds geospatial data to an ArcMap MXD file based on a recipe from a cookbook con
 
 ## Installing
 1) Clone
-git clone https://github.com/mapaction/mapactionpy_arcmap/
+
+    ```git clone https://github.com/mapaction/mapactionpy_arcmap/```
 2) Change Directory at the command line
     ```cd mapactionpy_arcmap```
 3) Run package ```python setup.py bdist_wheel```
@@ -36,15 +37,15 @@ git clone https://github.com/mapaction/mapactionpy_arcmap/
     ```
 5) If required, uninstall the ArcMap Esri Add-In.
 6) Reinstall ArcMap Esri Add-In using file here:
-    https://drive.google.com/open?id=14TJCqA6rDrnu6VmRTHSLXFrDBr8FADGP
-6) Restart ArcMap and ensure the 'Map Generation Tool' is available within the MapAction toolbar.
-7) To run the 'Map Generation Tool' the following paths MUST exist:
+	[https://drive.google.com/open?id=1kV1_6r8RzQ2fzA28AEQv9tpET-qZPIN-](https://drive.google.com/open?id=1kV1_6r8RzQ2fzA28AEQv9tpET-qZPIN-)
+7) Restart ArcMap and ensure the 'Map Generation Tool' is available within the MapAction toolbar.
+8) To run the 'Map Generation Tool' the following paths MUST exist:
     ```  
     <Crash Move Folder> \GIS\3_Mapping\31_Resources\312_Layer_files\
     ```
-    This must contain the Layer files (.lyr) which correspond with the names quoted in the mapCookbook.json file.
+    This must contain the Layer files (```.lyr```) which correspond with the names quoted in the ```mapCookbook.json``` file.
 
-8) Move the layerProperties.json and mapCookbook.json files from the Git repository to:
+9) Move the ```layerProperties.json``` and ```mapCookbook.json``` files from the Git repository to:
     ```
     <Crash Move Folder> \GIS\3_Mapping\31_Resources\31A_Automation\
     ```
@@ -76,30 +77,29 @@ The [mapCookbook.json](mapactionpy_arcmap/Config/mapCookbook.json) file is a sta
 
 This example cookbook only contains a single product: ```Country Overview```.
 ```
-{
-  "recipes": [
-    {
-      "product": "Country Overview",
-      "classification": "Core",
-      "layers": [
-        "mainmap-s0-pt-settlements",
-        "mainmap-s0-pt-airports",
-        "mainmap-s0-pt-seaports",
-        "mainmap-s0-py-feather",
-        "Borders - Admin 0",
-        "mainmap-s1-ln-admin1",
-        "mainmap-s0-ln-roads",
-        "mainmap-s0-ln-rail",
-        "mainmap-s0-py-waterbodies",
-        "mainmap-s0-ln-rivers",
-        "mainmap-s0-py-admin1",
-        "mainmap-s0-py-affectedcountry",
-        "mainmap-s0-py-surroundingcountries",
-        "mainmap-s0-py-sea",
-        "mainmap-s0-ras-dem",
-        "mainmap-s0-ras-hillshade",
-        "Location Map - Admin 0 Polygon"
-      ]
+{ 
+   "recipes":[ 
+      { 
+         "mapnumber":"MA001",
+         "category":"Reference",
+         "product":"Country Overview with Admin 1 Boundaries & P-Codes",
+         "export":"Yes",
+         "layers":[ 
+            "mainmap-s0-pt-settlements",
+            "mainmap-s0-py-surroundingcountries",
+            "mainmap-s0-ln-admin1",
+            "mainmap-s0-ln-coastline",
+            "mainmap-s0-py-feather",
+            "mainmap-s0-py-surroundingcountries",
+            "mainmap-s0-py-admin1",
+            "mainmap-s0-py-sea",
+            "locationmap-s0-ln-admin1",
+            "locationmap-s0-ln-affectedcountry",
+            "locationmap-s0-ln-coastline",
+            "locationmap-s0-py-surroundingcountries"
+         ]
+      },
+...
     }
   ]
 }
@@ -135,38 +135,40 @@ The Layer Config file ([layerProperties.json](mapactionpy_arcmap/Config/layerPro
 
 #### Fields   
 
-| # | Field           | Description                                                                                                    |
-|---|-----------------|----------------------------------------------------------------------------------------------------------------|
-| 1 | MapFrame        | Name of the Map Frame that the layer is to be added to                                                         |
-| 2 | LayerName       | Name of the Layer. This must correlate with the ```layerFile.Name``` field in the ```mapCookbook.json``` file. |
-| 3 | RegExp          | Regular Expression.  Used when selecting files to display                                                      |
-| 4 | DefinitionQuery | Definition Query                                                                                               |
-| 5 | Display         | Shows if set to 'Yes'                                                                                          |
-| 6 | LabelClasses    | Details for displaying labels                                                                                  |
-
+| # | Field           |Description     |   
+|---|-----------------|----------------------------|
+| 1 | MapFrame        | Name of the Map Frame that the layer is to be added to |                                                 
+| 2 | LayerName       | Name of the Layer.  This must correlate with the names of the layers in the ```layers``` field in the ```mapCookbook.json``` file. |
+| 3 | RegExp          | Regular Expression.  Used when selecting files to display |
+| 4 | DefinitionQuery | Definition Query |
+| 5 | Display         | Shows if set to 'Yes' | 
+| 6 | LabelClasses    | Details for displaying labels | 
 ## Execution
 
 ### Parameters
 
-| # | Field         | Description                                                           |
-|---|---------------|-----------------------------------------------------------------------|
-| 1 | --cookbook    | Path to the cookbook ```mapCookbook.json``` file.                     |
-| 2 | --layerConfig | Path to the ```layerProperties.json``` file.                          |
-| 3 | --cmf         | Path to the Crash Move Folder root.                                   |
-| 4 | --template    | Path to the ```MXD``` file.                                           |
-| 5 | --product     | Name of product (must correlate with a product in the cookbook file). |
-| 6 | --country     | Name of country.                                                      |
+| # | Field         |Mandatory|Description                                                           |
+|---|---------------|-|-----------------------------------------------------------------------|
+| 1 | --cookbook    |:heavy_check_mark:| Path to the cookbook ```mapCookbook.json``` file.                     |
+| 2 | --layerConfig |:heavy_check_mark:| Path to the ```layerProperties.json``` file.                          |
+| 3 | --cmf         |:heavy_check_mark:| Path to the Crash Move Folder root.                                   |
+| 4 | --template    |:x:| Path to the ```MXD``` file.                                           |
+| 5 | --product     |:heavy_check_mark:| Name of product (must correlate with a product in the cookbook file). |
+| 6 | --country     |:heavy_check_mark:| Name of country.                                                      |
 
 
-### Example
+### Example 1
+
+For a specified MXD using the ```--template``` parameter:
 
 ```
-C:\Python27\ArcGIS10.6\python.exe main.py \
-   --cookbook "D:\MapAction\2019-06-25 - Automation - El Salvador\GIS\3_Mapping\31_Resources\31A_Automation\mapCookbook.json" \ 
-   --layerConfig "C:\Users\steve\Source\Repos\mapactionpy_arcmap\poc\MapChef\Config\layerProperties.json" \
-   --cmf "D:\MapAction\2019-06-25 - Automation - El Salvador" \ 
+C:\Python27\ArcGIS10.6\python.exe -m mapactionpy_arcmap.arcmap_runner \
+   --cookbook "D:\MapAction\2019-06-25 - Automation - El Salvador\GIS\3_Mapping\31_Resources\31A_Automation\mapCookbook.json" \
+   --layerConfig "D:\MapAction\2019-06-25 - Automation - El Salvador\GIS\3_Mapping\31_Resources\31A_Automation\layerProperties.json" \
+   --cmf "D:\MapAction\2019-06-25 - Automation - El Salvador" \
    --template "D:\MapAction\2019-06-25 - Automation - El Salvador\GIS\3_Mapping\32_MXD_Templates\arcgis_10_2\MapAction\01 Reference mapping\arcgis_10_2_ma000_reference_landscape_bottom_DEV.mxd" \
-   --product "Country Overview" \
+   --layerDirectory "D:\MapAction\2019-06-25 - Automation - El Salvador\GIS\3_Mapping\31_Resources\312_Layer_files" \
+   --product "Country Overview with Admin 1 Boundaries & P-Codes" \
    --country "El Salvador"
 ```
 
@@ -176,6 +178,37 @@ This ```Country Overview``` map was generated:
 
 ![alt text](Images/Result.png)
 
+### Example 2
+
+```
+C:\Python27\ArcGIS10.6\python.exe -m mapactionpy_arcmap.arcmap_runner \
+   --cookbook "D:\MapAction\2019-06-25 - Automation - El Salvador\GIS\3_Mapping\31_Resources\31A_Automation\mapCookbook.json" \
+   --layerConfig "D:\MapAction\2019-06-25 - Automation - El Salvador\GIS\3_Mapping\31_Resources\31A_Automation\layerProperties.json" \
+   --cmf "D:\MapAction\2019-06-25 - Automation - El Salvador" \
+   --layerDirectory "D:\MapAction\2019-06-25 - Automation - El Salvador\GIS\3_Mapping\31_Resources\312_Layer_files" \
+   --product "Country Overview with Admin 1 Boundaries & P-Codes" \
+   --country "El Salvador"
+```
+
+If an MXD is not supplied with the ```--template``` parameter as above, then the tool will decide the orientation of the map (landscape or portrait) and it will take a copy of the appropriate MXD from:
+
+\<crash move folder>```\GIS\3_Mapping\32_MXD_Templates\arcgis_10_6\```
+
+Using the ```mapnumber``` from the [mapCookbook.json](mapactionpy_arcmap/Config/mapCookbook.json) file, the Automation Tool will create a copy of the MXD under the following directory:
+
+\<crash move folder>```\GIS\3_Mapping\33_MXD_Maps\```\<map number>
+
+For example:
+
+```D:\MapAction\2019-06-25 - Automation - El Salvador\GIS\3_Mapping\33_MXD_Maps\MA001```
+
+The MXD name will be \<map number>```_```\<product name>```.mxd```
+
+... (but with any characters removed that upset Windows Explorer)
+
+For example:
+
+```MA001_country-overview-with-admin-1-boundaries-p-codes.mxd```
 
 ## Authors
 

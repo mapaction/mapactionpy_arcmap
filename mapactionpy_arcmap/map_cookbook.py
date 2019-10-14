@@ -28,30 +28,6 @@ class MapCookbook:
         with open(self.cookbookJsonFile) as json_file:
             jsonContents = json.load(json_file)
             for recipe in jsonContents['recipes']:
-                rec = MapRecipe(recipe['product'], recipe['layers'])
+                rec = MapRecipe(recipe)
                 self.products[recipe['product']] = rec
 
-    def get_product_layers(self, productName):
-        """
-        Iterates through the cookbook and returns the layers for the required product
-
-        Arguments:
-           productName {str} -- name of product taken from the cookbook.
-        Returns:
-           layers for a given product
-        """
-        # @TODO use Set. get()...
-        result = list()
-        for product in self.products:
-            if (product.product == productName):
-                result = product.layers
-                break
-        return result
-
-    def recipe(self, productName):
-        result = None
-        for product in self.products:
-            if (product.product == productName):
-                result = product
-                break
-        return result
