@@ -1,497 +1,435 @@
-{ 
-   "recipes":[ 
-      { 
-         "mapnumber":"MA001",
-         "category":"Reference",
-         "product":"Country Overview with Admin 1 Boundaries & P-Codes",
-         "export":"Yes",
-         "layers":[ 
-            "mainmap-s0-pt-settlements",
-            "mainmap-s0-py-surroundingcountries",
-            "mainmap-s0-ln-admin1",
-            "mainmap-s0-ln-coastline",
-            "mainmap-s0-py-feather",
-            "mainmap-s0-py-surroundingcountries",
-            "mainmap-s0-py-admin1",
-            "mainmap-s0-py-sea",
-            "locationmap-s0-ln-admin1",
-            "locationmap-s0-ln-affectedcountry",
-            "locationmap-s0-ln-coastline",
-            "locationmap-s0-py-surroundingcountries"
-         ]
-      },
-      { 
-         "mapnumber":"MA002",
-         "category":"Reference",
-         "product":"Country Overview with Admin 1 & 2 Boundaries & P-Codes",
-         "export":"Yes",
-         "layers":[ 
-            "mainmap-s0-pt-settlements",
-            "mainmap-s0-py-surroundingcountries",
-            "mainmap-s0-ln-admin1",
-            "mainmap-s0-ln-admin2",
-            "mainmap-s0-ln-coastline",
-            "mainmap-s0-py-feather",
-            "mainmap-s0-py-surroundingcountries",
-            "mainmap-s0-py-admin1",
-            "mainmap-s0-py-admin2",
-            "mainmap-s0-py-sea",
-            "locationmap-s0-ln-admin1",
-            "locationmap-s0-ln-affectedcountry",
-            "locationmap-s0-ln-coastline",
-            "locationmap-s0-py-surroundingcountries"
-         ]
-      },
-      { 
-         "mapnumber":"MA003",
-         "category":"Reference",
-         "product":"Country Overview with Transport",
-         "export":"Yes",
-         "layers":[ 
-            "mainmap-s0-pt-settlements",
-            "mainmap-s0-pt-airports",
-            "mainmap-s0-pt-seaports",
-            "mainmap-s0-ln-coastline",
-            "mainmap-s0-py-surroundingcountries",
-            "mainmap-s0-ln-admin1",
-            "mainmap-s0-ln-roads",
-            "mainmap-s0-ln-rail",
-            "mainmap-s0-py-admin1",
-            "mainmap-s0-py-feather",
-            "mainmap-s0-py-surroundingcountries",
-            "mainmap-s0-py-sea",
-            "locationmap-s0-ln-admin1",
-            "locationmap-s0-ln-affectedcountry",
-            "locationmap-s0-ln-coastline",
-            "locationmap-s0-py-surroundingcountries"
-         ]
-      },
-      { 
-         "mapnumber":"MA004",
-         "category":"Reference",
-         "product":"Country Overview with Topography & Physical Geography",
-         "export":"Yes",
-         "layers":[ 
-            "mainmap-s0-pt-settlements",
-            "mainmap-s1-ln-coastline",
-            "mainmap-s0-py-surroundingcountries",
-            "mainmap-s0-ln-admin1",
-            "mainmap-s0-ln-rivers",
-            "mainmap-s0-py-admin1",
-            "mainmap-s0-py-feather",
-            "mainmap-s0-py-surroundingcountries",
-            "mainmap-s0-py-sea",
-            "mainmap-s0-ras-dem",
-            "mainmap-s0-ras-hillshade",
-            "locationmap-s0-ln-admin1",
-            "locationmap-s0-ln-affectedcountry",
-            "locationmap-s0-ln-coastline",
-            "locationmap-s0-py-surroundingcountries"
-         ]
-      },
-      { 
-         "mapnumber":"MA005",
-         "category":"DDP Reference",
-         "product":"Atlas Admin 1 Boundaries & P-Codes plus Admin 2 Boundaries",
-         "export":"No",
-         "layers":[ 
-            "mainmap-s1-pt-settlements",
-            "mainmap-s0-py-surroundingcountries",
-            "mainmap-s1-ln-admin1",
-            "mainmap-s1-ln-admin2",
-            "mainmap-s0-ln-coastline",
-            "mainmap-s0-py-feather",
-            "mainmap-s0-py-surroundingcountries",
-            "mainmap-s1-py-admin1",
-            "mainmap-s1-py-admin2",
-            "mainmap-s0-py-sea",
-            "mainmap-s1-py-ddpadmin1",
-            "locationmap-s0-ln-admin1",
-            "locationmap-s0-ln-affectedcountry",
-            "locationmap-s0-ln-coastline",
-            "locationmap-s0-py-surroundingcountries"
-         ]
-      },
-      { 
-         "mapnumber":"MA006",
-         "category":"DDP Reference",
-         "product":"Atlas Admin 2 Boundaries & P-Codes plus Admin 3 Boundaries",
-         "export":"No",
-         "layers":[ 
-            "mainmap-s1-pt-settlements",
-            "mainmap-s0-py-surroundingcountries",
-            "mainmap-s1-ln-admin1",
-            "mainmap-s1-ln-admin2",
-            "mainmap-s0-ln-coastline",
-            "mainmap-s0-py-feather",
-            "mainmap-s0-py-surroundingcountries",
-            "mainmap-s1-py-admin1",
-            "mainmap-s1-py-admin2",
-            "mainmap-s0-py-sea",
-            "mainmap-s1-py-ddpadmin1",
-            "locationmap-s0-ln-admin1",
-            "locationmap-s0-ln-affectedcountry",
-            "locationmap-s0-ln-coastline",
-            "locationmap-s0-py-surroundingcountries"
-         ]
-      },
-      { 
-         "mapnumber":"MA007",
-         "category":"DDP Reference",
-         "product":"Atlas Admin 3 Boundaries & P-Codes plus Admin 4 Boundaries",
-         "export":"No",
-         "layers":[ 
-            "mainmap-s1-pt-settlements",
-            "mainmap-s0-py-surroundingcountries",
-            "mainmap-s1-ln-admin1",
-            "mainmap-s1-ln-admin2",
-            "mainmap-s0-ln-coastline",
-            "mainmap-s0-py-feather",
-            "mainmap-s0-py-surroundingcountries",
-            "mainmap-s1-py-admin1",
-            "mainmap-s1-py-admin2",
-            "mainmap-s0-py-sea",
-            "mainmap-s1-py-ddpadmin1",
-            "locationmap-s0-ln-admin1",
-            "locationmap-s0-ln-affectedcountry",
-            "locationmap-s0-ln-coastline",
-            "locationmap-s0-py-surroundingcountries"
-         ]
-      },
-      { 
-         "mapnumber":"MAnnn",
-         "category":"DDP Reference",
-         "product":"unsure whether to keep as duplication",
-         "export":"Yes",
-        "layers": [
-          "mainmap-s0-pt-settlements",
-          "mainmap-s0-pt-airports",
-          "mainmap-s0-pt-seaports",
-          "mainmap-s0-py-feather",
-          "mainmap-s1-ln-coastline",
-          "mainmap-s1-ln-admin1",
-          "mainmap-s1-ln-admin2",
-          "mainmap-s2-ln-admin3",
-          "Transport - Lines",
-          "mainmap-s0-ln-rail",
-          "mainmap-s0-ln-roads",
-          "mainmap-s0-py-waterbodies",
-          "mainmap-s0-ln-rivers",
-          "mainmap-s0-py-admin2",
-          "mainmap-s2-py-admin3",
-          "mainmap-s3-py-admin4",
-          "mainmap-s0-py-affectedcountry",
-          "mainmap-s0-py-surroundingcountries",
-          "mainmap-s0-py-sea",
-          "mainmap-s0-ras-dem",
-          "mainmap-s0-ras-hillshade",
-          "mainmap-s0-ras-curvature",
-          "mainmap-s1-ln-coastline",
-          "mainmap-s0-py-affectedcountry",
-          "locationmap-s0-ln-coastline",
-          "locationmap-s0-ln-admin1",
-          "locationmap-s0-ln-affectedcountry",
-          "locationmap-s0-py-surroundingcountries"
-        ]
-      },
-      { 
-         "mapnumber":"MA011",
-         "category":"Thematic",
-         "product":"Baseline Population",
-         "export":"Yes",
-         "layers":[ 
-            "mainmap-s0-ln-admin1",
-            "mainmap-s1-ln-coastline",
-            "mainmap-s0-py-surroundingcountries",
-            "mainmap-s0-py-admin1",
-            "mainmap-s0-py-feather",
-            "mainmap-s0-py-surroundingcountries",
-            "mainmap-s0-py-sea",
-            "mainmap-s0-ras-population",
-            "locationmap-s0-ln-admin1",
-            "locationmap-s0-ln-coastline",
-            "locationmap-s0-ln-affectedcountry",
-            "locationmap-s0-py-surroundingcountries"
-         ]
-      },
-      { 
-         "mapnumber":"MA012",
-         "category":"Thematic",
-         "product":"Affected Population",
-         "export":"Yes",
-         "layers":[ 
-
-         ]
-      },
-      { 
-         "mapnumber":"MA013",
-         "category":"Thematic",
-         "product":"Infrastructure",
-         "export":"Yes",
-         "layers":[ 
-
-         ]
-      },
-      { 
-         "mapnumber":"MA014",
-         "category":"Thematic",
-         "product":"Humanitarian Infrastructure",
-         "export":"Yes",
-         "layers":[ 
-
-         ]
-      },
-      { 
-         "mapnumber":"MA015",
-         "category":"Thematic",
-         "product":"Situational Overview - Common Operational Picture",
-         "export":"Yes",
-         "layers":[ 
-
-         ]
-      },
-      { 
-         "mapnumber":"MA016",
-         "category":"Thematic",
-         "product":"Camp Coordination and Camp Management",
-         "export":"Yes",
-         "layers":[ 
-
-         ]
-      },
-      { 
-         "mapnumber":"MA021",
-         "category":"Thematic",
-         "product":"Who-What-Where",
-         "export":"Yes",
-         "layers":[ 
-
-         ]
-      },
-      { 
-         "mapnumber":"MA022",
-         "category":"Thematic",
-         "product":"Education",
-         "export":"Yes",
-         "layers":[ 
-
-         ]
-      },
-      { 
-         "mapnumber":"MA023",
-         "category":"Thematic",
-         "product":"Emergency Telecommunications and Communicating with Disaster Affected Communities",
-         "export":"Yes",
-         "layers":[ 
-
-         ]
-      },
-      { 
-         "mapnumber":"MA024",
-         "category":"Thematic",
-         "product":"Food, Security and Nutrition",
-         "export":"Yes",
-         "layers":[ 
-
-         ]
-      },
-      { 
-         "mapnumber":"MA025",
-         "category":"Thematic",
-         "product":"Health",
-         "export":"Yes",
-         "layers":[ 
-
-         ]
-      },
-      { 
-         "mapnumber":"MA026",
-         "category":"Thematic",
-         "product":"Logistics",
-         "export":"Yes",
-         "layers":[ 
-
-         ]
-      },
-      { 
-         "mapnumber":"MA027",
-         "category":"Thematic",
-         "product":"Protection and Security",
-         "export":"Yes",
-         "layers":[ 
-
-         ]
-      },
-      { 
-         "mapnumber":"MA028",
-         "category":"Thematic",
-         "product":"Emergency Shelter",
-         "export":"Yes",
-         "layers":[ 
-
-         ]
-      },
-      { 
-         "mapnumber":"MA029",
-         "category":"Thematic",
-         "product":"Water, Sanitation and Hygiene",
-         "export":"Yes",
-         "layers":[ 
-
-         ]
-      },
-      { 
-         "mapnumber":"MA041",
-         "category":"Thematic",
-         "product":"Armed Conflict and Other Situations of Violence",
-         "export":"Yes",
-         "layers":[ 
-
-         ]
-      },
-      { 
-         "mapnumber":"MA042",
-         "category":"Thematic",
-         "product":"Biological - Epidemics",
-         "export":"Yes",
-         "layers":[ 
-
-         ]
-      },
-      { 
-         "mapnumber":"MA043",
-         "category":"Thematic",
-         "product":"Cyclones and Storms",
-         "export":"Yes",
-         "layers":[ 
-
-         ]
-      },
-      { 
-         "mapnumber":"MA044",
-         "category":"Thematic",
-         "product":"Earthquakes - Search and Rescue",
-         "export":"Yes",
-         "layers":[ 
-
-         ]
-      },
-      { 
-         "mapnumber":"MA045",
-         "category":"Thematic",
-         "product":"Earthquakes - Seismic Aspects",
-         "export":"Yes",
-         "layers":[ 
-
-         ]
-      },
-      { 
-         "mapnumber":"MA046",
-         "category":"Thematic",
-         "product":"Floods",
-         "export":"Yes",
-         "layers":[ 
-
-         ]
-      },
-      { 
-         "mapnumber":"MA047",
-         "category":"Thematic",
-         "product":"Landslides",
-         "export":"Yes",
-         "layers":[ 
-
-         ]
-      },
-      { 
-         "mapnumber":"MA048",
-         "category":"Thematic",
-         "product":"Munitions and Explosive Remnants of War",
-         "export":"Yes",
-         "layers":[ 
-
-         ]
-      },
-      { 
-         "mapnumber":"MA049",
-         "category":"Thematic",
-         "product":"Tsunami",
-         "export":"Yes",
-         "layers":[ 
-
-         ]
-      },
-      { 
-         "mapnumber":"MA050",
-         "category":"Thematic",
-         "product":"Volcanoes",
-         "export":"Yes",
-         "layers":[ 
-
-         ]
-      },
-      { 
-         "mapnumber":"MA051",
-         "category":"Thematic",
-         "product":"Cash Based Transfers",
-         "export":"Yes",
-         "layers":[ 
-
-         ]
-      },
-      { 
-         "mapnumber":"MA052",
-         "category":"Thematic",
-         "product":"Environmental Assessment",
-         "export":"Yes",
-         "layers":[ 
-
-         ]
-      },
-      { 
-         "mapnumber":"MA053",
-         "category":"Thematic",
-         "product":"Helicopters",
-         "export":"Yes",
-         "layers":[ 
-
-         ]
-      },
-      { 
-         "mapnumber":"MA054",
-         "category":"Thematic",
-         "product":"Languages",
-         "export":"Yes",
-         "layers":[ 
-
-         ]
-      },
-      { 
-         "mapnumber":"MA055",
-         "category":"Thematic",
-         "product":"Population Displacement",
-         "export":"Yes",
-         "layers":[ 
-
-         ]
-      },
-      { 
-         "mapnumber":"MA056",
-         "category":"Thematic",
-         "product":"Weather - Overview",
-         "export":"Yes",
-         "layers":[ 
-
-         ]
-      },
-      { 
-         "mapnumber":"MA057",
-         "category":"Thematic",
-         "product":"Weather - Winterisation",
-         "export":"Yes",
-         "layers":[ 
-
-         ]
-      }
-   ]
+{
+  "recipes": [
+    {
+      "mapnumber": "MA001",
+      "category": "Reference",
+      "product": "Country Overview with Admin 1 Boundaries & P-Codes",
+      "export": true,
+      "layers": [
+        "mainmap-s0-pt-settlements",
+        "mainmap-s0-py-surroundingcountries",
+        "mainmap-s0-ln-admin1",
+        "mainmap-s0-ln-coastline",
+        "mainmap-s0-py-feather",
+        "mainmap-s0-py-surroundingcountries",
+        "mainmap-s0-py-admin1",
+        "mainmap-s0-py-sea",
+        "locationmap-s0-ln-admin1",
+        "locationmap-s0-ln-affectedcountry",
+        "locationmap-s0-ln-coastline",
+        "locationmap-s0-py-surroundingcountries"
+      ]
+    },
+    {
+      "mapnumber": "MA002",
+      "category": "Reference",
+      "product": "Country Overview with Admin 1 & 2 Boundaries & P-Codes",
+      "export": true,
+      "layers": [
+        "mainmap-s0-pt-settlements",
+        "mainmap-s0-py-surroundingcountries",
+        "mainmap-s0-ln-admin1",
+        "mainmap-s0-ln-admin2",
+        "mainmap-s0-ln-coastline",
+        "mainmap-s0-py-feather",
+        "mainmap-s0-py-surroundingcountries",
+        "mainmap-s0-py-admin1",
+        "mainmap-s0-py-admin2",
+        "mainmap-s0-py-sea",
+        "locationmap-s0-ln-admin1",
+        "locationmap-s0-ln-affectedcountry",
+        "locationmap-s0-ln-coastline",
+        "locationmap-s0-py-surroundingcountries"
+      ]
+    },
+    {
+      "mapnumber": "MA003",
+      "category": "Reference",
+      "product": "Country Overview with Transport",
+      "export": true,
+      "layers": [
+        "mainmap-s0-pt-settlements",
+        "mainmap-s0-pt-airports",
+        "mainmap-s0-pt-seaports",
+        "mainmap-s0-ln-coastline",
+        "mainmap-s0-py-surroundingcountries",
+        "mainmap-s0-ln-admin1",
+        "mainmap-s0-ln-roads",
+        "mainmap-s0-ln-rail",
+        "mainmap-s0-py-admin1",
+        "mainmap-s0-py-feather",
+        "mainmap-s0-py-surroundingcountries",
+        "mainmap-s0-py-sea",
+        "locationmap-s0-ln-admin1",
+        "locationmap-s0-ln-affectedcountry",
+        "locationmap-s0-ln-coastline",
+        "locationmap-s0-py-surroundingcountries"
+      ]
+    },
+    {
+      "mapnumber": "MA004",
+      "category": "Reference",
+      "product": "Country Overview with Topography & Physical Geography",
+      "export": true,
+      "layers": [
+        "mainmap-s0-pt-settlements",
+        "mainmap-s1-ln-coastline",
+        "mainmap-s0-py-surroundingcountries",
+        "mainmap-s0-ln-admin1",
+        "mainmap-s0-ln-rivers",
+        "mainmap-s0-py-admin1",
+        "mainmap-s0-py-feather",
+        "mainmap-s0-py-surroundingcountries",
+        "mainmap-s0-py-sea",
+        "mainmap-s0-ras-dem",
+        "mainmap-s0-ras-hillshade",
+        "locationmap-s0-ln-admin1",
+        "locationmap-s0-ln-affectedcountry",
+        "locationmap-s0-ln-coastline",
+        "locationmap-s0-py-surroundingcountries"
+      ]
+    },
+    {
+      "mapnumber": "MA005",
+      "category": "DDP Reference",
+      "product": "Atlas Admin 1 Boundaries & P-Codes plus Admin 2 Boundaries",
+      "export": false,
+      "layers": [
+        "mainmap-s1-pt-settlements",
+        "mainmap-s0-py-surroundingcountries",
+        "mainmap-s1-ln-admin1",
+        "mainmap-s1-ln-admin2",
+        "mainmap-s0-ln-coastline",
+        "mainmap-s0-py-feather",
+        "mainmap-s0-py-surroundingcountries",
+        "mainmap-s1-py-admin1",
+        "mainmap-s1-py-admin2",
+        "mainmap-s0-py-sea",
+        "mainmap-s1-py-ddpadmin1",
+        "locationmap-s0-ln-admin1",
+        "locationmap-s0-ln-affectedcountry",
+        "locationmap-s0-ln-coastline",
+        "locationmap-s0-py-surroundingcountries"
+      ]
+    },
+    {
+      "mapnumber": "MA006",
+      "category": "DDP Reference",
+      "product": "Atlas Admin 2 Boundaries & P-Codes plus Admin 3 Boundaries",
+      "export": false,
+      "layers": [
+        "mainmap-s1-pt-settlements",
+        "mainmap-s0-py-surroundingcountries",
+        "mainmap-s1-ln-admin1",
+        "mainmap-s1-ln-admin2",
+        "mainmap-s0-ln-coastline",
+        "mainmap-s0-py-feather",
+        "mainmap-s0-py-surroundingcountries",
+        "mainmap-s1-py-admin1",
+        "mainmap-s1-py-admin2",
+        "mainmap-s0-py-sea",
+        "mainmap-s1-py-ddpadmin1",
+        "locationmap-s0-ln-admin1",
+        "locationmap-s0-ln-affectedcountry",
+        "locationmap-s0-ln-coastline",
+        "locationmap-s0-py-surroundingcountries"
+      ]
+    },
+    {
+      "mapnumber": "MA007",
+      "category": "DDP Reference",
+      "product": "Atlas Admin 3 Boundaries & P-Codes plus Admin 4 Boundaries",
+      "export": false,
+      "layers": [
+        "mainmap-s1-pt-settlements",
+        "mainmap-s0-py-surroundingcountries",
+        "mainmap-s1-ln-admin1",
+        "mainmap-s1-ln-admin2",
+        "mainmap-s0-ln-coastline",
+        "mainmap-s0-py-feather",
+        "mainmap-s0-py-surroundingcountries",
+        "mainmap-s1-py-admin1",
+        "mainmap-s1-py-admin2",
+        "mainmap-s0-py-sea",
+        "mainmap-s1-py-ddpadmin1",
+        "locationmap-s0-ln-admin1",
+        "locationmap-s0-ln-affectedcountry",
+        "locationmap-s0-ln-coastline",
+        "locationmap-s0-py-surroundingcountries"
+      ]
+    },
+    {
+      "mapnumber": "MAnnn",
+      "category": "DDP Reference",
+      "product": "unsure whether to keep as duplication",
+      "export": true,
+      "layers": [
+        "mainmap-s0-pt-settlements",
+        "mainmap-s0-pt-airports",
+        "mainmap-s0-pt-seaports",
+        "mainmap-s0-py-feather",
+        "mainmap-s1-ln-coastline",
+        "mainmap-s1-ln-admin1",
+        "mainmap-s1-ln-admin2",
+        "mainmap-s2-ln-admin3",
+        "Transport - Lines",
+        "mainmap-s0-ln-rail",
+        "mainmap-s0-ln-roads",
+        "mainmap-s0-py-waterbodies",
+        "mainmap-s0-ln-rivers",
+        "mainmap-s0-py-admin2",
+        "mainmap-s2-py-admin3",
+        "mainmap-s3-py-admin4",
+        "mainmap-s0-py-affectedcountry",
+        "mainmap-s0-py-surroundingcountries",
+        "mainmap-s0-py-sea",
+        "mainmap-s0-ras-dem",
+        "mainmap-s0-ras-hillshade",
+        "mainmap-s0-ras-curvature",
+        "mainmap-s1-ln-coastline",
+        "mainmap-s0-py-affectedcountry",
+        "locationmap-s0-ln-coastline",
+        "locationmap-s0-ln-admin1",
+        "locationmap-s0-ln-affectedcountry",
+        "locationmap-s0-py-surroundingcountries"
+      ]
+    },
+    {
+      "mapnumber": "MA011",
+      "category": "Thematic",
+      "product": "Baseline Population",
+      "export": true,
+      "layers": [
+        "mainmap-s0-ln-admin1",
+        "mainmap-s1-ln-coastline",
+        "mainmap-s0-py-surroundingcountries",
+        "mainmap-s0-py-admin1",
+        "mainmap-s0-py-feather",
+        "mainmap-s0-py-surroundingcountries",
+        "mainmap-s0-py-sea",
+        "mainmap-s0-ras-population",
+        "locationmap-s0-ln-admin1",
+        "locationmap-s0-ln-coastline",
+        "locationmap-s0-ln-affectedcountry",
+        "locationmap-s0-py-surroundingcountries"
+      ]
+    },
+    {
+      "mapnumber": "MA012",
+      "category": "Thematic",
+      "product": "Affected Population",
+      "export": true,
+      "layers": []
+    },
+    {
+      "mapnumber": "MA013",
+      "category": "Thematic",
+      "product": "Infrastructure",
+      "export": true,
+      "layers": []
+    },
+    {
+      "mapnumber": "MA014",
+      "category": "Thematic",
+      "product": "Humanitarian Infrastructure",
+      "export": true,
+      "layers": []
+    },
+    {
+      "mapnumber": "MA015",
+      "category": "Thematic",
+      "product": "Situational Overview - Common Operational Picture",
+      "export": true,
+      "layers": []
+    },
+    {
+      "mapnumber": "MA016",
+      "category": "Thematic",
+      "product": "Camp Coordination and Camp Management",
+      "export": true,
+      "layers": []
+    },
+    {
+      "mapnumber": "MA021",
+      "category": "Thematic",
+      "product": "Who-What-Where",
+      "export": true,
+      "layers": []
+    },
+    {
+      "mapnumber": "MA022",
+      "category": "Thematic",
+      "product": "Education",
+      "export": true,
+      "layers": []
+    },
+    {
+      "mapnumber": "MA023",
+      "category": "Thematic",
+      "product": "Emergency Telecommunications and Communicating with Disaster Affected Communities",
+      "export": true,
+      "layers": []
+    },
+    {
+      "mapnumber": "MA024",
+      "category": "Thematic",
+      "product": "Food, Security and Nutrition",
+      "export": true,
+      "layers": []
+    },
+    {
+      "mapnumber": "MA025",
+      "category": "Thematic",
+      "product": "Health",
+      "export": true,
+      "layers": []
+    },
+    {
+      "mapnumber": "MA026",
+      "category": "Thematic",
+      "product": "Logistics",
+      "export": true,
+      "layers": []
+    },
+    {
+      "mapnumber": "MA027",
+      "category": "Thematic",
+      "product": "Protection and Security",
+      "export": true,
+      "layers": []
+    },
+    {
+      "mapnumber": "MA028",
+      "category": "Thematic",
+      "product": "Emergency Shelter",
+      "export": true,
+      "layers": []
+    },
+    {
+      "mapnumber": "MA029",
+      "category": "Thematic",
+      "product": "Water, Sanitation and Hygiene",
+      "export": true,
+      "layers": []
+    },
+    {
+      "mapnumber": "MA041",
+      "category": "Thematic",
+      "product": "Armed Conflict and Other Situations of Violence",
+      "export": true,
+      "layers": []
+    },
+    {
+      "mapnumber": "MA042",
+      "category": "Thematic",
+      "product": "Biological - Epidemics",
+      "export": true,
+      "layers": []
+    },
+    {
+      "mapnumber": "MA043",
+      "category": "Thematic",
+      "product": "Cyclones and Storms",
+      "export": true,
+      "layers": []
+    },
+    {
+      "mapnumber": "MA044",
+      "category": "Thematic",
+      "product": "Earthquakes - Search and Rescue",
+      "export": true,
+      "layers": []
+    },
+    {
+      "mapnumber": "MA045",
+      "category": "Thematic",
+      "product": "Earthquakes - Seismic Aspects",
+      "export": true,
+      "layers": []
+    },
+    {
+      "mapnumber": "MA046",
+      "category": "Thematic",
+      "product": "Floods",
+      "export": true,
+      "layers": []
+    },
+    {
+      "mapnumber": "MA047",
+      "category": "Thematic",
+      "product": "Landslides",
+      "export": true,
+      "layers": []
+    },
+    {
+      "mapnumber": "MA048",
+      "category": "Thematic",
+      "product": "Munitions and Explosive Remnants of War",
+      "export": true,
+      "layers": []
+    },
+    {
+      "mapnumber": "MA049",
+      "category": "Thematic",
+      "product": "Tsunami",
+      "export": true,
+      "layers": []
+    },
+    {
+      "mapnumber": "MA050",
+      "category": "Thematic",
+      "product": "Volcanoes",
+      "export": true,
+      "layers": []
+    },
+    {
+      "mapnumber": "MA051",
+      "category": "Thematic",
+      "product": "Cash Based Transfers",
+      "export": true,
+      "layers": []
+    },
+    {
+      "mapnumber": "MA052",
+      "category": "Thematic",
+      "product": "Environmental Assessment",
+      "export": true,
+      "layers": []
+    },
+    {
+      "mapnumber": "MA053",
+      "category": "Thematic",
+      "product": "Helicopters",
+      "export": true,
+      "layers": []
+    },
+    {
+      "mapnumber": "MA054",
+      "category": "Thematic",
+      "product": "Languages",
+      "export": true,
+      "layers": []
+    },
+    {
+      "mapnumber": "MA055",
+      "category": "Thematic",
+      "product": "Population Displacement",
+      "export": true,
+      "layers": []
+    },
+    {
+      "mapnumber": "MA056",
+      "category": "Thematic",
+      "product": "Weather - Overview",
+      "export": true,
+      "layers": []
+    },
+    {
+      "mapnumber": "MA057",
+      "category": "Thematic",
+      "product": "Weather - Winterisation",
+      "export": true,
+      "layers": []
+    }
+  ]
 }
