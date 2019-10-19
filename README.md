@@ -213,8 +213,7 @@ For example:
 ## Authors
 
 * **Steve Hurst** - [https://github.com/mapaction/mapactionpy_arcmap](https://github.com/mapaction/mapactionpy_arcmap)
-* **Steve Penson**
-
+*
 
 todo:
 [] enable installation via pypi.
