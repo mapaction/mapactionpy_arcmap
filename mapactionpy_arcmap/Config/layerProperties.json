@@ -399,7 +399,7 @@
     {
       "MapFrame": "Location Map",
       "LayerName": "locationmap-s0-ln-admin1",
-      "RegExp": "^[a-z]{3}_admn_ad1_ln_s0_(.*?)_([phm][phm])(.*?).shp$",
+      "RegExp": "^[a-z]{3}_admn_ad0_ln_s0_(.*?)_([phm][phm])(.*?).shp$",
       "DefinitionQuery": "",
       "Display": true,
       "AddToLegend": true,

@@ -179,9 +179,5 @@ if __name__ == '__main__':
                         help="Name of product")
     parser.add_argument("-c", "--country", dest="countryName", required=True,
                         help="Name of country")
-    parser.add_argument("-v", "--version", dest="versionNumber", required=False,
-                        help="Version number", default="1")
-    parser.add_argument("-d", "--dryRun", dest="dryRun", required=False,
-                        help="Dry Run - Execute, but don't produce map", default=False)
     args = parser.parse_args()
     main(args)
