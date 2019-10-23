@@ -272,20 +272,20 @@ class MapChef:
 
 
     def showLegendEntries(self):
-        legend = arcpy.mapping.ListLayoutElements(self.mxd, "LEGEND_ELEMENT")[0] 
-        for lyr in legend.listLegendItemLayers():
-            if lyr.name in self.legendEntriesToRemove:
-                legend.removeItem(lyr)
+
+        for legend in arcpy.mapping.ListLayoutElements(self.mxd, "LEGEND_ELEMENT"): 
+            for lyr in legend.listLegendItemLayers():
+                if lyr.name in self.legendEntriesToRemove:
+                    legend.removeItem(lyr)
         self.mxd.save()
 
     def alignLegend(self, orientation):
-        legend = arcpy.mapping.ListLayoutElements(self.mxd, "LEGEND_ELEMENT")[0] 
-        if  orientation == "landscape":
-            # Resize
-            legend.elementWidth = 60
-            legend.elementPositionX = 248.9111
-            legend.elementPositionY = 40
-
+        for legend in arcpy.mapping.ListLayoutElements(self.mxd, "LEGEND_ELEMENT"): 
+            if  orientation == "landscape":
+                # Resize
+                legend.elementWidth = 60
+                legend.elementPositionX = 248.9111
+                legend.elementPositionY = 40
         self.mxd.save()
 
     def resizeScaleBar(self):
