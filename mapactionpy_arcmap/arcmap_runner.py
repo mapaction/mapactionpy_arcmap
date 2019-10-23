@@ -41,14 +41,13 @@ def is_valid_directory(parser, arg):
         parser.error("The directory %s does not exist!" % arg)
         return False
 
-def deduceTemplate(countryName, cookbookFile, crashMoveFolder, productName):
+def getTemplate(orientation, cookbookFile, crashMoveFolder, productName):
     gisFolder="GIS"
     arcGisVersion="arcgis_10_6"
     mappingDir="3_Mapping"
     templateDirectoryName="32_MXD_Templates"
     mapDirectoryName="33_MXD_Maps"
 
-    orientation = getOrientation(countryName)
     # Need to get the theme from the recipe to get the path to the MXD
     cookbook = MapCookbook(cookbookFile)
     recipe = cookbook.products[productName]
@@ -59,7 +58,6 @@ def deduceTemplate(countryName, cookbookFile, crashMoveFolder, productName):
         print("Error: Could not find source template directory: " + templateDirectoryPath)
         print("Exiting.")
         sys.exit(1)
-
 
     if (recipe.category.lower() == "reference"):
         templateFileName=arcGisVersion + "_" + recipe.category + "_" + orientation + "_bottom.mxd"
@@ -139,15 +137,19 @@ def main(args):
     productName = args.productName
     countryName = args.countryName
 
+    orientation = "landscape"
+
     mxdTemplate = None
     if args.templateFile:
         mxdTemplate = args.templateFile
     else:
-        mxdTemplate = deduceTemplate(countryName, cookbookFile, crashMoveFolder, productName)
+        orientation = getOrientation(countryName)
+        mxdTemplate = getTemplate(orientation, cookbookFile, crashMoveFolder, productName)
     mxd = arcpy.mapping.MapDocument(mxdTemplate)
 
     chef = MapChef(mxd, cookbookFile, layerPropertiesFile, crashMoveFolder, layerDirectory)
     chef.cook(productName, countryName)
+    chef.alignLegend(orientation)
     reportJson = chef.report()
     print(reportJson)
 

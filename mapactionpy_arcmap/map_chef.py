@@ -29,6 +29,7 @@ class MapChef:
         self.layerDirectory = layerDirectory
         self.cookbook = MapCookbook(self.cookbookJsonFile)
         self.layerProperties = LayerProperties(self.layerPropertiesJsonFile)
+        self.legendEntriesToRemove = list()
 
     def disableLayers(self):
         """
@@ -69,6 +70,7 @@ class MapChef:
         arcpy.RefreshTOC()
         arcpy.RefreshActiveView()
         arcpy.env.addOutputsToMap = True
+        self.showLegendEntries()
         self.mxd.save()
 
     """
@@ -91,7 +93,7 @@ class MapChef:
         boolean -- added (true if successful)
     """
 
-    def addDataToLayer(self, dataFrame, dataFile, layer, definitionQuery, datasetName, labelClasses, countryName):
+    def addDataToLayer(self, dataFrame, dataFile, layer, definitionQuery, datasetName, labelClasses, countryName, addToLegend):
         datasetTypes = ["SHAPEFILE_WORKSPACE",
                         "RASTER_WORKSPACE",
                         "FILEGDB_WORKSPACE",
@@ -131,6 +133,8 @@ class MapChef:
                             added = False
 
                     if (added is True):
+                        if addToLegend == False:
+                            self.legendEntriesToRemove.append(lyr.name)
                         arcpy.mapping.AddLayer(dataFrame, lyr, "BOTTOM")
                         break
                 lyr.visible = False
@@ -166,7 +170,8 @@ class MapChef:
                                                               properties.definitionQuery,
                                                               datasetName,
                                                               properties.labelClasses,
-                                                              countryName)
+                                                              countryName,
+                                                              properties.addToLegend)
                         mapResult.dataSource = dataFile
                         if mapResult.added:
                             mapResult.message = "Layer added successfully"
@@ -191,7 +196,8 @@ class MapChef:
                                                                       raster,
                                                                       properties.
                                                                       labelClasses,
-                                                                      countryName)
+                                                                      countryName,
+                                                                      properties.addToLegend)
                                 mapResult.dataSource = geoDatabase + os.sep + raster
                                 break
                         featureClasses = arcpy.ListFeatureClasses()
@@ -204,7 +210,8 @@ class MapChef:
                                                                       properties.definitionQuery,
                                                                       featureClass,
                                                                       properties.labelClasses,
-                                                                      countryName)
+                                                                      countryName,
+                                                                      properties.addToLegend)
                                 mapResult.dataSource = geoDatabase + os.sep + featureClass
                                 # Found Geodatabase.  Stop iterating.
                                 break
@@ -261,4 +268,27 @@ class MapChef:
             if elm.name == "map_no":
                 elm.text = mapNumber
 
+        self.mxd.save()
+
+
+    def showLegendEntries(self):
+
+        for legend in arcpy.mapping.ListLayoutElements(self.mxd, "LEGEND_ELEMENT"): 
+            for lyr in legend.listLegendItemLayers():
+                if lyr.name in self.legendEntriesToRemove:
+                    legend.removeItem(lyr)
+        self.mxd.save()
+
+    def alignLegend(self, orientation):
+        for legend in arcpy.mapping.ListLayoutElements(self.mxd, "LEGEND_ELEMENT"): 
+            if  orientation == "landscape":
+                # Resize
+                legend.elementWidth = 60
+                legend.elementPositionX = 248.9111
+                legend.elementPositionY = 40
+        self.mxd.save()
+
+    def resizeScaleBar(self):
+        elm = arcpy.mapping.ListLayoutElements(self.mxd,"MAPSURROUND_ELEMENT", "Scale Bar")[0]
+        elm.elementWidth = 51.1585
         self.mxd.save()
