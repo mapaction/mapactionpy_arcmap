@@ -136,7 +136,7 @@ def main(args):
     event=None
 
     if os.path.exists(cmfFilePath):
-        cmf = CrashMoveFolder(cmfFilePath, False) # TODO Enable Verification
+        cmf = CrashMoveFolder(cmfFilePath)
         event=Event(cmf)
 
     productName = args.productName
