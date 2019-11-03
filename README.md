@@ -1,3 +1,4 @@
+
 # MapChef
 
 Master branch [![Build Status](https://travis-ci.org/mapaction/mapactionpy_arcmap.svg?branch=master)](https://travis-ci.org/mapaction/mapactionpy_arcmap) [![Coverage Status](https://coveralls.io/repos/github/mapaction/mapactionpy_arcmap/badge.svg?branch=pep8-and-travis)](https://coveralls.io/github/mapaction/mapactionpy_arcmap?branch=master)
@@ -27,7 +28,9 @@ Adds geospatial data to an ArcMap MXD file based on a recipe from a cookbook con
 3) Run package ```python setup.py bdist_wheel```
 4) Install
     ```
+    python -m pip install pycountry
     python -m pip install jsonpickle
+    python -m pip install mapactionpy_controller
     python -m pip install --user -e .
     ```
     To install for use non-development purposes:
@@ -145,16 +148,23 @@ The Layer Config file ([layerProperties.json](mapactionpy_arcmap/Config/layerPro
 | 6 | LabelClasses    | Details for displaying labels | 
 ## Execution
 
+### Key
+| # | Icon         |Meaning                                                           |
+|---|---------------|-----------------------------------------------------------------------|
+| 1 | :heavy_check_mark:| Must always be supplied       
+| 2 | :zap:| If not supplied, this parameter can be inferred if the `cmf_description.json` and the `event_description.json` files are in he root of the Crash Move Folder.                          
+
 ### Parameters
+
 
 | # | Field         |Mandatory|Description                                                           |
 |---|---------------|-|-----------------------------------------------------------------------|
-| 1 | --cookbook    |:heavy_check_mark:| Path to the cookbook ```mapCookbook.json``` file.                     |
-| 2 | --layerConfig |:heavy_check_mark:| Path to the ```layerProperties.json``` file.                          |
+| 1 | --cookbook    |:zap:| Path to the cookbook ```mapCookbook.json``` file.                     |
+| 2 | --layerConfig |:zap:| Path to the ```layerProperties.json``` file.                          |
 | 3 | --cmf         |:heavy_check_mark:| Path to the Crash Move Folder root.                                   |
-| 4 | --template    |:x:| Path to the ```MXD``` file.                                           |
+| 4 | --template    |:zap:| Path to the ```MXD``` file.                                           |
 | 5 | --product     |:heavy_check_mark:| Name of product (must correlate with a product in the cookbook file). |
-| 6 | --country     |:heavy_check_mark:| Name of country.                                                      |
+| 6 | --country     |:zap:| Name of country.                                                      |
 
 
 ### Example 1
@@ -210,7 +220,26 @@ For example:
 
 ```MA001_country-overview-with-admin-1-boundaries-p-codes.mxd```
 
-## Authors
+### Example 3
+
+```
+C:\Python27\ArcGIS10.6\python.exe -m mapactionpy_arcmap.arcmap_runner \
+   --cmf "D:\MapAction\2019-06-25 - Automation - El Salvador" \
+   --product "Country Overview with Admin 1 Boundaries & P-Codes"
+```
+
+In this example, the following parameters were not provided:
+
+    --cookbook
+    --layerConfig
+    --layerDirectory
+    --country
+
+The values for these parameters were inferred from the ```event_description.json``` and the ```cmf_description.json``` files.  
+These files were provided at the root of the Crash Move Folder, i.e. the directory supplied by the ```--cmf``` parameter.
+
+
+## Author
 
 * **Steve Hurst** - [https://github.com/mapaction/mapactionpy_arcmap](https://github.com/mapaction/mapactionpy_arcmap)
 

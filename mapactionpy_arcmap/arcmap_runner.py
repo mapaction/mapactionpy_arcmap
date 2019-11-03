@@ -19,12 +19,14 @@ import json
 import os
 import urllib2
 import requests
+import pycountry
 from map_chef import MapChef
 from map_cookbook import MapCookbook
 import arcpy
 from shutil import copyfile
 from slugify import slugify
-
+from mapactionpy_controller.crash_move_folder import CrashMoveFolder
+from mapactionpy_controller.event import Event
 
 def is_valid_file(parser, arg):
     if not os.path.exists(arg):
@@ -32,7 +34,6 @@ def is_valid_file(parser, arg):
         return False
     else:
         return arg
-
 
 def is_valid_directory(parser, arg):
     if os.path.isdir(arg):
@@ -42,17 +43,13 @@ def is_valid_directory(parser, arg):
         return False
 
 def getTemplate(orientation, cookbookFile, crashMoveFolder, productName):
-    gisFolder="GIS"
-    arcGisVersion="arcgis_10_6"
-    mappingDir="3_Mapping"
-    templateDirectoryName="32_MXD_Templates"
-    mapDirectoryName="33_MXD_Maps"
+    arcGisVersion=crashMoveFolder.arcgis_version
 
     # Need to get the theme from the recipe to get the path to the MXD
     cookbook = MapCookbook(cookbookFile)
     recipe = cookbook.products[productName]
 
-    templateDirectoryPath = os.path.join(crashMoveFolder, gisFolder, mappingDir, templateDirectoryName, arcGisVersion)
+    templateDirectoryPath = os.path.join(crashMoveFolder.path, crashMoveFolder.mxd_templates)
 
     if not(os.path.isdir(templateDirectoryPath)):
         print("Error: Could not find source template directory: " + templateDirectoryPath)
@@ -68,7 +65,7 @@ def getTemplate(orientation, cookbookFile, crashMoveFolder, productName):
         print("Exiting.")
         sys.exit(1)
 
-    mapDirectoryPath = os.path.join(crashMoveFolder, gisFolder, mappingDir, mapDirectoryName)
+    mapDirectoryPath = os.path.join(crashMoveFolder.path, crashMoveFolder.mxd_products)
 
     if not(os.path.isdir(mapDirectoryPath)):
         print("Error: Could not find target directory: " + mapDirectoryPath)
@@ -130,21 +127,70 @@ def getOrientation(countryName):
 
 def main(args):
     args = parser.parse_args()
-    cookbookFile = args.cookbookFile
-    layerPropertiesFile = args.layerConfig
+
+    # Construct a Crash Move Folder object if the cmf_description.json exists
     crashMoveFolder = args.crashMoveFolder
-    layerDirectory = args.layerDirectory
+    cmfFilePath= os.path.join(crashMoveFolder, "cmf_description.json")
+
+    cmf=None
+    event=None
+
+    if os.path.exists(cmfFilePath):
+        cmf = CrashMoveFolder(cmfFilePath, False) # TODO Enable Verification
+        event=Event(cmf)
+
     productName = args.productName
-    countryName = args.countryName
 
+    # If no country name supplied, need to find it from the event_description.json
+    if args.countryName:
+        countryName = args.countryName
+    else:
+        if event is not None: 
+            country=pycountry.countries.get(alpha_3=event.affected_country_iso3.upper())
+            countryName = country.name
+        else:
+            print("Error: Could not derive country from " + os.path.join(crashMoveFolder,cmf.event_description_file))
+            print("Exiting.")
+            sys.exit(1)
+
+    if args.cookbookFile:
+        cookbookFile = args.cookbookFile
+    else:
+        if cmf is not None: 
+            cookbookFile=os.path.join(crashMoveFolder,cmf.map_definitions)
+        else:
+            print("Error: Could not derive cookbook file from " + crashMoveFolder)
+            print("Exiting.")
+            sys.exit(1)
+
+    if args.layerConfig:
+        layerPropertiesFile = args.layerConfig
+    else:
+        if cmf is not None: 
+            layerPropertiesFile=os.path.join(crashMoveFolder,cmf.layer_properties)
+        else:
+            print("Error: Could not derive layer config file from " + crashMoveFolder)
+            print("Exiting.")
+            sys.exit(1)
+
+    if args.layerDirectory:
+        layerDirectory = args.layerDirectory
+    else:
+        if cmf is not None: 
+            layerDirectory=os.path.join(crashMoveFolder,cmf.layer_rendering)
+        else:
+            print("Error: Could not derive layer rendering directory from " + crashMoveFolder)
+            print("Exiting.")
+            sys.exit(1)
+
+    # Determine orientation
     orientation = "landscape"
-
     mxdTemplate = None
     if args.templateFile:
         mxdTemplate = args.templateFile
     else:
         orientation = getOrientation(countryName)
-        mxdTemplate = getTemplate(orientation, cookbookFile, crashMoveFolder, productName)
+        mxdTemplate = getTemplate(orientation, cookbookFile, cmf, productName)
     mxd = arcpy.mapping.MapDocument(mxdTemplate)
 
     chef = MapChef(mxd, cookbookFile, layerPropertiesFile, crashMoveFolder, layerDirectory)
@@ -160,10 +206,10 @@ if __name__ == '__main__':
         'relevant datasets along with other information required to create an'
         'event specific instance of a map.',
     )
-    parser.add_argument("-b", "--cookbook", dest="cookbookFile", required=True,
+    parser.add_argument("-b", "--cookbook", dest="cookbookFile", required=False,
                         help="path to cookbook json file", metavar="FILE",
                         type=lambda x: is_valid_file(parser, x))
-    parser.add_argument("-l", "--layerConfig", dest="layerConfig", required=True,
+    parser.add_argument("-l", "--layerConfig", dest="layerConfig", required=False,
                         help="path to layer config json file", metavar="FILE",
                         type=lambda x: is_valid_file(parser, x))
     parser.add_argument("-t", "--template", dest="templateFile", required=False,
@@ -172,12 +218,12 @@ if __name__ == '__main__':
     parser.add_argument("-cmf", "--cmf", dest="crashMoveFolder", required=True,
                         help="path the Crash Move Folder", metavar="FILE",
                         type=lambda x: is_valid_directory(parser, x))
-    parser.add_argument("-ld", "--layerDirectory", dest="layerDirectory", required=True,
+    parser.add_argument("-ld", "--layerDirectory", dest="layerDirectory", required=False,
                         help="path to layer directory", metavar="FILE",
                         type=lambda x: is_valid_directory(parser, x))
     parser.add_argument("-p", "--product", dest="productName", required=True,
                         help="Name of product")
-    parser.add_argument("-c", "--country", dest="countryName", required=True,
+    parser.add_argument("-c", "--country", dest="countryName", required=False,
                         help="Name of country")
     args = parser.parse_args()
     main(args)
