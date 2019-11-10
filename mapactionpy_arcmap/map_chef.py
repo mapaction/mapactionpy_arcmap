@@ -5,6 +5,7 @@ import re
 from map_cookbook import MapCookbook
 from map_report import MapReport
 from map_result import MapResult
+from mapactionpy_controller.event import Event
 from layer_properties import LayerProperties
 from datetime import datetime
 
@@ -23,6 +24,7 @@ class MapChef:
            crashMoveFolder {str} -- Path to Crash Move Folder json file
         """
         self.mxd = mxd
+
         self.layerPropertiesJsonFile = layerPropertiesJsonFile
         self.cookbookJsonFile = cookbookJsonFile
         self.crashMoveFolder = crashMoveFolder
@@ -30,6 +32,11 @@ class MapChef:
         self.cookbook = MapCookbook(self.cookbookJsonFile)
         self.layerProperties = LayerProperties(self.layerPropertiesJsonFile)
         self.legendEntriesToRemove = list()
+        eventFilePath= os.path.join(crashMoveFolder, "event_description.json")
+
+        self.event=None
+        if os.path.exists(eventFilePath):
+            self.event=Event(eventFilePath)
 
     def disableLayers(self):
         """
@@ -38,6 +45,44 @@ class MapChef:
         for df in arcpy.mapping.ListDataFrames(self.mxd):
             for lyr in arcpy.mapping.ListLayers(self.mxd, "", df):
                 lyr.visible = False
+
+    def returnScale(self, dfscale):  
+        #https://community.esri.com/thread/163596
+        scalebar = [2,3,4,5,6,10]  
+        dfscale = dfscale/12  
+        dfscale = str(int(dfscale))  
+        dfscaleLen = len(dfscale)  
+        numcheck = int(dfscale[0])  
+        for each in scalebar:  
+            if numcheck < each:  
+                multi = '1'  
+                while dfscaleLen > 1:  
+                    multi = multi + '0'  
+                    dfscaleLen = dfscaleLen - 1  
+                scalebar = each * int(multi)  
+                dataframescale = scalebar * 12  
+                return scalebar,dataframescale  
+                break  
+
+    def scale(self):
+        newScale=""
+        for df in arcpy.mapping.ListDataFrames(self.mxd):
+            if df.name.lower() == "main map":
+                intValue = '{:,}'.format(int(df.scale))
+                newScale = "1: " + intValue + " (At A3)"
+                break
+        return newScale
+
+    def spatialReference(self):
+        spatialReferenceString=""
+        for df in arcpy.mapping.ListDataFrames(self.mxd):
+            if df.name.lower() == "main map":
+                spatialReferenceString = df.spatialReference.datumName
+                spatialReferenceString = spatialReferenceString[2:]
+                spatialReferenceString = spatialReferenceString.replace('_', ' ')
+                break
+        return spatialReferenceString
+
 
     def enableLayers(self):
         """
@@ -63,7 +108,6 @@ class MapChef:
         self.mapReport = MapReport(productName)
         recipe = self.cookbook.products.get(productName, None)
         if (recipe is not None):
-            self.updateTextElements(productName, countryName, recipe.mapnumber)
             for layer in recipe.layers:
                 self.processLayer(layer, countryName)
         self.enableLayers()
@@ -72,6 +116,10 @@ class MapChef:
         arcpy.env.addOutputsToMap = True
         self.showLegendEntries()
         self.mxd.save()
+
+        if (recipe is not None):
+            self.updateTextElements(productName, countryName, recipe.mapnumber)
+            self.mxd.save()
 
     """
     Adds data file to map layer
@@ -258,7 +306,9 @@ class MapChef:
         return returnPaths
 
     def updateTextElements(self, productName, countryName, mapNumber):
+
         for elm in arcpy.mapping.ListLayoutElements(self.mxd, "TEXT_ELEMENT"):
+            print(elm.name)
             if elm.name == "country":
                 elm.text = countryName
             if elm.name == "title":
@@ -267,6 +317,28 @@ class MapChef:
                 elm.text = datetime.utcnow().strftime("%d-%b-%Y %H:%M UTC")
             if elm.name == "map_no":
                 elm.text = mapNumber
+            if elm.name == "mxd_name":
+                elm.text = os.path.basename(self.mxd.filePath)
+            if elm.name == "scale":
+                elm.text = self.scale()
+            if elm.name == "spatial_reference":
+                elm.text = self.spatialReference()
+            if elm.name == "glide_no":
+                if (self.event is not None):
+                    elm.text = self.event.glide_number
+            if elm.name == "donor_credit":
+                if (self.event is not None):
+                    elm.text = self.event.default_donor_credits
+            if elm.name == "disclaimer":
+                if (self.event is not None):
+                    elm.text = self.event.default_disclaimer_text
+            if elm.name == "map_producer":
+                if (self.event is not None):
+                    elm.text = self.event.default_source_organisation
+
+# map_version
+# data_sources
+# summary
 
         self.mxd.save()
 
