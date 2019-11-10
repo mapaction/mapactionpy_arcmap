@@ -35,6 +35,7 @@ class MapChef:
         eventFilePath= os.path.join(crashMoveFolder, "event_description.json")
 
         self.event=None
+        self.summary = "Insert summary here"
         if os.path.exists(eventFilePath):
             self.event=Event(eventFilePath)
 
@@ -108,6 +109,8 @@ class MapChef:
         self.mapReport = MapReport(productName)
         recipe = self.cookbook.products.get(productName, None)
         if (recipe is not None):
+            if (len(recipe.summary) > 0):
+                self.summary = recipe.summary
             for layer in recipe.layers:
                 self.processLayer(layer, countryName)
         self.enableLayers()
@@ -315,6 +318,8 @@ class MapChef:
                 elm.text = productName
             if elm.name == "create_date_time":
                 elm.text = datetime.utcnow().strftime("%d-%b-%Y %H:%M UTC")
+            if elm.name == "summary":
+                elm.text = self.summary
             if elm.name == "map_no":
                 elm.text = mapNumber
             if elm.name == "mxd_name":
@@ -334,12 +339,14 @@ class MapChef:
                     elm.text = self.event.default_disclaimer_text
             if elm.name == "map_producer":
                 if (self.event is not None):
-                    elm.text = self.event.default_source_organisation
-
+                    elm.text = "Produced by " + \
+                        self.event.default_source_organisation + \
+                        os.linesep + \
+                        self.event.deployment_primary_email + \
+                        os.linesep + \
+                        self.event.default_source_organisation_url
 # map_version
 # data_sources
-# summary
-
         self.mxd.save()
 
 
