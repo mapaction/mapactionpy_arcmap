@@ -200,7 +200,7 @@ class MapChef:
                                 dnr = self.namingConvention.validate(datasetName)
                                 # We want to capture Description:
                                 if 'Description' in dnr.source._fields:
-                                    if (dnr.source.Description.lower() not in ('unknown', 'undefined')):
+                                    if (dnr.source.Description.lower() not in ('unknown', 'undefined', 'mapaction')):
                                         self.dataSources.add(dnr.source.Description)
                         arcpy.mapping.AddLayer(dataFrame, lyr, "BOTTOM")
                         break
