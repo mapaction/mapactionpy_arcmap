@@ -174,9 +174,9 @@ class MapChef:
                 for labelClass in labelClasses:
                     for lblClass in lyr.labelClasses:
                         if (lblClass.className == labelClass.className):
-                            lblClass.SQLQuery = labelClass.SQLQuery
+                            lblClass.SQLQuery = labelClass.SQLQuery.replace('{COUNTRY_NAME}', countryName)
                             lblClass.expression = labelClass.expression
-            if lyr.supports("DATASOURCE"):  # An annotation layer does notsupport DATASOURCE
+            if lyr.supports("DATASOURCE"):  # An annotation layer does not support DATASOURCE
                 for datasetType in datasetTypes:
                     #
                     try:
