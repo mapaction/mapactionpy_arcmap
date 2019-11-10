@@ -6,6 +6,8 @@ from map_cookbook import MapCookbook
 from map_report import MapReport
 from map_result import MapResult
 from mapactionpy_controller.event import Event
+from mapactionpy_controller.crash_move_folder import CrashMoveFolder
+from mapactionpy_controller.name_convention import NamingConvention
 from layer_properties import LayerProperties
 from datetime import datetime
 
@@ -33,11 +35,19 @@ class MapChef:
         self.layerProperties = LayerProperties(self.layerPropertiesJsonFile)
         self.legendEntriesToRemove = list()
         eventFilePath= os.path.join(crashMoveFolder, "event_description.json")
+        cmfFilePath= os.path.join(crashMoveFolder, "cmf_description.json")
 
         self.event=None
+        self.cmfConfig=None
+        self.namingConvention=None
         self.summary = "Insert summary here"
+        self.dataSources = set()
+
         if os.path.exists(eventFilePath):
             self.event=Event(eventFilePath)
+        if os.path.exists(cmfFilePath):
+            self.cmfConfig=CrashMoveFolder(cmfFilePath)
+            self.namingConvention = NamingConvention(os.path.join(crashMoveFolder, self.cmfConfig.dnc_definition))
 
     def disableLayers(self):
         """
@@ -186,6 +196,12 @@ class MapChef:
                     if (added is True):
                         if addToLegend == False:
                             self.legendEntriesToRemove.append(lyr.name)
+                            if (self.namingConvention is not None):
+                                dnr = self.namingConvention.validate(datasetName)
+                                # We want to capture Description:
+                                if 'Description' in dnr.source._fields:
+                                    if (dnr.source.Description.lower() not in ('unknown', 'undefined')):
+                                        self.dataSources.add(dnr.source.Description)
                         arcpy.mapping.AddLayer(dataFrame, lyr, "BOTTOM")
                         break
                 lyr.visible = False
@@ -309,9 +325,7 @@ class MapChef:
         return returnPaths
 
     def updateTextElements(self, productName, countryName, mapNumber):
-
         for elm in arcpy.mapping.ListLayoutElements(self.mxd, "TEXT_ELEMENT"):
-            print(elm.name)
             if elm.name == "country":
                 elm.text = countryName
             if elm.name == "title":
@@ -326,6 +340,15 @@ class MapChef:
                 elm.text = os.path.basename(self.mxd.filePath)
             if elm.name == "scale":
                 elm.text = self.scale()
+            if elm.name == "data_sources":
+                iter=0
+                dataSourcesString = "<BOL>Data Sources:</BOL>" + os.linesep + os.linesep
+                for ds in self.dataSources: 
+                    if (iter > 0):
+                        dataSourcesString = dataSourcesString + ", "
+                    dataSourcesString = dataSourcesString + ds
+                    iter = iter + 1
+                elm.text = dataSourcesString
             if elm.name == "spatial_reference":
                 elm.text = self.spatialReference()
             if elm.name == "glide_no":
@@ -346,7 +369,6 @@ class MapChef:
                         os.linesep + \
                         self.event.default_source_organisation_url
 # map_version
-# data_sources
         self.mxd.save()
 
 
