@@ -17,6 +17,7 @@ import argparse
 import decimal
 import json
 import os
+import glob
 import urllib2
 import requests
 import pycountry
@@ -79,12 +80,24 @@ def getTemplate(orientation, cookbookFile, crashMoveFolder, productName):
     if not(os.path.isdir(mapNumberDirectory)):
         os.mkdir(mapNumberDirectory)
 
-    mapFileName=recipe.mapnumber+"_"+ slugify(productName) + ".mxd"
+    # Construct MXD name
+    mapFileName=recipe.mapnumber+"_"+ slugify(productName)
+    versionNumber=getMapVersionNumber(mapNumberDirectory, mapFileName)
+    mapFileName=mapFileName + "-v" + str(versionNumber).zfill(2) +".mxd"
 
     copiedFile= os.path.join(mapNumberDirectory, mapFileName)
     copyfile(srcTemplateFile, copiedFile)
-    return (copiedFile)
+    return copiedFile, versionNumber
 
+def getMapVersionNumber(mapNumberDirectory, mapFileName):
+    versionNumber=0
+    files=glob.glob(mapNumberDirectory + "/" + mapFileName+'-v[0-9][0-9].mxd')
+    for file in files:
+        versionNumber=int(os.path.basename(file).replace(mapFileName + '-v', '').replace('.mxd', ''))
+    versionNumber = versionNumber + 1
+    if (versionNumber > 99):
+        versionNumber=1
+    return versionNumber
 
 def getOrientation(countryName):
     url = "https://nominatim.openstreetmap.org/search?country=" + countryName.replace(" ", "+") + "&format=json"
@@ -186,15 +199,16 @@ def main(args):
 
     # Determine orientation
     orientation = "landscape"
+    versionNumber = 1
     mxdTemplate = None
     if args.templateFile:
         mxdTemplate = args.templateFile
     else:
         orientation = getOrientation(countryName)
-        mxdTemplate = getTemplate(orientation, cookbookFile, cmf, productName)
+        mxdTemplate, versionNumber = getTemplate(orientation, cookbookFile, cmf, productName)
     mxd = arcpy.mapping.MapDocument(mxdTemplate)
 
-    chef = MapChef(mxd, cookbookFile, layerPropertiesFile, crashMoveFolder, layerDirectory)
+    chef = MapChef(mxd, cookbookFile, layerPropertiesFile, crashMoveFolder, layerDirectory, versionNumber)
     chef.cook(productName, countryName)
     chef.alignLegend(orientation)
     reportJson = chef.report()

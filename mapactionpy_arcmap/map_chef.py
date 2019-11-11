@@ -17,7 +17,7 @@ class MapChef:
     Worker which creates a Map based on a predefined "recipe" from a cookbook
     """
 
-    def __init__(self, mxd, cookbookJsonFile, layerPropertiesJsonFile, crashMoveFolder, layerDirectory):
+    def __init__(self, mxd, cookbookJsonFile, layerPropertiesJsonFile, crashMoveFolder, layerDirectory, versionNumber=1):
         """
         Arguments:
            mxd {MXD file} -- MXD file.
@@ -42,6 +42,7 @@ class MapChef:
         self.namingConvention=None
         self.summary = "Insert summary here"
         self.dataSources = set()
+        self.versionNumber = versionNumber
 
         if os.path.exists(eventFilePath):
             self.event=Event(eventFilePath)
@@ -349,6 +350,9 @@ class MapChef:
                     dataSourcesString = dataSourcesString + ds
                     iter = iter + 1
                 elm.text = dataSourcesString
+            if elm.name == "map_version":
+                versionNumberString="v" + str(self.versionNumber).zfill(2)
+                elm.text = versionNumberString
             if elm.name == "spatial_reference":
                 elm.text = self.spatialReference()
             if elm.name == "glide_no":
@@ -368,9 +372,7 @@ class MapChef:
                         self.event.deployment_primary_email + \
                         os.linesep + \
                         self.event.default_source_organisation_url
-# map_version
         self.mxd.save()
-
 
     def showLegendEntries(self):
 
