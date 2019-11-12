@@ -17,13 +17,21 @@ class MapChef:
     Worker which creates a Map based on a predefined "recipe" from a cookbook
     """
 
-    def __init__(self, mxd, cookbookJsonFile, layerPropertiesJsonFile, crashMoveFolder, layerDirectory, versionNumber=1):
+    def __init__(self,
+                 mxd,
+                 cookbookJsonFile,
+                 layerPropertiesJsonFile,
+                 crashMoveFolder,
+                 layerDirectory,
+                 versionNumber=1):
         """
         Arguments:
            mxd {MXD file} -- MXD file.
            cookbookJsonFile {str} -- Path to Map Cookbook json file
            layerPropertiesJsonFile {str} -- Path to Layer Properties json file
            crashMoveFolder {str} -- Path to Crash Move Folder json file
+           layerDirectory {str} -- Path to Layer (.lyr) files
+           versionNumber {int} -- version number of map
         """
         self.mxd = mxd
 
@@ -34,20 +42,20 @@ class MapChef:
         self.cookbook = MapCookbook(self.cookbookJsonFile)
         self.layerProperties = LayerProperties(self.layerPropertiesJsonFile)
         self.legendEntriesToRemove = list()
-        eventFilePath= os.path.join(crashMoveFolder, "event_description.json")
-        cmfFilePath= os.path.join(crashMoveFolder, "cmf_description.json")
+        eventFilePath = os.path.join(crashMoveFolder, "event_description.json")
+        cmfFilePath = os.path.join(crashMoveFolder, "cmf_description.json")
 
-        self.event=None
-        self.cmfConfig=None
-        self.namingConvention=None
+        self.event = None
+        self.cmfConfig = None
+        self.namingConvention = None
         self.summary = "Insert summary here"
         self.dataSources = set()
         self.versionNumber = versionNumber
 
         if os.path.exists(eventFilePath):
-            self.event=Event(eventFilePath)
+            self.event = Event(eventFilePath)
         if os.path.exists(cmfFilePath):
-            self.cmfConfig=CrashMoveFolder(cmfFilePath)
+            self.cmfConfig = CrashMoveFolder(cmfFilePath)
             self.namingConvention = NamingConvention(os.path.join(crashMoveFolder, self.cmfConfig.dnc_definition))
 
     def disableLayers(self):
@@ -58,26 +66,26 @@ class MapChef:
             for lyr in arcpy.mapping.ListLayers(self.mxd, "", df):
                 lyr.visible = False
 
-    def returnScale(self, dfscale):  
-        #https://community.esri.com/thread/163596
-        scalebar = [2,3,4,5,6,10]  
-        dfscale = dfscale/12  
-        dfscale = str(int(dfscale))  
-        dfscaleLen = len(dfscale)  
-        numcheck = int(dfscale[0])  
-        for each in scalebar:  
-            if numcheck < each:  
-                multi = '1'  
-                while dfscaleLen > 1:  
-                    multi = multi + '0'  
-                    dfscaleLen = dfscaleLen - 1  
-                scalebar = each * int(multi)  
-                dataframescale = scalebar * 12  
-                return scalebar,dataframescale  
-                break  
+    def returnScale(self, dfscale):
+        # https://community.esri.com/thread/163596
+        scalebar = [2, 3, 4, 5, 6, 10]
+        dfscale = dfscale/12
+        dfscale = str(int(dfscale))
+        dfscaleLen = len(dfscale)
+        numcheck = int(dfscale[0])
+        for each in scalebar:
+            if numcheck < each:
+                multi = '1'
+                while dfscaleLen > 1:
+                    multi = multi + '0'
+                    dfscaleLen = dfscaleLen - 1
+                scalebar = each * int(multi)
+                dataframescale = scalebar * 12
+                return scalebar, dataframescale
+                break
 
     def scale(self):
-        newScale=""
+        newScale = ""
         for df in arcpy.mapping.ListDataFrames(self.mxd):
             if df.name.lower() == "main map":
                 intValue = '{:,}'.format(int(df.scale))
@@ -86,7 +94,7 @@ class MapChef:
         return newScale
 
     def spatialReference(self):
-        spatialReferenceString=""
+        spatialReferenceString = ""
         for df in arcpy.mapping.ListDataFrames(self.mxd):
             if df.name.lower() == "main map":
                 spatialReferenceString = df.spatialReference.datumName
@@ -94,7 +102,6 @@ class MapChef:
                 spatialReferenceString = spatialReferenceString.replace('_', ' ')
                 break
         return spatialReferenceString
-
 
     def enableLayers(self):
         """
@@ -155,7 +162,15 @@ class MapChef:
         boolean -- added (true if successful)
     """
 
-    def addDataToLayer(self, dataFrame, dataFile, layer, definitionQuery, datasetName, labelClasses, countryName, addToLegend):
+    def addDataToLayer(self,
+                       dataFrame,
+                       dataFile,
+                       layer,
+                       definitionQuery,
+                       datasetName,
+                       labelClasses,
+                       countryName,
+                       addToLegend):
         datasetTypes = ["SHAPEFILE_WORKSPACE",
                         "RASTER_WORKSPACE",
                         "FILEGDB_WORKSPACE",
@@ -195,7 +210,7 @@ class MapChef:
                             added = False
 
                     if (added is True):
-                        if addToLegend == False:
+                        if addToLegend is False:
                             self.legendEntriesToRemove.append(lyr.name)
                             if (self.namingConvention is not None):
                                 dnr = self.namingConvention.validate(datasetName)
@@ -325,6 +340,15 @@ class MapChef:
                         returnPaths.append(dirPath)
         return returnPaths
 
+    """
+    Updates Text Elements in Marginalia
+
+    Arguments:
+        productName {str} -- Name of map product.  Used as map title.
+        countryName {str} -- Country name
+        mapNumber   {str} -- Map Action Map Number
+    """
+
     def updateTextElements(self, productName, countryName, mapNumber):
         for elm in arcpy.mapping.ListLayoutElements(self.mxd, "TEXT_ELEMENT"):
             if elm.name == "country":
@@ -342,16 +366,16 @@ class MapChef:
             if elm.name == "scale":
                 elm.text = self.scale()
             if elm.name == "data_sources":
-                iter=0
+                iter = 0
                 dataSourcesString = "<BOL>Data Sources:</BOL>" + os.linesep + os.linesep
-                for ds in self.dataSources: 
+                for ds in self.dataSources:
                     if (iter > 0):
                         dataSourcesString = dataSourcesString + ", "
                     dataSourcesString = dataSourcesString + ds
                     iter = iter + 1
                 elm.text = dataSourcesString
             if elm.name == "map_version":
-                versionNumberString="v" + str(self.versionNumber).zfill(2)
+                versionNumberString = "v" + str(self.versionNumber).zfill(2)
                 elm.text = versionNumberString
             if elm.name == "spatial_reference":
                 elm.text = self.spatialReference()
@@ -376,15 +400,15 @@ class MapChef:
 
     def showLegendEntries(self):
 
-        for legend in arcpy.mapping.ListLayoutElements(self.mxd, "LEGEND_ELEMENT"): 
+        for legend in arcpy.mapping.ListLayoutElements(self.mxd, "LEGEND_ELEMENT"):
             for lyr in legend.listLegendItemLayers():
                 if lyr.name in self.legendEntriesToRemove:
                     legend.removeItem(lyr)
         self.mxd.save()
 
     def alignLegend(self, orientation):
-        for legend in arcpy.mapping.ListLayoutElements(self.mxd, "LEGEND_ELEMENT"): 
-            if  orientation == "landscape":
+        for legend in arcpy.mapping.ListLayoutElements(self.mxd, "LEGEND_ELEMENT"):
+            if orientation == "landscape":
                 # Resize
                 legend.elementWidth = 60
                 legend.elementPositionX = 248.9111
@@ -392,6 +416,6 @@ class MapChef:
         self.mxd.save()
 
     def resizeScaleBar(self):
-        elm = arcpy.mapping.ListLayoutElements(self.mxd,"MAPSURROUND_ELEMENT", "Scale Bar")[0]
+        elm = arcpy.mapping.ListLayoutElements(self.mxd, "MAPSURROUND_ELEMENT", "Scale Bar")[0]
         elm.elementWidth = 51.1585
         self.mxd.save()

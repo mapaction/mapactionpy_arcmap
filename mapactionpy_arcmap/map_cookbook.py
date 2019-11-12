@@ -30,4 +30,3 @@ class MapCookbook:
             for recipe in jsonContents['recipes']:
                 rec = MapRecipe(recipe)
                 self.products[recipe['product']] = rec
-

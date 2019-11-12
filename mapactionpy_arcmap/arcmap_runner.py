@@ -15,11 +15,10 @@
 
 import argparse
 import decimal
-import json
 import os
 import glob
-import urllib2
 import requests
+import sys
 import pycountry
 from map_chef import MapChef
 from map_cookbook import MapCookbook
@@ -29,12 +28,14 @@ from slugify import slugify
 from mapactionpy_controller.crash_move_folder import CrashMoveFolder
 from mapactionpy_controller.event import Event
 
+
 def is_valid_file(parser, arg):
     if not os.path.exists(arg):
         parser.error("The file %s does not exist!" % arg)
         return False
     else:
         return arg
+
 
 def is_valid_directory(parser, arg):
     if os.path.isdir(arg):
@@ -43,8 +44,9 @@ def is_valid_directory(parser, arg):
         parser.error("The directory %s does not exist!" % arg)
         return False
 
+
 def getTemplate(orientation, cookbookFile, crashMoveFolder, productName):
-    arcGisVersion=crashMoveFolder.arcgis_version
+    arcGisVersion = crashMoveFolder.arcgis_version
 
     # Need to get the theme from the recipe to get the path to the MXD
     cookbook = MapCookbook(cookbookFile)
@@ -58,9 +60,9 @@ def getTemplate(orientation, cookbookFile, crashMoveFolder, productName):
         sys.exit(1)
 
     if (recipe.category.lower() == "reference"):
-        templateFileName=arcGisVersion + "_" + recipe.category + "_" + orientation + "_bottom.mxd"
+        templateFileName = arcGisVersion + "_" + recipe.category + "_" + orientation + "_bottom.mxd"
     elif (recipe.category.lower() == "thematic"):
-        templateFileName=arcGisVersion + "_" + recipe.category + "_" + orientation + ".mxd"
+        templateFileName = arcGisVersion + "_" + recipe.category + "_" + orientation + ".mxd"
     else:
         print("Error: Could not get source MXD from: " + templateDirectoryPath)
         print("Exiting.")
@@ -75,35 +77,37 @@ def getTemplate(orientation, cookbookFile, crashMoveFolder, productName):
 
     srcTemplateFile = os.path.join(templateDirectoryPath, templateFileName)
 
-    mapNumberDirectory=os.path.join(mapDirectoryPath, recipe.mapnumber)
+    mapNumberDirectory = os.path.join(mapDirectoryPath, recipe.mapnumber)
 
     if not(os.path.isdir(mapNumberDirectory)):
         os.mkdir(mapNumberDirectory)
 
     # Construct MXD name
-    mapFileName=recipe.mapnumber+"_"+ slugify(productName)
-    versionNumber=getMapVersionNumber(mapNumberDirectory, mapFileName)
-    mapFileName=mapFileName + "-v" + str(versionNumber).zfill(2) +".mxd"
+    mapFileName = recipe.mapnumber+"_" + slugify(productName)
+    versionNumber = getMapVersionNumber(mapNumberDirectory, mapFileName)
+    mapFileName = mapFileName + "-v" + str(versionNumber).zfill(2) + ".mxd"
 
-    copiedFile= os.path.join(mapNumberDirectory, mapFileName)
+    copiedFile = os.path.join(mapNumberDirectory, mapFileName)
     copyfile(srcTemplateFile, copiedFile)
     return copiedFile, versionNumber
 
+
 def getMapVersionNumber(mapNumberDirectory, mapFileName):
-    versionNumber=0
-    files=glob.glob(mapNumberDirectory + "/" + mapFileName+'-v[0-9][0-9].mxd')
+    versionNumber = 0
+    files = glob.glob(mapNumberDirectory + "/" + mapFileName+'-v[0-9][0-9].mxd')
     for file in files:
-        versionNumber=int(os.path.basename(file).replace(mapFileName + '-v', '').replace('.mxd', ''))
+        versionNumber = int(os.path.basename(file).replace(mapFileName + '-v', '').replace('.mxd', ''))
     versionNumber = versionNumber + 1
     if (versionNumber > 99):
-        versionNumber=1
+        versionNumber = 1
     return versionNumber
+
 
 def getOrientation(countryName):
     url = "https://nominatim.openstreetmap.org/search?country=" + countryName.replace(" ", "+") + "&format=json"
     resp = requests.get(url=url)
 
-    jsonObject = resp.json() 
+    jsonObject = resp.json()
 
     extentsSet = False
     boundingbox = [0, 0, 0, 0]
@@ -112,7 +116,7 @@ def getOrientation(countryName):
             boundingbox = country['boundingbox']
             extentsSet = True
             break
-    if extentsSet == True:
+    if extentsSet:
         D = decimal.Decimal
 
         minx = D(boundingbox[2])
@@ -123,11 +127,11 @@ def getOrientation(countryName):
         orientation = "portrait"
 
         # THIS DOESN'T WORK FOR FIJI/ NZ
-        xdiff=abs(maxx-minx)
-        ydiff=abs(maxy-miny)
+        xdiff = abs(maxx-minx)
+        ydiff = abs(maxy-miny)
 
-        #print("http://bboxfinder.com/#<miny>,<minx>,<maxy>,<maxx>")
-        #print("http://bboxfinder.com/#" + str(miny) + ","+ str(minx) + ","+ str(maxy) + ","+ str(maxx))
+        # print("http://bboxfinder.com/#<miny>,<minx>,<maxy>,<maxx>")
+        # print("http://bboxfinder.com/#" + str(miny) + ","+ str(minx) + ","+ str(maxy) + ","+ str(maxx))
 
         if xdiff > ydiff:
             orientation = "landscape"
@@ -136,22 +140,22 @@ def getOrientation(countryName):
         print("Error: Could not derive country extent from " + url)
         print("Exiting.")
         sys.exit(1)
-           
+
 
 def main(args):
     args = parser.parse_args()
 
     # Construct a Crash Move Folder object if the cmf_description.json exists
     crashMoveFolder = args.crashMoveFolder
-    cmfFilePath= os.path.join(crashMoveFolder, "cmf_description.json")
-    eventFilePath= os.path.join(crashMoveFolder, "event_description.json")
+    cmfFilePath = os.path.join(crashMoveFolder, "cmf_description.json")
+    eventFilePath = os.path.join(crashMoveFolder, "event_description.json")
 
-    cmf=None
-    event=None
+    cmf = None
+    event = None
 
     if os.path.exists(cmfFilePath):
         cmf = CrashMoveFolder(cmfFilePath)
-        event=Event(eventFilePath)
+        event = Event(eventFilePath)
 
     productName = args.productName
 
@@ -159,19 +163,19 @@ def main(args):
     if args.countryName:
         countryName = args.countryName
     else:
-        if event is not None: 
-            country=pycountry.countries.get(alpha_3=event.affected_country_iso3.upper())
+        if event is not None:
+            country = pycountry.countries.get(alpha_3=event.affected_country_iso3.upper())
             countryName = country.name
         else:
-            print("Error: Could not derive country from " + os.path.join(crashMoveFolder,cmf.event_description_file))
+            print("Error: Could not derive country from " + eventFilePath)
             print("Exiting.")
             sys.exit(1)
 
     if args.cookbookFile:
         cookbookFile = args.cookbookFile
     else:
-        if cmf is not None: 
-            cookbookFile=os.path.join(crashMoveFolder,cmf.map_definitions)
+        if cmf is not None:
+            cookbookFile = os.path.join(crashMoveFolder, cmf.map_definitions)
         else:
             print("Error: Could not derive cookbook file from " + crashMoveFolder)
             print("Exiting.")
@@ -180,8 +184,8 @@ def main(args):
     if args.layerConfig:
         layerPropertiesFile = args.layerConfig
     else:
-        if cmf is not None: 
-            layerPropertiesFile=os.path.join(crashMoveFolder,cmf.layer_properties)
+        if cmf is not None:
+            layerPropertiesFile = os.path.join(crashMoveFolder, cmf.layer_properties)
         else:
             print("Error: Could not derive layer config file from " + crashMoveFolder)
             print("Exiting.")
@@ -190,8 +194,8 @@ def main(args):
     if args.layerDirectory:
         layerDirectory = args.layerDirectory
     else:
-        if cmf is not None: 
-            layerDirectory=os.path.join(crashMoveFolder,cmf.layer_rendering)
+        if cmf is not None:
+            layerDirectory = os.path.join(crashMoveFolder, cmf.layer_rendering)
         else:
             print("Error: Could not derive layer rendering directory from " + crashMoveFolder)
             print("Exiting.")
