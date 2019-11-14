@@ -45,7 +45,7 @@ def is_valid_directory(parser, arg):
         return False
 
 
-def getTemplate(orientation, cookbookFile, crashMoveFolder, productName):
+def get_template(orientation, cookbookFile, crashMoveFolder, productName):
     arcGisVersion = crashMoveFolder.arcgis_version
 
     # Need to get the theme from the recipe to get the path to the MXD
@@ -55,25 +55,19 @@ def getTemplate(orientation, cookbookFile, crashMoveFolder, productName):
     templateDirectoryPath = os.path.join(crashMoveFolder.path, crashMoveFolder.mxd_templates)
 
     if not(os.path.isdir(templateDirectoryPath)):
-        print("Error: Could not find source template directory: " + templateDirectoryPath)
-        print("Exiting.")
-        sys.exit(1)
+        raise Exception("Error: Could not find source template directory: " + templateDirectoryPath)
 
     if (recipe.category.lower() == "reference"):
         templateFileName = arcGisVersion + "_" + recipe.category + "_" + orientation + "_bottom.mxd"
     elif (recipe.category.lower() == "thematic"):
         templateFileName = arcGisVersion + "_" + recipe.category + "_" + orientation + ".mxd"
     else:
-        print("Error: Could not get source MXD from: " + templateDirectoryPath)
-        print("Exiting.")
-        sys.exit(1)
+        raise Exception("Error: Could not get source MXD from: " + templateDirectoryPath)
 
     mapDirectoryPath = os.path.join(crashMoveFolder.path, crashMoveFolder.mxd_products)
 
     if not(os.path.isdir(mapDirectoryPath)):
-        print("Error: Could not find target directory: " + mapDirectoryPath)
-        print("Exiting.")
-        sys.exit(1)
+        raise Exception("Error: Could not find target directory: " + mapDirectoryPath)
 
     srcTemplateFile = os.path.join(templateDirectoryPath, templateFileName)
 
@@ -84,7 +78,7 @@ def getTemplate(orientation, cookbookFile, crashMoveFolder, productName):
 
     # Construct MXD name
     mapFileName = recipe.mapnumber+"_" + slugify(productName)
-    versionNumber = getMapVersionNumber(mapNumberDirectory, mapFileName)
+    versionNumber = get_map_version_number(mapNumberDirectory, mapFileName)
     mapFileName = mapFileName + "-v" + str(versionNumber).zfill(2) + ".mxd"
 
     copiedFile = os.path.join(mapNumberDirectory, mapFileName)
@@ -92,7 +86,7 @@ def getTemplate(orientation, cookbookFile, crashMoveFolder, productName):
     return copiedFile, versionNumber
 
 
-def getMapVersionNumber(mapNumberDirectory, mapFileName):
+def get_map_version_number(mapNumberDirectory, mapFileName):
     versionNumber = 0
     files = glob.glob(mapNumberDirectory + "/" + mapFileName+'-v[0-9][0-9].mxd')
     for file in files:
@@ -103,7 +97,7 @@ def getMapVersionNumber(mapNumberDirectory, mapFileName):
     return versionNumber
 
 
-def getOrientation(countryName):
+def get_orientation(countryName):
     url = "https://nominatim.openstreetmap.org/search?country=" + countryName.replace(" ", "+") + "&format=json"
     resp = requests.get(url=url)
 
@@ -137,10 +131,7 @@ def getOrientation(countryName):
             orientation = "landscape"
         return orientation
     else:
-        print("Error: Could not derive country extent from " + url)
-        print("Exiting.")
-        sys.exit(1)
-
+        raise Exception("Error: Could not derive country extent from " + url)
 
 def main(args):
     args = parser.parse_args()
@@ -167,9 +158,7 @@ def main(args):
             country = pycountry.countries.get(alpha_3=event.affected_country_iso3.upper())
             countryName = country.name
         else:
-            print("Error: Could not derive country from " + eventFilePath)
-            print("Exiting.")
-            sys.exit(1)
+            raise Exception("Error: Could not derive country from " + eventFilePath)
 
     if args.cookbookFile:
         cookbookFile = args.cookbookFile
@@ -177,9 +166,7 @@ def main(args):
         if cmf is not None:
             cookbookFile = os.path.join(crashMoveFolder, cmf.map_definitions)
         else:
-            print("Error: Could not derive cookbook file from " + crashMoveFolder)
-            print("Exiting.")
-            sys.exit(1)
+            raise Exception("Error: Could not derive cookbook file from " + crashMoveFolder)
 
     if args.layerConfig:
         layerPropertiesFile = args.layerConfig
@@ -187,9 +174,7 @@ def main(args):
         if cmf is not None:
             layerPropertiesFile = os.path.join(crashMoveFolder, cmf.layer_properties)
         else:
-            print("Error: Could not derive layer config file from " + crashMoveFolder)
-            print("Exiting.")
-            sys.exit(1)
+            raise Exception("Error: Could not derive layer config file from " + crashMoveFolder)
 
     if args.layerDirectory:
         layerDirectory = args.layerDirectory
@@ -197,10 +182,8 @@ def main(args):
         if cmf is not None:
             layerDirectory = os.path.join(crashMoveFolder, cmf.layer_rendering)
         else:
-            print("Error: Could not derive layer rendering directory from " + crashMoveFolder)
-            print("Exiting.")
-            sys.exit(1)
-
+            raise Exception("Error: Could not derive layer rendering directory from " + crashMoveFolder)
+ 
     # Determine orientation
     orientation = "landscape"
     versionNumber = 1
@@ -208,8 +191,8 @@ def main(args):
     if args.templateFile:
         mxdTemplate = args.templateFile
     else:
-        orientation = getOrientation(countryName)
-        mxdTemplate, versionNumber = getTemplate(orientation, cookbookFile, cmf, productName)
+        orientation = get_orientation(countryName)
+        mxdTemplate, versionNumber = get_template(orientation, cookbookFile, cmf, productName)
     mxd = arcpy.mapping.MapDocument(mxdTemplate)
 
     chef = MapChef(mxd, cookbookFile, layerPropertiesFile, crashMoveFolder, layerDirectory, versionNumber)
