@@ -56,7 +56,7 @@ class MapChef:
             self.event = Event(eventFilePath)
         if os.path.exists(cmfFilePath):
             self.cmfConfig = CrashMoveFolder(cmfFilePath)
-            self.namingConvention = NamingConvention(os.path.join(crashMoveFolder, self.cmfConfig.data_nc_definition))
+            self.namingConvention = NamingConvention(self.cmfConfig.data_nc_definition)
 
     def disableLayers(self):
         """
@@ -238,10 +238,9 @@ class MapChef:
             if (os.path.exists(layerFilePath)):
                 self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
                 layerToAdd = arcpy.mapping.Layer(layerFilePath)
-                searchDirectory = os.path.join(self.crashMoveFolder, "GIS", "2_Active_Data")
                 # If it's not a File Geodatabase (gdb) the regexp won't contain ".gdb/"
                 if (".gdb/" not in properties.regExp):
-                    dataFiles = self.find(searchDirectory, properties.regExp)
+                    dataFiles = self.find(self.cmfConfig.active_data, properties.regExp)
                     for dataFile in (dataFiles):
                         self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
                         base = os.path.basename(dataFile)
@@ -265,7 +264,7 @@ class MapChef:
                     # It's a File Geodatabase
                     parts = properties.regExp.split("/")
                     gdbPath = parts[0]
-                    geoDatabases = self.find(searchDirectory, gdbPath, True)
+                    geoDatabases = self.find(self.cmfConfig.active_data, gdbPath, True)
                     for geoDatabase in geoDatabases:
                         arcpy.env.workspace = geoDatabase
                         rasters = arcpy.ListRasters("*")
@@ -399,7 +398,6 @@ class MapChef:
         self.mxd.save()
 
     def showLegendEntries(self):
-
         for legend in arcpy.mapping.ListLayoutElements(self.mxd, "LEGEND_ELEMENT"):
             for lyr in legend.listLegendItemLayers():
                 if lyr.name in self.legendEntriesToRemove:
