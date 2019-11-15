@@ -52,26 +52,16 @@ def get_template(orientation, cookbookFile, crashMoveFolder, productName):
     cookbook = MapCookbook(cookbookFile)
     recipe = cookbook.products[productName]
 
-    templateDirectoryPath = os.path.join(crashMoveFolder.path, crashMoveFolder.mxd_templates)
-
-    if not(os.path.isdir(templateDirectoryPath)):
-        raise Exception("Error: Could not find source template directory: " + templateDirectoryPath)
-
     if (recipe.category.lower() == "reference"):
         templateFileName = arcGisVersion + "_" + recipe.category + "_" + orientation + "_bottom.mxd"
     elif (recipe.category.lower() == "thematic"):
         templateFileName = arcGisVersion + "_" + recipe.category + "_" + orientation + ".mxd"
     else:
-        raise Exception("Error: Could not get source MXD from: " + templateDirectoryPath)
+        raise Exception("Error: Could not get source MXD from: " + crashMoveFolder.mxd_templates)
 
-    mapDirectoryPath = os.path.join(crashMoveFolder.path, crashMoveFolder.mxd_products)
+    srcTemplateFile = os.path.join(crashMoveFolder.mxd_templates, templateFileName)
 
-    if not(os.path.isdir(mapDirectoryPath)):
-        raise Exception("Error: Could not find target directory: " + mapDirectoryPath)
-
-    srcTemplateFile = os.path.join(templateDirectoryPath, templateFileName)
-
-    mapNumberDirectory = os.path.join(mapDirectoryPath, recipe.mapnumber)
+    mapNumberDirectory = os.path.join(crashMoveFolder.mxd_products, recipe.mapnumber)
 
     if not(os.path.isdir(mapNumberDirectory)):
         os.mkdir(mapNumberDirectory)
@@ -165,7 +155,7 @@ def main(args):
         cookbookFile = args.cookbookFile
     else:
         if cmf is not None:
-            cookbookFile = os.path.join(crashMoveFolder, cmf.map_definitions)
+            cookbookFile = cmf.map_definitions
         else:
             raise Exception("Error: Could not derive cookbook file from " + crashMoveFolder)
 
@@ -173,7 +163,7 @@ def main(args):
         layerPropertiesFile = args.layerConfig
     else:
         if cmf is not None:
-            layerPropertiesFile = os.path.join(crashMoveFolder, cmf.layer_properties)
+            layerPropertiesFile = cmf.layer_properties
         else:
             raise Exception("Error: Could not derive layer config file from " + crashMoveFolder)
 
@@ -181,7 +171,7 @@ def main(args):
         layerDirectory = args.layerDirectory
     else:
         if cmf is not None:
-            layerDirectory = os.path.join(crashMoveFolder, cmf.layer_rendering)
+            layerDirectory = cmf.layer_rendering
         else:
             raise Exception("Error: Could not derive layer rendering directory from " + crashMoveFolder)
 
