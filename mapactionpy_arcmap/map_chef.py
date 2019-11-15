@@ -56,7 +56,7 @@ class MapChef:
             self.event = Event(eventFilePath)
         if os.path.exists(cmfFilePath):
             self.cmfConfig = CrashMoveFolder(cmfFilePath)
-            self.namingConvention = NamingConvention(os.path.join(crashMoveFolder, self.cmfConfig.dnc_definition))
+            self.namingConvention = NamingConvention(os.path.join(crashMoveFolder, self.cmfConfig.data_nc_definition))
 
     def disableLayers(self):
         """

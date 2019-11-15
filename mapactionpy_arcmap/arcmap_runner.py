@@ -160,6 +160,7 @@ def main(args):
         else:
             raise Exception("Error: Could not derive country from " + eventFilePath)
 
+    # The following checks are used if the CMF description is over-ridden by the command line parameters
     if args.cookbookFile:
         cookbookFile = args.cookbookFile
     else:
@@ -183,7 +184,7 @@ def main(args):
             layerDirectory = os.path.join(crashMoveFolder, cmf.layer_rendering)
         else:
             raise Exception("Error: Could not derive layer rendering directory from " + crashMoveFolder)
- 
+
     # Determine orientation
     orientation = "landscape"
     versionNumber = 1
