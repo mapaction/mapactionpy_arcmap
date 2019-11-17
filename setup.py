@@ -32,6 +32,13 @@ setup(name='mapactionpy_arcmap',
       author_email='github@mapaction.com',
       license='GPL3',
       packages=find_packages(),
+      install_requires=[
+          'argparse',
+          'requests',
+          'pycountry',
+          'slugify',
+          'jsonpickle'
+      ],
       test_suite='unittest',
       tests_require=['unittest'],
       zip_safe=False,

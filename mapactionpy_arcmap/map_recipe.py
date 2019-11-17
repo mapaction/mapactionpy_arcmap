@@ -9,3 +9,4 @@ class MapRecipe:
         self.export = row["export"]
         self.product = row["product"]
         self.layers = row["layers"]
+        self.summary = row["summary"]
