@@ -38,7 +38,7 @@ setup(name='mapactionpy_arcmap',
           'pycountry',
           'slugify',
           'jsonpickle'
-      ],      
+      ],
       test_suite='unittest',
       tests_require=['unittest'],
       zip_safe=False,

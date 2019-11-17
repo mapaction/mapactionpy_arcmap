@@ -18,7 +18,6 @@ import decimal
 import os
 import glob
 import requests
-import sys
 import pycountry
 from map_chef import MapChef
 from map_cookbook import MapCookbook
@@ -122,6 +121,7 @@ def get_orientation(countryName):
         return orientation
     else:
         raise Exception("Error: Could not derive country extent from " + url)
+
 
 def main(args):
     args = parser.parse_args()
