@@ -13,7 +13,7 @@ Adds geospatial data to an ArcMap MXD file based on a recipe from a cookbook con
     C:\Python27\ArcGIS10.6\python.exe
     ```
 * ArcMap MapAction templates.
-* Complete data scrable using Crash Move Folder Version xx.
+* Complete data scramble using Crash Move Folder Version xx.
 
 ## Packaging
 
