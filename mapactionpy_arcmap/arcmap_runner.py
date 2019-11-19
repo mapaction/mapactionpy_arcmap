@@ -67,20 +67,19 @@ def get_template(orientation, cookbookFile, crashMoveFolder, productName):
         os.mkdir(mapNumberDirectory)
 
     # Construct MXD name
-    mapFileName = recipe.mapnumber+"_" + slugify(productName)
-    versionNumber = get_map_version_number(mapNumberDirectory, mapFileName)
-    mapFileName = mapFileName + "-v" + str(versionNumber).zfill(2) + ".mxd"
-
+    mapFileName = slugify(productName)
+    versionNumber = get_map_version_number(mapNumberDirectory, recipe.mapnumber, mapFileName)
+    mapFileName = recipe.mapnumber + "-v" + str(versionNumber).zfill(2) + "_" + mapFileName + ".mxd"
     copiedFile = os.path.join(mapNumberDirectory, mapFileName)
     copyfile(srcTemplateFile, copiedFile)
     return copiedFile, versionNumber
 
 
-def get_map_version_number(mapNumberDirectory, mapFileName):
+def get_map_version_number(mapNumberDirectory, mapNumber, mapFileName):
     versionNumber = 0
-    files = glob.glob(mapNumberDirectory + "/" + mapFileName+'-v[0-9][0-9].mxd')
+    files = glob.glob(mapNumberDirectory + "/" + mapNumber+'-v[0-9][0-9]_' + mapFileName + '.mxd')
     for file in files:
-        versionNumber = int(os.path.basename(file).replace(mapFileName + '-v', '').replace('.mxd', ''))
+        versionNumber = int(os.path.basename(file).replace(mapNumber + '-v', '').replace(('_' + mapFileName+'.mxd'), ''))
     versionNumber = versionNumber + 1
     if (versionNumber > 99):
         versionNumber = 1
