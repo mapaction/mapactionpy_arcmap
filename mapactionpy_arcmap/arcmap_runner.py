@@ -127,15 +127,14 @@ def main(args):
 
     # Construct a Crash Move Folder object if the cmf_description.json exists
     crashMoveFolder = args.crashMoveFolder
-    cmfFilePath = os.path.join(crashMoveFolder, "cmf_description.json")
     eventFilePath = os.path.join(crashMoveFolder, "event_description.json")
 
     cmf = None
     event = None
 
-    if os.path.exists(cmfFilePath):
-        cmf = CrashMoveFolder(cmfFilePath)
+    if os.path.exists(eventFilePath):
         event = Event(eventFilePath)
+        cmf = CrashMoveFolder(os.path.join(event.cmf_descriptor_path, "cmf_description.json"))  
 
     productName = args.productName
 

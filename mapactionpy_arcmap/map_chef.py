@@ -399,9 +399,12 @@ class MapChef:
 
     def showLegendEntries(self):
         for legend in arcpy.mapping.ListLayoutElements(self.mxd, "LEGEND_ELEMENT"):
+            layerNames = list()
             for lyr in legend.listLegendItemLayers():
-                if lyr.name in self.legendEntriesToRemove:
+                if ((lyr.name in self.legendEntriesToRemove) or (lyr.name in layerNames)):
                     legend.removeItem(lyr)
+                else:   
+                    layerNames.append(lyr.name)
         self.mxd.save()
 
     def alignLegend(self, orientation):
