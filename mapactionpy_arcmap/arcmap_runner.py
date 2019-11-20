@@ -18,7 +18,6 @@ import decimal
 import os
 import glob
 import requests
-import sys
 import pycountry
 from map_chef import MapChef
 from map_cookbook import MapCookbook
@@ -79,7 +78,7 @@ def get_map_version_number(mapNumberDirectory, mapNumber, mapFileName):
     versionNumber = 0
     files = glob.glob(mapNumberDirectory + "/" + mapNumber+'-v[0-9][0-9]_' + mapFileName + '.mxd')
     for file in files:
-        versionNumber = int(os.path.basename(file).replace(mapNumber + '-v', '').replace(('_' + mapFileName+'.mxd'), ''))
+        versionNumber = int(os.path.basename(file).replace(mapNumber + '-v', '').replace(('_' + mapFileName+'.mxd'), '')) # noqa
     versionNumber = versionNumber + 1
     if (versionNumber > 99):
         versionNumber = 1
@@ -122,6 +121,7 @@ def get_orientation(countryName):
     else:
         raise Exception("Error: Could not derive country extent from " + url)
 
+
 def main(args):
     args = parser.parse_args()
 
@@ -134,7 +134,7 @@ def main(args):
 
     if os.path.exists(eventFilePath):
         event = Event(eventFilePath)
-        cmf = CrashMoveFolder(os.path.join(event.cmf_descriptor_path, "cmf_description.json"))  
+        cmf = CrashMoveFolder(os.path.join(event.cmf_descriptor_path, "cmf_description.json"))
 
     productName = args.productName
 

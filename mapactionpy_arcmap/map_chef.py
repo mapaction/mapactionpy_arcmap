@@ -403,7 +403,7 @@ class MapChef:
             for lyr in legend.listLegendItemLayers():
                 if ((lyr.name in self.legendEntriesToRemove) or (lyr.name in layerNames)):
                     legend.removeItem(lyr)
-                else:   
+                else:
                     layerNames.append(lyr.name)
         self.mxd.save()
 
