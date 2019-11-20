@@ -136,6 +136,7 @@ The Layer Config file ([layerProperties.json](https://github.com/mapaction/defau
 
 ### Parameters
 
+
 | # | Field         |Mandatory|Description                                                           |
 |---|---------------|-|-----------------------------------------------------------------------|
 | 1 | --cookbook    |:zap:| Path to the cookbook ```mapCookbook.json``` file.                     |
@@ -198,12 +199,14 @@ For example:
 
 ### Example 3
 
-```C:\Python27\ArcGIS10.6\python.exe -m mapactionpy_arcmap.arcmap_runner \
+```
+C:\Python27\ArcGIS10.6\python.exe -m mapactionpy_arcmap.arcmap_runner \
    --cmf "D:\MapAction\2019-06-25 - Automation - El Salvador" \
    --product "Country Overview with Admin 1 Boundaries & P-Codes"
 ```
 
 In this example, the following parameters were not provided:
+
     --cookbook
     --layerConfig
     --layerDirectory
