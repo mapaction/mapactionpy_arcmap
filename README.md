@@ -13,7 +13,7 @@ Adds geospatial data to an ArcMap MXD file based on a recipe from a cookbook con
     C:\Python27\ArcGIS10.6\python.exe
     ```
 * ArcMap MapAction templates.
-* Complete data scrable using Crash Move Folder Version xx.
+* Complete data scramble using Crash Move Folder Version xx.
 
 ## Packaging
 
@@ -42,21 +42,9 @@ Adds geospatial data to an ArcMap MXD file based on a recipe from a cookbook con
 6) Reinstall ArcMap Esri Add-In using file here:
 	[https://drive.google.com/open?id=1kV1_6r8RzQ2fzA28AEQv9tpET-qZPIN-](https://drive.google.com/open?id=1kV1_6r8RzQ2fzA28AEQv9tpET-qZPIN-)
 7) Restart ArcMap and ensure the 'Map Generation Tool' is available within the MapAction toolbar.
-8) To run the 'Map Generation Tool' the following paths MUST exist:
-    ```  
-    <Crash Move Folder> \GIS\3_Mapping\31_Resources\312_Layer_files\
-    ```
-    This must contain the Layer files (```.lyr```) which correspond with the names quoted in the ```mapCookbook.json``` file.
+8) To run the 'Map Generation Tool' the standardised Crash Move Folder must be in place, see:
 
-9) Move the ```layerProperties.json``` and ```mapCookbook.json``` files from the Git repository to:
-    ```
-    <Crash Move Folder> \GIS\3_Mapping\31_Resources\31A_Automation\
-    ```
-    i.e.
-    ```
-    <Crash Move Folder> \GIS\3_Mapping\31_Resources\31A_Automation\layerProperties.json
-    <Crash Move Folder> \GIS\3_Mapping\31_Resources\31A_Automation\mapCookbook.json
-    ```
+  [https://github.com/mapaction/default-crash-move-folder/blob/master/20YYiso3nn](https://github.com/mapaction/default-crash-move-folder/blob/master/20YYiso3nn)
 
 ## Integration with MapAction Toolbar
 
@@ -64,21 +52,12 @@ In order to integrate this `MapActionPy_ArcMap` module with the MapAction Toolba
 
 :information_source: The "Automation" add-in is in development in the `automation` branch at: https://github.com/mapaction/mapaction-toolbox/tree/automation):
 
-1) All layer `.lyr` files should be made available under the crash move folder at the following location:
-`\GIS\3_Mapping\31_Resources\312_Layer_files`
-2) Layer properties file [layerProperties.json](mapactionpy_arcmap/Config/layerProperties.json) copied to new directory under the crash move folder at the following location:
-`\GIS\3_Mapping\31_Resources\31A_Automation`
-3) Map cookbook file [mapCookbook.json](mapactionpy_arcmap/Config/mapCookbook.json) copied to directory under the crash move folder at the following location:
-`\GIS\3_Mapping\31_Resources\31A_Automation`
-
-
 ## Configuration Files
 
 ### Cookbook File
 
-The [mapCookbook.json](mapactionpy_arcmap/Config/mapCookbook.json) file is a static configuration file which contains "recipes" for each map product.
+The [mapCookbook.json](https://github.com/mapaction/default-crash-move-folder/blob/master/20YYiso3nn/GIS/3_Mapping/31_Resources/316_Automation/mapCookbook.json) file is a static configuration file which contains "recipes" for each map product, e.g.:
 
-This example cookbook only contains a single product: ```Country Overview```.
 ```
 { 
    "recipes":[ 
@@ -86,7 +65,7 @@ This example cookbook only contains a single product: ```Country Overview```.
          "mapnumber":"MA001",
          "category":"Reference",
          "product":"Country Overview with Admin 1 Boundaries & P-Codes",
-         "export":"Yes",
+         "export": true,
          "layers":[ 
             "mainmap-s0-pt-settlements",
             "mainmap-s0-py-surroundingcountries",
@@ -112,15 +91,15 @@ The layer names in the "```layers```" array MUST correlate to layer files (```.l
 
 ### layerConfig File
 
-The Layer Config file ([layerProperties.json](mapactionpy_arcmap/Config/layerProperties.json)) is a static file which defines how to add a particular layer.
+The Layer Config file ([layerProperties.json](https://github.com/mapaction/default-crash-move-folder/blob/master/20YYiso3nn/GIS/3_Mapping/31_Resources/316_Automation/layerProperties.json)) is a static file which defines how to add a particular layer.
 
-```
-    {
+```{
       "MapFrame": "Main Map",
       "LayerName": "mainmap-s0-pt-settlements",
       "RegExp": "^[a-z]{3}_stle_stl_pt_(.*?)_(.*?)_([phm][phm])(.*?).shp$",
       "DefinitionQuery": "place IN ('national_capital', 'city', 'capital')",
-      "Display": "Yes",
+      "Display": true,
+      "AddToLegend": true,
       "LabelClasses": [
         {
           "className": "National Capital",
@@ -136,23 +115,24 @@ The Layer Config file ([layerProperties.json](mapactionpy_arcmap/Config/layerPro
     },
 ```
 
-#### Fields   
+#### Fields
 
-| # | Field           |Description     |   
+| # | Field           |Description     |
 |---|-----------------|----------------------------|
-| 1 | MapFrame        | Name of the Map Frame that the layer is to be added to |                                                 
+| 1 | MapFrame        | Name of the Map Frame that the layer is to be added to |
 | 2 | LayerName       | Name of the Layer.  This must correlate with the names of the layers in the ```layers``` field in the ```mapCookbook.json``` file. |
 | 3 | RegExp          | Regular Expression.  Used when selecting files to display |
 | 4 | DefinitionQuery | Definition Query |
-| 5 | Display         | Shows if set to 'Yes' | 
-| 6 | LabelClasses    | Details for displaying labels | 
+| 5 | AddToLegend     | Includes this layer in the legend if set to true |
+| 6 | Display         | Shows if set to true |
+| 7 | LabelClasses    | Details for displaying labels |
 ## Execution
 
 ### Key
 | # | Icon         |Meaning                                                           |
 |---|---------------|-----------------------------------------------------------------------|
-| 1 | :heavy_check_mark:| Must always be supplied       
-| 2 | :zap:| If not supplied, this parameter can be inferred if the `cmf_description.json` and the `event_description.json` files are in he root of the Crash Move Folder.                          
+| 1 | :heavy_check_mark:| Must always be supplied
+| 2 | :zap:| If not supplied, this parameter can be inferred if the `cmf_description.json` and the `event_description.json` files are in he root of the Crash Move Folder.
 
 ### Parameters
 
@@ -166,15 +146,13 @@ The Layer Config file ([layerProperties.json](mapactionpy_arcmap/Config/layerPro
 | 5 | --product     |:heavy_check_mark:| Name of product (must correlate with a product in the cookbook file). |
 | 6 | --country     |:zap:| Name of country.                                                      |
 
-
 ### Example 1
 
 For a specified MXD using the ```--template``` parameter:
 
-```
-C:\Python27\ArcGIS10.6\python.exe -m mapactionpy_arcmap.arcmap_runner \
-   --cookbook "D:\MapAction\2019-06-25 - Automation - El Salvador\GIS\3_Mapping\31_Resources\31A_Automation\mapCookbook.json" \
-   --layerConfig "D:\MapAction\2019-06-25 - Automation - El Salvador\GIS\3_Mapping\31_Resources\31A_Automation\layerProperties.json" \
+```C:\Python27\ArcGIS10.6\python.exe -m mapactionpy_arcmap.arcmap_runner \
+   --cookbook "D:\MapAction\2019-06-25 - Automation - El Salvador\GIS\3_Mapping\31_Resources\316_Automation\mapCookbook.json" \
+   --layerConfig "D:\MapAction\2019-06-25 - Automation - El Salvador\GIS\3_Mapping\31_Resources\316_Automation\layerProperties.json" \
    --cmf "D:\MapAction\2019-06-25 - Automation - El Salvador" \
    --template "D:\MapAction\2019-06-25 - Automation - El Salvador\GIS\3_Mapping\32_MXD_Templates\arcgis_10_2\MapAction\01 Reference mapping\arcgis_10_2_ma000_reference_landscape_bottom_DEV.mxd" \
    --layerDirectory "D:\MapAction\2019-06-25 - Automation - El Salvador\GIS\3_Mapping\31_Resources\312_Layer_files" \
@@ -190,10 +168,9 @@ This ```Country Overview``` map was generated:
 
 ### Example 2
 
-```
-C:\Python27\ArcGIS10.6\python.exe -m mapactionpy_arcmap.arcmap_runner \
-   --cookbook "D:\MapAction\2019-06-25 - Automation - El Salvador\GIS\3_Mapping\31_Resources\31A_Automation\mapCookbook.json" \
-   --layerConfig "D:\MapAction\2019-06-25 - Automation - El Salvador\GIS\3_Mapping\31_Resources\31A_Automation\layerProperties.json" \
+```C:\Python27\ArcGIS10.6\python.exe -m mapactionpy_arcmap.arcmap_runner \
+   --cookbook "D:\MapAction\2019-06-25 - Automation - El Salvador\GIS\3_Mapping\31_Resources\316_Automation\mapCookbook.json" \
+   --layerConfig "D:\MapAction\2019-06-25 - Automation - El Salvador\GIS\3_Mapping\31_Resources\316_Automation\layerProperties.json" \
    --cmf "D:\MapAction\2019-06-25 - Automation - El Salvador" \
    --layerDirectory "D:\MapAction\2019-06-25 - Automation - El Salvador\GIS\3_Mapping\31_Resources\312_Layer_files" \
    --product "Country Overview with Admin 1 Boundaries & P-Codes" \
@@ -204,7 +181,7 @@ If an MXD is not supplied with the ```--template``` parameter as above, then the
 
 \<crash move folder>```\GIS\3_Mapping\32_MXD_Templates\arcgis_10_6\```
 
-Using the ```mapnumber``` from the [mapCookbook.json](mapactionpy_arcmap/Config/mapCookbook.json) file, the Automation Tool will create a copy of the MXD under the following directory:
+Using the ```mapnumber``` from the [mapCookbook.json](https://github.com/mapaction/default-crash-move-folder/blob/master/20YYiso3nn/GIS/3_Mapping/31_Resources/316_Automation/mapCookbook.json) file, the Automation Tool will create a copy of the MXD under the following directory:
 
 \<crash move folder>```\GIS\3_Mapping\33_MXD_Maps\```\<map number>
 
@@ -237,7 +214,6 @@ In this example, the following parameters were not provided:
 
 The values for these parameters were inferred from the ```event_description.json``` and the ```cmf_description.json``` files.  
 These files were provided at the root of the Crash Move Folder, i.e. the directory supplied by the ```--cmf``` parameter.
-
 
 ## Author
 

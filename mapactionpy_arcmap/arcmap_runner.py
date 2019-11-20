@@ -66,20 +66,19 @@ def get_template(orientation, cookbookFile, crashMoveFolder, productName):
         os.mkdir(mapNumberDirectory)
 
     # Construct MXD name
-    mapFileName = recipe.mapnumber+"_" + slugify(productName)
-    versionNumber = get_map_version_number(mapNumberDirectory, mapFileName)
-    mapFileName = mapFileName + "-v" + str(versionNumber).zfill(2) + ".mxd"
-
+    mapFileName = slugify(productName)
+    versionNumber = get_map_version_number(mapNumberDirectory, recipe.mapnumber, mapFileName)
+    mapFileName = recipe.mapnumber + "-v" + str(versionNumber).zfill(2) + "_" + mapFileName + ".mxd"
     copiedFile = os.path.join(mapNumberDirectory, mapFileName)
     copyfile(srcTemplateFile, copiedFile)
     return copiedFile, versionNumber
 
 
-def get_map_version_number(mapNumberDirectory, mapFileName):
+def get_map_version_number(mapNumberDirectory, mapNumber, mapFileName):
     versionNumber = 0
-    files = glob.glob(mapNumberDirectory + "/" + mapFileName+'-v[0-9][0-9].mxd')
+    files = glob.glob(mapNumberDirectory + "/" + mapNumber+'-v[0-9][0-9]_' + mapFileName + '.mxd')
     for file in files:
-        versionNumber = int(os.path.basename(file).replace(mapFileName + '-v', '').replace('.mxd', ''))
+        versionNumber = int(os.path.basename(file).replace(mapNumber + '-v', '').replace(('_' + mapFileName+'.mxd'), '')) # noqa
     versionNumber = versionNumber + 1
     if (versionNumber > 99):
         versionNumber = 1
@@ -128,15 +127,14 @@ def main(args):
 
     # Construct a Crash Move Folder object if the cmf_description.json exists
     crashMoveFolder = args.crashMoveFolder
-    cmfFilePath = os.path.join(crashMoveFolder, "cmf_description.json")
     eventFilePath = os.path.join(crashMoveFolder, "event_description.json")
 
     cmf = None
     event = None
 
-    if os.path.exists(cmfFilePath):
-        cmf = CrashMoveFolder(cmfFilePath)
+    if os.path.exists(eventFilePath):
         event = Event(eventFilePath)
+        cmf = CrashMoveFolder(os.path.join(event.cmf_descriptor_path, "cmf_description.json"))
 
     productName = args.productName
 
