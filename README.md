@@ -40,7 +40,7 @@ Adds geospatial data to an ArcMap MXD file based on a recipe from a cookbook con
     ```
 5) If required, uninstall the ArcMap Esri Add-In.
 6) Reinstall ArcMap Esri Add-In using file here:
-	[https://drive.google.com/open?id=1kV1_6r8RzQ2fzA28AEQv9tpET-qZPIN-](https://drive.google.com/open?id=1kV1_6r8RzQ2fzA28AEQv9tpET-qZPIN-)
+    [https://drive.google.com/drive/u/0/folders/18RbtSqLfH_GWqjv1OzheqK2q3KlhoOB6](https://drive.google.com/drive/u/0/folders/18RbtSqLfH_GWqjv1OzheqK2q3KlhoOB6)
 7) Restart ArcMap and ensure the 'Map Generation Tool' is available within the MapAction toolbar.
 8) To run the 'Map Generation Tool' the standardised Crash Move Folder must be in place, see:
 
@@ -49,8 +49,6 @@ Adds geospatial data to an ArcMap MXD file based on a recipe from a cookbook con
 ## Integration with MapAction Toolbar
 
 In order to integrate this `MapActionPy_ArcMap` module with the MapAction Toolbar, the following steps need to be carried out:
-
-:information_source: The "Automation" add-in is in development in the `automation` branch at: https://github.com/mapaction/mapaction-toolbox/tree/automation):
 
 ## Configuration Files
 
