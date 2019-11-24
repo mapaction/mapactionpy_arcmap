@@ -117,7 +117,8 @@ class MapChef:
         """
         for df in arcpy.mapping.ListDataFrames(self.mxd):
             for lyr in arcpy.mapping.ListLayers(self.mxd, "", df):
-                arcpy.mapping.RemoveLayer(df, lyr)
+                if (lyr.longName != "Data Driven Pages"):
+                    arcpy.mapping.RemoveLayer(df, lyr)
         self.mxd.save()
 
     def cook(self, productName, countryName):
@@ -194,9 +195,12 @@ class MapChef:
                             lblClass.expression = labelClass.expression
             if lyr.supports("DATASOURCE"):  # An annotation layer does not support DATASOURCE
                 for datasetType in datasetTypes:
-                    #
+                    # Temporary - Just working out Data Driven Pages
                     try:
                         lyr.replaceDataSource(dataFile, datasetType, datasetName)
+                        if layer.longName == "DDP - Admin1 - py":
+                            for lyr2 in arcpy.mapping.ListLayers(self.mxd, "Data Driven Pages", dataFrame):
+                                arcpy.mapping.AddLayerToGroup(dataFrame, lyr2, layer)
                         added = True
                     except Exception:
                         pass
@@ -234,10 +238,13 @@ class MapChef:
         mapResult = MapResult(layer)
         properties = self.layerProperties.properties.get(layer, None)
         if (properties is not None):
+            if (properties.layerName == "mainmap-s1-py-admin1ddp"):
+                print ("HERE")
             layerFilePath = os.path.join(self.layerDirectory, (properties.layerName + ".lyr"))
             if (os.path.exists(layerFilePath)):
                 self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
                 layerToAdd = arcpy.mapping.Layer(layerFilePath)
+                print (layerFilePath)
                 # If it's not a File Geodatabase (gdb) the regexp won't contain ".gdb/"
                 if (".gdb/" not in properties.regExp):
                     dataFiles = self.find(self.cmfConfig.active_data, properties.regExp)

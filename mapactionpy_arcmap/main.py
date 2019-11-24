@@ -52,4 +52,4 @@ if __name__ == '__main__':
                           args.productName,
                           args.countryName) 
     runner.generate()
-    runner.export()
+

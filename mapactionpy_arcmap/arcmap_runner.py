@@ -42,6 +42,7 @@ class ArcMapRunner:
         self.versionNumber = 1
         self.mxdTemplate = None
         self.mapNumber = "MA001"
+        self.exportMap = False
 
         if os.path.exists(self.eventFilePath):
             self.event = Event(self.eventFilePath)
@@ -82,12 +83,14 @@ class ArcMapRunner:
             self.mxdTemplate, self.mapNumber, self.versionNumber = self.get_template(self.orientation, self.cookbookFile, self.cmf, self.productName)
         mxd = arcpy.mapping.MapDocument(self.mxdTemplate)
 
+
         chef = MapChef(mxd, self.cookbookFile, self.layerPropertiesFile, self.crashMoveFolder, self.layerDirectory, self.versionNumber)
         chef.cook(self.productName, self.countryName)
         chef.alignLegend(self.orientation)
         reportJson = chef.report()
         print(reportJson)
-        #export(mxdTemplate, mapNumber, )
+        if self.exportMap:
+            self.export()
 
     def get_template(self, orientation, cookbookFile, crashMoveFolder, productName):
         arcGisVersion = crashMoveFolder.arcgis_version
@@ -96,8 +99,11 @@ class ArcMapRunner:
         cookbook = MapCookbook(cookbookFile)
         recipe = cookbook.products[productName]
 
+        self.exportMap = recipe.export
         if (recipe.category.lower() == "reference"):
             templateFileName = arcGisVersion + "_" + recipe.category + "_" + orientation + "_bottom.mxd"
+        elif (recipe.category.lower() == "ddp reference"):
+            templateFileName = arcGisVersion + "_ddp_reference_" + orientation + ".mxd"
         elif (recipe.category.lower() == "thematic"):
             templateFileName = arcGisVersion + "_" + recipe.category + "_" + orientation + ".mxd"
         else:
@@ -180,6 +186,12 @@ class ArcMapRunner:
         mxd = arcpy.mapping.MapDocument(self.mxdTemplate)
 
         coreFileName=os.path.splitext(os.path.basename(self.mxdTemplate))[0]
+
+        #DDP
+        if mxd.isDDPEnabled:
+            dppFileLocation=os.path.join(exportDirectory, coreFileName)
+            mxd.dataDrivenPages.exportToPDF(dppFileLocation, page_range_type='ALL',multiple_files='PDF_MULTIPLE_FILES_PAGE_NAME')
+
         # PDF
         pdfFileName = coreFileName+"-"+str(self.event.default_pdf_res_dpi) + ".pdf"
         pdfFileLocation=os.path.join(exportDirectory, pdfFileName)
