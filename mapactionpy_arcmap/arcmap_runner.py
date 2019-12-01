@@ -266,6 +266,7 @@ class ArcMapRunner:
                 if pdf.endswith(".pdf"):
                     zipObj.write(os.path.join(exportDirectory, pdf),
                                  os.path.basename(os.path.join(exportDirectory, pdf)))
+        print ("Export complete to " + exportDirectory)                         
 
     """
     Generates Export XML file
@@ -300,7 +301,7 @@ class ArcMapRunner:
         row["countries"] = self.countryName
         row["xmin"] = self.minx
         row["ymin"] = self.miny
-        row["xmax"] = self.maxy
+        row["xmax"] = self.maxx
         row["ymax"] = self.maxy
         row["ref"] = params["coreFileName"]
         row["mxdfilename"] = params["coreFileName"]

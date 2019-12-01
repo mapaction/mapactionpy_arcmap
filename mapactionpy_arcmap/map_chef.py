@@ -246,7 +246,6 @@ class MapChef:
             if (os.path.exists(layerFilePath)):
                 self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
                 layerToAdd = arcpy.mapping.Layer(layerFilePath)
-                print (layerFilePath)
                 # If it's not a File Geodatabase (gdb) the regexp won't contain ".gdb/"
                 if (".gdb/" not in properties.regExp):
                     dataFiles = self.find(self.cmfConfig.active_data, properties.regExp)

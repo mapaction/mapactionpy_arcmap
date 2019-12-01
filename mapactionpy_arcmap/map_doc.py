@@ -140,6 +140,5 @@ class MapDoc:
         pdffilesize = SubElement(mapdata, 'pdffilesize')
         pdffilesize.text = str(self.mapdata.pdffilesize)
 
-        dom = xml.dom.minidom.parseString(tostring(mapDoc, encoding='utf8', method='xml'))
-
+        dom = xml.dom.minidom.parseString(tostring(mapDoc, encoding='utf-8', method='xml'))
         return(dom.toprettyxml())
