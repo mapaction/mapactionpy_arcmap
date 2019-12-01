@@ -1,0 +1,26 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "El Salvador - Overview",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/arcmap_runner.py",
+            "console": "integratedTerminal",
+            "args": ["--cmf", "D:/MapAction/2019-06-25 - Automation - El Salvador", 
+                     "--product", "Country Overview with Topography & Physical Geography"]
+        },
+        {
+            "name": "El Salvador - Transport",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/arcmap_runner.py",
+            "console": "integratedTerminal",
+            "args": ["--cmf", "D:/MapAction/2019-06-25 - Automation - El Salvador", 
+                     "--product", "Country Overview with Transport"]
+        }
+    ]
+}

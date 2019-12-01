@@ -2,6 +2,7 @@ import argparse
 import os
 from arcmap_runner import ArcMapRunner
 
+
 def is_valid_file(parser, arg):
     if not os.path.exists(arg):
         parser.error("The file %s does not exist!" % arg)
@@ -16,6 +17,7 @@ def is_valid_directory(parser, arg):
     else:
         parser.error("The directory %s does not exist!" % arg)
         return False
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
@@ -50,6 +52,5 @@ if __name__ == '__main__':
                           args.crashMoveFolder,
                           args.layerDirectory,
                           args.productName,
-                          args.countryName) 
+                          args.countryName)
     runner.generate()
-

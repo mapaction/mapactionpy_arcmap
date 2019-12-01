@@ -51,6 +51,8 @@ class MapChef:
         self.summary = "Insert summary here"
         self.dataSources = set()
         self.versionNumber = versionNumber
+        self.createDate = datetime.utcnow().strftime("%d-%b-%Y")
+        self.createTime = datetime.utcnow().strftime("%H:%M")
 
         if os.path.exists(eventFilePath):
             self.event = Event(eventFilePath)
@@ -238,8 +240,8 @@ class MapChef:
         mapResult = MapResult(layer)
         properties = self.layerProperties.properties.get(layer, None)
         if (properties is not None):
-            if (properties.layerName == "mainmap-s1-py-admin1ddp"):
-                print ("HERE")
+            #if (properties.layerName in ["mainmap-s1-py-admin1ddp", "mainmap-s0-pagedefinition"]):
+            #    print ("HERE")
             layerFilePath = os.path.join(self.layerDirectory, (properties.layerName + ".lyr"))
             if (os.path.exists(layerFilePath)):
                 self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
@@ -362,7 +364,7 @@ class MapChef:
             if elm.name == "title":
                 elm.text = productName
             if elm.name == "create_date_time":
-                elm.text = datetime.utcnow().strftime("%d-%b-%Y %H:%M UTC")
+                elm.text = self.createDate + " " + self.createTime
             if elm.name == "summary":
                 elm.text = self.summary
             if elm.name == "map_no":
