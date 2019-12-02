@@ -51,6 +51,8 @@ class MapChef:
         self.summary = "Insert summary here"
         self.dataSources = set()
         self.versionNumber = versionNumber
+        self.createDate = datetime.utcnow().strftime("%d-%b-%Y")
+        self.createTime = datetime.utcnow().strftime("%H:%M")
 
         if os.path.exists(eventFilePath):
             self.event = Event(eventFilePath)
@@ -82,7 +84,6 @@ class MapChef:
                 scalebar = each * int(multi)
                 dataframescale = scalebar * 12
                 return scalebar, dataframescale
-                break
 
     def scale(self):
         newScale = ""
@@ -117,7 +118,8 @@ class MapChef:
         """
         for df in arcpy.mapping.ListDataFrames(self.mxd):
             for lyr in arcpy.mapping.ListLayers(self.mxd, "", df):
-                arcpy.mapping.RemoveLayer(df, lyr)
+                if (lyr.longName != "Data Driven Pages"):
+                    arcpy.mapping.RemoveLayer(df, lyr)
         self.mxd.save()
 
     def cook(self, productName, countryName):
@@ -194,9 +196,12 @@ class MapChef:
                             lblClass.expression = labelClass.expression
             if lyr.supports("DATASOURCE"):  # An annotation layer does not support DATASOURCE
                 for datasetType in datasetTypes:
-                    #
+                    # Temporary - Just working out Data Driven Pages
                     try:
                         lyr.replaceDataSource(dataFile, datasetType, datasetName)
+                        if layer.longName == "DDP - Admin1 - py":
+                            for lyr2 in arcpy.mapping.ListLayers(self.mxd, "Data Driven Pages", dataFrame):
+                                arcpy.mapping.AddLayerToGroup(dataFrame, lyr2, layer)
                         added = True
                     except Exception:
                         pass
@@ -234,6 +239,8 @@ class MapChef:
         mapResult = MapResult(layer)
         properties = self.layerProperties.properties.get(layer, None)
         if (properties is not None):
+            # if (properties.layerName in ["mainmap-s1-py-admin1ddp", "mainmap-s0-pagedefinition"]):
+            #    print ("HERE")
             layerFilePath = os.path.join(self.layerDirectory, (properties.layerName + ".lyr"))
             if (os.path.exists(layerFilePath)):
                 self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
@@ -355,7 +362,7 @@ class MapChef:
             if elm.name == "title":
                 elm.text = productName
             if elm.name == "create_date_time":
-                elm.text = datetime.utcnow().strftime("%d-%b-%Y %H:%M UTC")
+                elm.text = self.createDate + " " + self.createTime
             if elm.name == "summary":
                 elm.text = self.summary
             if elm.name == "map_no":
