@@ -84,7 +84,6 @@ class MapChef:
                 scalebar = each * int(multi)
                 dataframescale = scalebar * 12
                 return scalebar, dataframescale
-                break
 
     def scale(self):
         newScale = ""
