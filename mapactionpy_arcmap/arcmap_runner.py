@@ -266,7 +266,7 @@ class ArcMapRunner:
                 if pdf.endswith(".pdf"):
                     zipObj.write(os.path.join(exportDirectory, pdf),
                                  os.path.basename(os.path.join(exportDirectory, pdf)))
-        print ("Export complete to " + exportDirectory)                         
+        print ("Export complete to " + exportDirectory)
 
     """
     Generates Export XML file

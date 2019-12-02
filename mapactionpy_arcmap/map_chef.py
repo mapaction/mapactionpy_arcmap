@@ -239,7 +239,7 @@ class MapChef:
         mapResult = MapResult(layer)
         properties = self.layerProperties.properties.get(layer, None)
         if (properties is not None):
-            #if (properties.layerName in ["mainmap-s1-py-admin1ddp", "mainmap-s0-pagedefinition"]):
+            # if (properties.layerName in ["mainmap-s1-py-admin1ddp", "mainmap-s0-pagedefinition"]):
             #    print ("HERE")
             layerFilePath = os.path.join(self.layerDirectory, (properties.layerName + ".lyr"))
             if (os.path.exists(layerFilePath)):
