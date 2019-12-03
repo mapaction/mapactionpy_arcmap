@@ -19,5 +19,5 @@ deploy:
   distributions: "sdist bdist_wheel"
   skip_existing: true
   on:
-    branches: master
-    tags: true
+    all_branches: true
+    condition: "$TRAVIS_BRANCH" -eq "master" -o "$TRAVIS_BRANCH" -eq "$TRAVIS_TAG"
