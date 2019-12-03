@@ -1,4 +1,5 @@
-if ["$TRAVIS_BRANCH" -eq "master"];
+if [ "${TRAVIS_BRANCH,,}" -eq "master" ];
 then
+  echo "On master branch"
   export TRAVIS_TAG="$TRAVIS_BRANCH"
 fi
