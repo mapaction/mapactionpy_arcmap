@@ -20,3 +20,4 @@ deploy:
   skip_existing: true
   on:
     branches: master
+    tags: true
