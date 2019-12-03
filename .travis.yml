@@ -20,4 +20,4 @@ deploy:
   skip_existing: true
   on:
     all_branches: true
-    condition: "$TRAVIS_BRANCH" -eq "master" -o "$TRAVIS_BRANCH" -eq "$TRAVIS_TAG"
+    condition: "$TRAVIS_BRANCH" = "master" -o "$TRAVIS_BRANCH" = "$TRAVIS_TAG"
