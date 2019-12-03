@@ -7,42 +7,34 @@ Adds geospatial data to an ArcMap MXD file based on a recipe from a cookbook con
 
 ### Prerequisites
 
-* Python and ArcPy
+* Python v2.7 and ArcPy v10.6.1
 
     ```
     C:\Python27\ArcGIS10.6\python.exe
     ```
-* ArcMap MapAction templates.
-* Complete data scramble using Crash Move Folder Version xx.
+* ArcMap MapAction templates and Crash Move Folder as setout here https://github.com/mapaction/default-crash-move-folder
+* For the Crash Move Folder to have been populated by the Data Scramable process.
 
-## Packaging
+Installing
+---------
+To install the lastest stable release via PyPi:
+```
+pip install mapactionpy-controller
+pip install mapactionpy-arcmap
+```
 
-```python setup.py bdist_wheel```
+To install a specific version for testing see the relevant commandline from here:
+https://pypi.org/project/mapactionpy-arcmap/#history
 
-## Installing
-1) Clone
 
-    ```git clone https://github.com/mapaction/mapactionpy_arcmap/```
-2) Change Directory at the command line
-    ```cd mapactionpy_arcmap```
-3) Run package ```python setup.py bdist_wheel```
-4) Install
-    ```
-    python -m pip install pycountry
-    python -m pip install jsonpickle
-    python -m pip install mapactionpy_controller
-    python -m pip install --user -e .
-    ```
-    To install for use non-development purposes:
-    Clone the github repo then from the root of your local clone:
-    ```
-    python -m pip install .
-    ```
-5) If required, uninstall the ArcMap Esri Add-In.
-6) Reinstall ArcMap Esri Add-In using file here:
+Optional Installation of ArcMap ESRI Addin
+------------------------------------------
+In additiona to the commandline the MapChef tool can also optionally be driven from an ArcMap Addin. To install this:
+1) If required, uninstall any previous version of the ArcMap Esri Add-In.
+2) Reinstall ArcMap Esri Add-In using file here:
     [https://drive.google.com/drive/u/0/folders/18RbtSqLfH_GWqjv1OzheqK2q3KlhoOB6](https://drive.google.com/drive/u/0/folders/18RbtSqLfH_GWqjv1OzheqK2q3KlhoOB6)
-7) Restart ArcMap and ensure the 'Map Generation Tool' is available within the MapAction toolbar.
-8) To run the 'Map Generation Tool' the standardised Crash Move Folder must be in place, see:
+3) Restart ArcMap and ensure the 'Map Generation Tool' is available within the MapAction toolbar.
+4) To run the 'Map Generation Tool' the standardised Crash Move Folder must be in place, see:
 
   [https://github.com/mapaction/default-crash-move-folder/blob/master/20YYiso3nn](https://github.com/mapaction/default-crash-move-folder/blob/master/20YYiso3nn)
 
@@ -217,5 +209,3 @@ These files were provided at the root of the Crash Move Folder, i.e. the directo
 
 * **Steve Hurst** - [https://github.com/mapaction/mapactionpy_arcmap](https://github.com/mapaction/mapactionpy_arcmap)
 
-todo:
-[] enable installation via pypi.
