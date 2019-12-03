@@ -20,4 +20,4 @@ deploy:
   skip_existing: true
   before_deploy: source ./travis-deploy-test.sh
   on:
-    tags: true
+    condition: -n "$TRAVIS_TAG"
