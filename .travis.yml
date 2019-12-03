@@ -19,4 +19,4 @@ deploy:
   distributions: "sdist bdist_wheel"
   skip_existing: true
   on:
-    condition: "${TRAVIS_BRANCH,,}" =~ ^(master|"${TRAVIS_TAG,,}")$ 
+    condition: ${TRAVIS_BRANCH,,} =~ ^(master|${TRAVIS_TAG,,})$
