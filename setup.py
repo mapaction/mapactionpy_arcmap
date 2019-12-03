@@ -11,6 +11,7 @@ def readme():
 
 _base_version = '0.4'
 
+
 def _get_version_number():
     travis_build = environ.get('TRAVIS_BUILD_NUMBER')
     travis_tag = environ.get('TRAVIS_TAG')
