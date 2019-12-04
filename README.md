@@ -79,7 +79,7 @@ The [mapCookbook.json](https://github.com/mapaction/default-crash-move-folder/bl
 
 The layer names in the "```layers```" array MUST correlate to layer files (```.lyr```) in the specified layer directory:
 
-[https://github.com/mapaction/default-crash-move-folder/tree/master/20YYiso3nn/GIS/3_Mapping/31_Resources/312_Layer_files] (GIS/3_Mapping/31_Resources/312_Layer_files)
+[GIS/3_Mapping/31_Resources/312_Layer_files] (https://github.com/mapaction/default-crash-move-folder/tree/master/20YYiso3nn/GIS/3_Mapping/31_Resources/312_Layer_files)
 
 ### layerConfig File
 
