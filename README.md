@@ -13,7 +13,7 @@ Adds geospatial data to an ArcMap MXD file based on a recipe from a cookbook con
     C:\Python27\ArcGIS10.6\python.exe
     ```
 * ArcMap MapAction templates and Crash Move Folder as setout here https://github.com/mapaction/default-crash-move-folder
-* For the Crash Move Folder to have been populated by the Data Scramable process.
+* For the Crash Move Folder to have been populated by the Data Scramble process.
 
 Installing
 ---------
@@ -32,7 +32,7 @@ Optional Installation of ArcMap ESRI Addin
 In additiona to the commandline the MapChef tool can also optionally be driven from an ArcMap Addin. To install this:
 1) If required, uninstall any previous version of the ArcMap Esri Add-In.
 2) Reinstall ArcMap Esri Add-In using file here:
-    [https://drive.google.com/drive/u/0/folders/18RbtSqLfH_GWqjv1OzheqK2q3KlhoOB6](https://drive.google.com/drive/u/0/folders/18RbtSqLfH_GWqjv1OzheqK2q3KlhoOB6)
+    [https://drive.google.com/drive/u/0/folders/1qzR6UvqA_RjxK9D2U9_AXi3EW4cXnuP7](https://drive.google.com/drive/u/0/folders/1qzR6UvqA_RjxK9D2U9_AXi3EW4cXnuP7)
 3) Restart ArcMap and ensure the 'Map Generation Tool' is available within the MapAction toolbar.
 4) To run the 'Map Generation Tool' the standardised Crash Move Folder must be in place, see:
 
@@ -77,7 +77,9 @@ The [mapCookbook.json](https://github.com/mapaction/default-crash-move-folder/bl
 }
 ```
 
-The layer names in the "```layers```" array MUST correlate to layer files (```.lyr```) in the specified layer directory.
+The layer names in the "```layers```" array MUST correlate to layer files (```.lyr```) in the specified layer directory:
+
+[https://github.com/mapaction/default-crash-move-folder/tree/master/20YYiso3nn/GIS/3_Mapping/31_Resources/312_Layer_files] (GIS/3_Mapping/31_Resources/312_Layer_files)
 
 ### layerConfig File
 
