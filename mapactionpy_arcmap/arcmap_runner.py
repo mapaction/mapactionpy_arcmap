@@ -18,6 +18,7 @@ from mapactionpy_controller.event import Event
 from map_doc import MapDoc
 from map_data import MapData
 
+
 class ArcMapRunner:
     """
     ArcMapRunner - Executes the ArcMap automation methods
@@ -364,6 +365,7 @@ def is_valid_directory(parser, arg):
     else:
         parser.error("The directory %s does not exist!" % arg)
         return False
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
