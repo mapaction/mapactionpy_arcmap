@@ -57,7 +57,8 @@ class ArcMapRunner:
 
         if os.path.exists(self.eventFilePath):
             self.event = Event(self.eventFilePath)
-            self.cmf = CrashMoveFolder(os.path.join(self.event.cmf_descriptor_path, "cmf_description.json"))
+            # self.cmf = CrashMoveFolder(os.path.join(self.event.cmf_descriptor_path, "cmf_description.json"))
+            self.cmf = CrashMoveFolder(self.event.cmf_descriptor_path)
 
         # If no country name supplied, need to find it from the event_description.json
         if self.countryName is None:
@@ -113,11 +114,11 @@ class ArcMapRunner:
 
         self.exportMap = recipe.export
         if (recipe.category.lower() == "reference"):
-            templateFileName = arcGisVersion + "_" + recipe.category + "_" + orientation + "_bottom.mxd"
+            templateFileName = arcGisVersion + "_reference_" + orientation + "_bottom.mxd"
         elif (recipe.category.lower() == "ddp reference"):
             templateFileName = arcGisVersion + "_ddp_reference_" + orientation + ".mxd"
         elif (recipe.category.lower() == "thematic"):
-            templateFileName = arcGisVersion + "_" + recipe.category + "_" + orientation + ".mxd"
+            templateFileName = arcGisVersion + "_thematic_" + orientation + ".mxd"
         else:
             raise Exception("Error: Could not get source MXD from: " + crashMoveFolder.mxd_templates)
 
@@ -129,7 +130,7 @@ class ArcMapRunner:
             os.mkdir(mapNumberDirectory)
 
         # Construct MXD name
-        mapFileName = slugify(productName)
+        mapFileName = slugify(unicode(productName))
         versionNumber = self.get_map_version_number(mapNumberDirectory, recipe.mapnumber, mapFileName)
         mapFileName = recipe.mapnumber + "-v" + str(versionNumber).zfill(2) + "_" + mapFileName + ".mxd"
         copiedFile = os.path.join(mapNumberDirectory, mapFileName)
