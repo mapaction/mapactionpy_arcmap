@@ -9,7 +9,7 @@ def readme():
         return f.read()
 
 
-_base_version = '0.6'
+_base_version = '0.7'
 
 
 def _get_version_number():
@@ -44,7 +44,9 @@ setup(name='mapactionpy_arcmap',
           'requests',
           'pycountry',
           'slugify',
-          'jsonpickle'
+          'jsonpickle',
+          'Pillow',
+          'python-resize-image'
       ],
       test_suite='unittest',
       tests_require=['unittest'],
