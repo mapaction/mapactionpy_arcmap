@@ -31,7 +31,8 @@ class ArcMapRunner:
                  crashMoveFolder,
                  layerDirectory,
                  productName,
-                 countryName):
+                 countryName,
+                 orientation=None):
         self.cookbookFile = cookbookFile
         self.layerPropertiesFile = layerConfig
         self.mxdTemplate = templateFile
@@ -44,9 +45,8 @@ class ArcMapRunner:
         self.event = None
 
         # Determine orientation
-        self.orientation = "landscape"
+        self.orientation = orientation
         self.versionNumber = 1
-        self.mxdTemplate = None
         self.mapNumber = "MA001"
         self.exportMap = False
         self.minx = 0
@@ -57,8 +57,7 @@ class ArcMapRunner:
 
         if os.path.exists(self.eventFilePath):
             self.event = Event(self.eventFilePath)
-            # self.cmf = CrashMoveFolder(os.path.join(self.event.cmf_descriptor_path, "cmf_description.json"))
-            self.cmf = CrashMoveFolder(self.event.cmf_descriptor_path)
+            self.cmf = CrashMoveFolder(os.path.join(self.event.cmf_descriptor_path, "cmf_description.json"))
 
         # If no country name supplied, need to find it from the event_description.json
         if self.countryName is None:
@@ -102,8 +101,6 @@ class ArcMapRunner:
         self.chef.alignLegend(self.orientation)
         reportJson = self.chef.report()
         print(reportJson)
-        if self.exportMap:
-            self.export()
 
     def get_template(self, orientation, cookbookFile, crashMoveFolder, productName):
         arcGisVersion = crashMoveFolder.arcgis_version
@@ -114,11 +111,11 @@ class ArcMapRunner:
 
         self.exportMap = recipe.export
         if (recipe.category.lower() == "reference"):
-            templateFileName = arcGisVersion + "_reference_" + orientation + "_bottom.mxd"
+            templateFileName = arcGisVersion + "_" + recipe.category + "_" + orientation + "_bottom.mxd"
         elif (recipe.category.lower() == "ddp reference"):
             templateFileName = arcGisVersion + "_ddp_reference_" + orientation + ".mxd"
         elif (recipe.category.lower() == "thematic"):
-            templateFileName = arcGisVersion + "_thematic_" + orientation + ".mxd"
+            templateFileName = arcGisVersion + "_" + recipe.category + "_" + orientation + ".mxd"
         else:
             raise Exception("Error: Could not get source MXD from: " + crashMoveFolder.mxd_templates)
 
@@ -130,7 +127,7 @@ class ArcMapRunner:
             os.mkdir(mapNumberDirectory)
 
         # Construct MXD name
-        mapFileName = slugify(unicode(productName))
+        mapFileName = slugify(productName)
         versionNumber = self.get_map_version_number(mapNumberDirectory, recipe.mapnumber, mapFileName)
         mapFileName = recipe.mapnumber + "-v" + str(versionNumber).zfill(2) + "_" + mapFileName + ".mxd"
         copiedFile = os.path.join(mapNumberDirectory, mapFileName)
@@ -148,40 +145,43 @@ class ArcMapRunner:
         return versionNumber
 
     def get_orientation(self, countryName):
-        url = "https://nominatim.openstreetmap.org/search?country=" + countryName.replace(" ", "+") + "&format=json"
-        resp = requests.get(url=url)
+        if (self.orientation is None):
+            url = "https://nominatim.openstreetmap.org/search?country=" + countryName.replace(" ", "+") + "&format=json"
+            resp = requests.get(url=url)
 
-        jsonObject = resp.json()
+            jsonObject = resp.json()
 
-        extentsSet = False
-        boundingbox = [0, 0, 0, 0]
-        for country in jsonObject:
-            if country['class'] == "boundary" and country['type'] == "administrative":
-                boundingbox = country['boundingbox']
-                extentsSet = True
-                break
-        if extentsSet:
-            D = decimal.Decimal
+            extentsSet = False
+            boundingbox = [0, 0, 0, 0]
+            for country in jsonObject:
+                if country['class'] == "boundary" and country['type'] == "administrative":
+                    boundingbox = country['boundingbox']
+                    extentsSet = True
+                    break
+            if extentsSet:
+                D = decimal.Decimal
 
-            self.minx = D(boundingbox[2])
-            self.miny = D(boundingbox[0])
-            self.maxx = D(boundingbox[3])
-            self.maxy = D(boundingbox[1])
+                self.minx = D(boundingbox[2])
+                self.miny = D(boundingbox[0])
+                self.maxx = D(boundingbox[3])
+                self.maxy = D(boundingbox[1])
 
-            orientation = "portrait"
+                orientation = "portrait"
 
-            # THIS DOESN'T WORK FOR FIJI/ NZ
-            xdiff = abs(self.maxx-self.minx)
-            ydiff = abs(self.maxy-self.miny)
+                # THIS DOESN'T WORK FOR FIJI/ NZ
+                xdiff = abs(self.maxx-self.minx)
+                ydiff = abs(self.maxy-self.miny)
 
-            # print("http://bboxfinder.com/#<miny>,<minx>,<maxy>,<maxx>")
-            # print("http://bboxfinder.com/#" + str(miny) + ","+ str(minx) + ","+ str(maxy) + ","+ str(maxx))
+                # print("http://bboxfinder.com/#<miny>,<minx>,<maxy>,<maxx>")
+                # print("http://bboxfinder.com/#" + str(miny) + ","+ str(minx) + ","+ str(maxy) + ","+ str(maxx))
 
-            if xdiff > ydiff:
-                orientation = "landscape"
-            return orientation
+                if xdiff > ydiff:
+                    orientation = "landscape"
+                return orientation
+            else:
+                raise Exception("Error: Could not derive country extent from " + url)
         else:
-            raise Exception("Error: Could not derive country extent from " + url)
+            return self.orientation
 
     """
     Generates all file for export
@@ -321,13 +321,22 @@ class ArcMapRunner:
         row["language-iso2"] = self.event.language_iso2
         language = pycountry.languages.get(alpha_2=self.event.language_iso2)
         row["language"] = language.name
-        row["createdate"] = self.chef.createDate
-        row["createtime"] = self.chef.createTime
+
+        row["createdate"] = None
+        row["createtime"] = None
+        row["summary"] = None
+        row["scale"] = None
+        row["datum"] = None
+
+        if (self.chef is not None): 
+            row["createdate"] = self.chef.createDate
+            row["createtime"] = self.chef.createTime
+            row["summary"] = self.chef.summary
+            row["scale"] = self.chef.scale()
+            row["datum"] = self.chef.spatialReference()
         row["imagerydate"] = ""
-        row["summary"] = self.chef.summary
         row["product-type"] = params["productType"]
         row["papersize"] = "A3"
-        row["scale"] = self.chef.scale()
         row["access"] = "MapAction"  # Until we work out how to get the values for this
         row["accessnotes"] = ""
         row["location"] = ""
@@ -335,7 +344,6 @@ class ArcMapRunner:
         row["qcname"] = ""
         row["themes"] = {}
         row["proj"] = ""
-        row["datum"] = self.chef.spatialReference()
         row["datasource"] = ""
         row["kmlresolutiondpi"] = ""
 
@@ -367,6 +375,11 @@ def is_valid_directory(parser, arg):
         parser.error("The directory %s does not exist!" % arg)
         return False
 
+def add_bool_arg(parser, name, default=False):
+    group = parser.add_mutually_exclusive_group(required=False)
+    group.add_argument('--' + name, dest=name, action='store_true')
+    group.add_argument('--no-' + name, dest=name, action='store_false')
+    parser.set_defaults(**{name:default})
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
@@ -389,11 +402,22 @@ if __name__ == '__main__':
     parser.add_argument("-ld", "--layerDirectory", dest="layerDirectory", required=False,
                         help="path to layer directory", metavar="FILE",
                         type=lambda x: is_valid_directory(parser, x))
-    parser.add_argument("-p", "--product", dest="productName", required=True,
+    parser.add_argument("-p", "--product", dest="productName", required=False,
                         help="Name of product")
     parser.add_argument("-c", "--country", dest="countryName", required=False,
                         help="Name of country")
+    parser.add_argument("-o", "--orientation", dest="orientation", default=None, required=False,
+                        help="landscape|portrait")
+
+    add_bool_arg(parser, 'export')            
+
     args = parser.parse_args()
+    orientation = None
+    if (args.orientation is not None):
+        if args.orientation.lower() == "landscape":
+            orientation = args.orientation
+        else:
+            orientation = "portrait"
 
     runner = ArcMapRunner(args.cookbookFile,
                           args.layerConfig,
@@ -401,5 +425,8 @@ if __name__ == '__main__':
                           args.crashMoveFolder,
                           args.layerDirectory,
                           args.productName,
-                          args.countryName)
+                          args.countryName,
+                          orientation)
     runner.generate()
+    if (args.export == True):
+        runner.export()

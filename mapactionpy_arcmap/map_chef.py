@@ -53,6 +53,7 @@ class MapChef:
         self.versionNumber = versionNumber
         self.createDate = datetime.utcnow().strftime("%d-%b-%Y")
         self.createTime = datetime.utcnow().strftime("%H:%M")
+        self.export = False
 
         if os.path.exists(eventFilePath):
             self.event = Event(eventFilePath)
@@ -129,6 +130,7 @@ class MapChef:
         self.mapReport = MapReport(productName)
         recipe = self.cookbook.products.get(productName, None)
         if (recipe is not None):
+            self.export = recipe.export
             if (len(recipe.summary) > 0):
                 self.summary = recipe.summary
             for layer in recipe.layers:
@@ -172,7 +174,8 @@ class MapChef:
                        datasetName,
                        labelClasses,
                        countryName,
-                       addToLegend):
+                       addToLegend,
+                       zoomMultiplier=0):
         datasetTypes = ["SHAPEFILE_WORKSPACE",
                         "RASTER_WORKSPACE",
                         "FILEGDB_WORKSPACE",
@@ -226,6 +229,45 @@ class MapChef:
                         arcpy.mapping.AddLayer(dataFrame, lyr, "BOTTOM")
                         break
                 lyr.visible = False
+            if (zoomMultiplier != 0):
+                buffer=zoomMultiplier
+                arcpy.env.overwriteOutput = "True"  
+                extent = lyr.getExtent(True) # visible extent of layer
+
+                extBuffDist = ((int(abs(extent.lowerLeft.X - extent.lowerRight.X))) * buffer)  
+                newExtentPts = arcpy.Array()  
+                newExtentPts.add(arcpy.Point(extent.lowerLeft.X-extBuffDist, 
+                                             extent.lowerLeft.Y-extBuffDist,
+                                             extent.lowerLeft.Z,
+                                             extent.lowerLeft.M,
+                                             extent.lowerLeft.ID))
+
+                newExtentPts.add(arcpy.Point(extent.lowerRight.X+extBuffDist, 
+                                             extent.lowerRight.Y-extBuffDist,
+                                             extent.lowerRight.Z,
+                                             extent.lowerRight.M,
+                                             extent.lowerRight.ID))
+
+                newExtentPts.add(arcpy.Point(extent.upperRight.X+extBuffDist, 
+                                             extent.upperRight.Y+extBuffDist,
+                                             extent.upperRight.Z,
+                                             extent.upperRight.M,
+                                             extent.upperRight.ID))
+
+                newExtentPts.add(arcpy.Point(extent.upperLeft.X-extBuffDist, 
+                                             extent.upperLeft.Y+extBuffDist,
+                                             extent.upperLeft.Z,
+                                             extent.upperLeft.M,
+                                             extent.upperLeft.ID))
+
+                newExtentPts.add(arcpy.Point(extent.lowerLeft.X-extBuffDist, 
+                                             extent.lowerLeft.Y-extBuffDist,
+                                             extent.lowerLeft.Z,
+                                             extent.lowerLeft.M,
+                                             extent.lowerLeft.ID))
+
+                polygonTmp2 = arcpy.Polygon(newExtentPts) 
+                dataFrame.extent = polygonTmp2              
         return added
 
     """
@@ -236,8 +278,8 @@ class MapChef:
         return(jsonpickle.encode(self.mapReport, unpicklable=False))
 
     def processLayer(self, layer, countryName):
-        mapResult = MapResult(layer)
-        properties = self.layerProperties.properties.get(layer, None)
+        mapResult = MapResult(layer["name"])
+        properties = self.layerProperties.properties.get(layer["name"], None)
         if (properties is not None):
             # if (properties.layerName in ["mainmap-s1-py-admin1ddp", "mainmap-s0-pagedefinition"]):
             #    print ("HERE")
@@ -260,7 +302,8 @@ class MapChef:
                                                               datasetName,
                                                               properties.labelClasses,
                                                               countryName,
-                                                              properties.addToLegend)
+                                                              properties.addToLegend,
+                                                              layer.get('zoomMultiplier', 0))
                         mapResult.dataSource = dataFile
                         if mapResult.added:
                             mapResult.message = "Layer added successfully"
@@ -286,7 +329,8 @@ class MapChef:
                                                                       properties.
                                                                       labelClasses,
                                                                       countryName,
-                                                                      properties.addToLegend)
+                                                                      properties.addToLegend,
+                                                                      layer.get('zoomMultiplier', 0))
                                 mapResult.dataSource = geoDatabase + os.sep + raster
                                 break
                         featureClasses = arcpy.ListFeatureClasses()
@@ -300,7 +344,8 @@ class MapChef:
                                                                       featureClass,
                                                                       properties.labelClasses,
                                                                       countryName,
-                                                                      properties.addToLegend)
+                                                                      properties.addToLegend,
+                                                                      layer.get('zoomMultiplier', 0)) 
                                 mapResult.dataSource = geoDatabase + os.sep + featureClass
                                 # Found Geodatabase.  Stop iterating.
                                 break

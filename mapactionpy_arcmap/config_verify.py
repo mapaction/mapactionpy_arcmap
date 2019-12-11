@@ -34,7 +34,7 @@ def get_unique_lyr_names(cookbook, lyr_props, lyr_dir):
 
     for recipe in cookbook.get_products():
         for l in recipe.layers:
-            cb_unique_lyrs.add(l)
+            cb_unique_lyrs.add(l.name)
 
     for l in lyr_props.properties:
         lp_unique_lyrs.add(l.layerName)
