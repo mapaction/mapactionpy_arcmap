@@ -70,7 +70,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description='This tool checks the internal self-consistex`ncy of the cookbook file, layerProperties file and the' # noqa
+        description='This tool checks the internal self-consistency of the cookbook file, layerProperties file and the'  # noqa
                     ' layerfiles within the layerDirectory'
     )
     parser.add_argument("-b", "--cookbook", dest="cookbookFile", required=True,

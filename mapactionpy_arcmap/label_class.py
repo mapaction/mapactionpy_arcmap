@@ -7,3 +7,4 @@ class LabelClass:
         self.className = row["className"]
         self.expression = row["expression"]
         self.SQLQuery = row["SQLQuery"]
+        self.showClassLabels = row["showClassLabels"]

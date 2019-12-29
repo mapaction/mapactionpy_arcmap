@@ -43,6 +43,7 @@ class ArcMapRunner:
         self.eventFilePath = os.path.join(crashMoveFolder, "event_description.json")
         self.cmf = None
         self.event = None
+        self.replaceOnly = False
 
         # Determine orientation
         self.orientation = orientation
@@ -97,7 +98,7 @@ class ArcMapRunner:
 
         self.chef = MapChef(mxd, self.cookbookFile, self.layerPropertiesFile,
                             self.crashMoveFolder, self.layerDirectory, self.versionNumber)
-        self.chef.cook(self.productName, self.countryName)
+        self.chef.cook(self.productName, self.countryName, self.replaceOnly)
         self.chef.alignLegend(self.orientation)
         reportJson = self.chef.report()
         print(reportJson)
@@ -109,17 +110,24 @@ class ArcMapRunner:
         cookbook = MapCookbook(cookbookFile)
         recipe = cookbook.products[productName]
 
-        self.exportMap = recipe.export
-        if (recipe.category.lower() == "reference"):
-            templateFileName = arcGisVersion + "_" + recipe.category + "_" + orientation + "_bottom.mxd"
-        elif (recipe.category.lower() == "ddp reference"):
-            templateFileName = arcGisVersion + "_ddp_reference_" + orientation + ".mxd"
-        elif (recipe.category.lower() == "thematic"):
-            templateFileName = arcGisVersion + "_" + recipe.category + "_" + orientation + ".mxd"
+        mapNumberTemplateFileName = recipe.mapnumber + "_"+orientation+".mxd"
+        mapNumberTemplateFilePath = os.path.join(crashMoveFolder.mxd_templates, mapNumberTemplateFileName)
+        if os.path.exists(mapNumberTemplateFilePath):
+            srcTemplateFile = mapNumberTemplateFilePath
+            # In this instance, we only want to replace the datasource, everything else should say as is
+            self.replaceOnly = True
         else:
-            raise Exception("Error: Could not get source MXD from: " + crashMoveFolder.mxd_templates)
+            self.exportMap = recipe.export
+            if (recipe.category.lower() == "reference"):
+                templateFileName = arcGisVersion + "_" + recipe.category + "_" + orientation + "_bottom.mxd"
+            elif (recipe.category.lower() == "ddp reference"):
+                templateFileName = arcGisVersion + "_ddp_reference_" + orientation + ".mxd"
+            elif (recipe.category.lower() == "thematic"):
+                templateFileName = arcGisVersion + "_" + recipe.category + "_" + orientation + ".mxd"
+            else:
+                raise Exception("Error: Could not get source MXD from: " + crashMoveFolder.mxd_templates)
 
-        srcTemplateFile = os.path.join(crashMoveFolder.mxd_templates, templateFileName)
+            srcTemplateFile = os.path.join(crashMoveFolder.mxd_templates, templateFileName)
 
         mapNumberDirectory = os.path.join(crashMoveFolder.mxd_products, recipe.mapnumber)
 
@@ -328,7 +336,7 @@ class ArcMapRunner:
         row["scale"] = None
         row["datum"] = None
 
-        if (self.chef is not None): 
+        if (self.chef is not None):
             row["createdate"] = self.chef.createDate
             row["createtime"] = self.chef.createTime
             row["summary"] = self.chef.summary
@@ -375,11 +383,13 @@ def is_valid_directory(parser, arg):
         parser.error("The directory %s does not exist!" % arg)
         return False
 
+
 def add_bool_arg(parser, name, default=False):
     group = parser.add_mutually_exclusive_group(required=False)
     group.add_argument('--' + name, dest=name, action='store_true')
     group.add_argument('--no-' + name, dest=name, action='store_false')
-    parser.set_defaults(**{name:default})
+    parser.set_defaults(**{name: default})
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
@@ -409,7 +419,7 @@ if __name__ == '__main__':
     parser.add_argument("-o", "--orientation", dest="orientation", default=None, required=False,
                         help="landscape|portrait")
 
-    add_bool_arg(parser, 'export')            
+    add_bool_arg(parser, 'export')
 
     args = parser.parse_args()
     orientation = None
@@ -428,5 +438,5 @@ if __name__ == '__main__':
                           args.countryName,
                           orientation)
     runner.generate()
-    if (args.export == True):
+    if (args.export):
         runner.export()
