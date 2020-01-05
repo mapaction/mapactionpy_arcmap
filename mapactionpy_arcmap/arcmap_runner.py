@@ -258,8 +258,6 @@ class ArcMapRunner:
 
         #######################################################################################################
         if self.recipe.hasQueryColumnName:
-            #mxd = arcpy.mapping.MapDocument(self.mxdTemplate)
-
             # Disable view of Affected Country
             locationMapLayerName = "locationmap-s0-py-affectedcountry" # Hard-coded
             layerDefinition = self.layerDefinition.properties.get(locationMapLayerName)            
@@ -297,8 +295,6 @@ class ArcMapRunner:
                 
                         # Create a polygon using the bounding box
                         array = arcpy.Array()
-
-                        print (region + ": (" + str(df.extent.lowerLeft.X) + ", " + str(df.extent.lowerLeft.Y) + ") (" + str(df.extent.upperRight.X) + ", " + str(df.extent.upperRight.Y) + ")")
                         array.add(df.extent.lowerLeft)
                         array.add(df.extent.lowerRight)
                         array.add(df.extent.upperRight)
@@ -327,14 +323,20 @@ class ArcMapRunner:
                         # Update the layer
                         extentLayer.replaceDataSource(exportDirectory, 'SHAPEFILE_WORKSPACE', shapeFileName)
                         arcpy.RefreshActiveView()
-                        #mxd.save()
 
                         # In Main map, zoom to the selected region
                         dataFrameName = "Main map"
                         df = arcpy.mapping.ListDataFrames(mxd, dataFrameName) [0]
                         arcpy.SelectLayerByAttribute_management(lyr, "NEW_SELECTION", query)
                         df.extent = lyr.getSelectedExtent()
-                        #mxd.save()
+
+                        for elm in arcpy.mapping.ListLayoutElements(mxd, "TEXT_ELEMENT"):
+                            if elm.name == "title":
+                                elm.text = self.recipe.category + " map of " + self.countryName +\
+                                    '\n' +\
+                                    "<CLR red = '255'>Sheet - " + region + "</CLR>" 
+                            if elm.name == "map_no":
+                                elm.text = self.recipe.mapnumber + "_Sheet_" + region.replace(' ', '_')
 
                         # Export to PDF
                         pdfFileName = coreFileName + "-" + slugify(region) + "-" +str(self.event.default_pdf_res_dpi) + "dpi.pdf"
