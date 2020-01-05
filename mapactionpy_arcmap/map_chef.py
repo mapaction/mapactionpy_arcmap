@@ -207,12 +207,8 @@ class MapChef:
                             lblClass.showClassLabels = labelClass.showClassLabels
             if lyr.supports("DATASOURCE"):  # An annotation layer does not support DATASOURCE
                 for datasetType in self.datasetTypes:
-                    # Temporary - Just working out Data Driven Pages
                     try:
                         lyr.replaceDataSource(dataFile, datasetType, datasetName)
-                        if layer.longName == "DDP - Admin1 - py":
-                            for lyr2 in arcpy.mapping.ListLayers(self.mxd, "Data Driven Pages", dataFrame):
-                                arcpy.mapping.AddLayerToGroup(dataFrame, lyr2, layer)
                         added = True
                     except Exception:
                         pass

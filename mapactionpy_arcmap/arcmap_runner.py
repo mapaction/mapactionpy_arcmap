@@ -13,6 +13,7 @@ from zipfile import ZipFile
 from resizeimage import resizeimage
 from map_chef import MapChef
 from map_cookbook import MapCookbook
+from layer_properties import LayerProperties
 from mapactionpy_controller.crash_move_folder import CrashMoveFolder
 from mapactionpy_controller.event import Event
 from map_doc import MapDoc
@@ -75,11 +76,16 @@ class ArcMapRunner:
             else:
                 raise Exception("Error: Could not derive cookbook file from " + self.crashMoveFolder)
 
+        self.cookbook = MapCookbook(self.cookbookFile)
+        self.recipe = self.cookbook.products[productName]
+
         if self.layerPropertiesFile is None:
             if self.cmf is not None:
                 self.layerPropertiesFile = self.cmf.layer_properties
             else:
                 raise Exception("Error: Could not derive layer config file from " + self.crashMoveFolder)
+
+        self.layerDefinition = LayerProperties(self.layerPropertiesFile)    
 
         if self.layerDirectory is None:
             if self.cmf is not None:
@@ -100,6 +106,7 @@ class ArcMapRunner:
                             self.crashMoveFolder, self.layerDirectory, self.versionNumber)
         self.chef.cook(self.productName, self.countryName, self.replaceOnly)
         self.chef.alignLegend(self.orientation)
+        del mxd
         reportJson = self.chef.report()
         print(reportJson)
 
@@ -107,40 +114,38 @@ class ArcMapRunner:
         arcGisVersion = crashMoveFolder.arcgis_version
 
         # Need to get the theme from the recipe to get the path to the MXD
-        cookbook = MapCookbook(cookbookFile)
-        recipe = cookbook.products[productName]
 
-        mapNumberTemplateFileName = recipe.mapnumber + "_"+orientation+".mxd"
+        mapNumberTemplateFileName = self.recipe.mapnumber + "_"+orientation+".mxd"
         mapNumberTemplateFilePath = os.path.join(crashMoveFolder.mxd_templates, mapNumberTemplateFileName)
         if os.path.exists(mapNumberTemplateFilePath):
             srcTemplateFile = mapNumberTemplateFilePath
             # In this instance, we only want to replace the datasource, everything else should say as is
             self.replaceOnly = True
         else:
-            self.exportMap = recipe.export
-            if (recipe.category.lower() == "reference"):
-                templateFileName = arcGisVersion + "_" + recipe.category + "_" + orientation + "_bottom.mxd"
-            elif (recipe.category.lower() == "ddp reference"):
+            self.exportMap = self.recipe.export
+            if (self.recipe.category.lower() == "reference"):
+                templateFileName = arcGisVersion + "_" + self.recipe.category + "_" + orientation + "_bottom.mxd"
+            elif (self.recipe.category.lower() == "ddp reference"):
                 templateFileName = arcGisVersion + "_ddp_reference_" + orientation + ".mxd"
-            elif (recipe.category.lower() == "thematic"):
-                templateFileName = arcGisVersion + "_" + recipe.category + "_" + orientation + ".mxd"
+            elif (self.recipe.category.lower() == "thematic"):
+                templateFileName = arcGisVersion + "_" + self.recipe.category + "_" + orientation + ".mxd"
             else:
                 raise Exception("Error: Could not get source MXD from: " + crashMoveFolder.mxd_templates)
 
             srcTemplateFile = os.path.join(crashMoveFolder.mxd_templates, templateFileName)
 
-        mapNumberDirectory = os.path.join(crashMoveFolder.mxd_products, recipe.mapnumber)
+        mapNumberDirectory = os.path.join(crashMoveFolder.mxd_products, self.recipe.mapnumber)
 
         if not(os.path.isdir(mapNumberDirectory)):
             os.mkdir(mapNumberDirectory)
 
         # Construct MXD name
         mapFileName = slugify(productName)
-        versionNumber = self.get_map_version_number(mapNumberDirectory, recipe.mapnumber, mapFileName)
-        mapFileName = recipe.mapnumber + "-v" + str(versionNumber).zfill(2) + "_" + mapFileName + ".mxd"
+        versionNumber = self.get_map_version_number(mapNumberDirectory, self.recipe.mapnumber, mapFileName)
+        mapFileName = self.recipe.mapnumber + "-v" + str(versionNumber).zfill(2) + "_" + mapFileName + ".mxd"
         copiedFile = os.path.join(mapNumberDirectory, mapFileName)
         copyfile(srcTemplateFile, copiedFile)
-        return copiedFile, recipe.mapnumber, versionNumber
+        return copiedFile, self.recipe.mapnumber, versionNumber
 
     def get_map_version_number(self, mapNumberDirectory, mapNumber, mapFileName):
         versionNumber = 0
@@ -215,15 +220,6 @@ class ArcMapRunner:
         exportParams["coreFileName"] = coreFileName
         productType = "mapsheet"
 
-        # DDP
-        if mxd.isDDPEnabled:
-            productType = "atlas"
-            dppFileLocation = os.path.join(exportDirectory, coreFileName)
-            mxd.dataDrivenPages.exportToPDF(dppFileLocation,
-                                            page_range_type='ALL',
-                                            multiple_files='PDF_MULTIPLE_FILES_PAGE_NAME',
-                                            resolution=int(self.event.default_pdf_res_dpi))
-
         exportParams["productType"] = productType
         # PDF
         pdfFileName = coreFileName+"-"+str(self.event.default_pdf_res_dpi) + "dpi.pdf"
@@ -259,6 +255,94 @@ class ArcMapRunner:
 
         # Remove the temporary larger thumbnail
         os.remove(pngTmpThumbNailFileLocation)
+
+        #######################################################################################################
+        if self.recipe.hasQueryColumnName:
+            #mxd = arcpy.mapping.MapDocument(self.mxdTemplate)
+
+            # Disable view of Affected Country
+            locationMapLayerName = "locationmap-s0-py-affectedcountry" # Hard-coded
+            layerDefinition = self.layerDefinition.properties.get(locationMapLayerName)            
+            locationMapDataFrameName = layerDefinition.mapFrame
+            locationMapDataFrame = arcpy.mapping.ListDataFrames(mxd, locationMapDataFrameName) [0]
+            locationMapLyr = arcpy.mapping.ListLayers(mxd, locationMapLayerName, locationMapDataFrame)[0]
+            locationMapDataFrame.extent=locationMapLyr.getExtent()
+            locationMapLyr.visible = False
+ 
+            for layer in self.recipe.layers:
+                if (layer.get('columnName', None) is not None):
+                    layerName = layer.get('name')
+                    queryColumn = layer.get('columnName')
+                    fieldNames = [queryColumn]
+                    # For each layer and column name, export a regional map
+                    layerDefinition = self.layerDefinition.properties.get(layerName)
+                    df = arcpy.mapping.ListDataFrames(mxd, layerDefinition.mapFrame) [0]
+                    lyr = arcpy.mapping.ListLayers(mxd, layerName, df)[0]
+
+                    regions=list()
+                    with arcpy.da.UpdateCursor(lyr.dataSource, fieldNames) as cursor:
+                        for row in cursor:
+                            regions.append(row[0])
+
+                    for region in regions:
+                        dataFrameName = "Main map"
+                        df = arcpy.mapping.ListDataFrames(mxd, dataFrameName) [0]
+
+                        # Select hthe next region
+                        query="\"" + queryColumn + "\" = \'" + region + "\'"
+                        arcpy.SelectLayerByAttribute_management(lyr, "NEW_SELECTION", query)
+
+                        # Get the extent of the selected area
+                        df.extent = lyr.getSelectedExtent()
+                
+                        # Create a polygon using the bounding box
+                        array = arcpy.Array()
+
+                        print (region + ": (" + str(df.extent.lowerLeft.X) + ", " + str(df.extent.lowerLeft.Y) + ") (" + str(df.extent.upperRight.X) + ", " + str(df.extent.upperRight.Y) + ")")
+                        array.add(df.extent.lowerLeft)
+                        array.add(df.extent.lowerRight)
+                        array.add(df.extent.upperRight)
+                        array.add(df.extent.upperLeft)
+                        # ensure the polygon is closed
+                        array.add(df.extent.lowerLeft)
+                        # Create the polygon object
+                        polygon = arcpy.Polygon(array, df.extent.spatialReference)
+
+                        array.removeAll()
+
+                        # Export the extent to a shapefile
+                        shapeFileName="extent_" + slugify(region).replace('-', '')
+                        shpFile = shapeFileName + ".shp"
+                        
+                        if arcpy.Exists(os.path.join(exportDirectory, shpFile)):
+                            arcpy.Delete_management(os.path.join(exportDirectory, shpFile))
+                        arcpy.CopyFeatures_management(polygon, os.path.join(exportDirectory, shpFile))
+
+                        # For the 'extent' layer...
+                        locationMapDataFrameName = "Location map"
+                        locationMapDataFrame = arcpy.mapping.ListDataFrames(mxd, locationMapDataFrameName) [0]
+                        extentLayerName = "locationmap-s0-py-extent"
+                        extentLayer = arcpy.mapping.ListLayers(mxd, extentLayerName, locationMapDataFrame)[0]
+
+                        # Update the layer
+                        extentLayer.replaceDataSource(exportDirectory, 'SHAPEFILE_WORKSPACE', shapeFileName)
+                        arcpy.RefreshActiveView()
+                        #mxd.save()
+
+                        # In Main map, zoom to the selected region
+                        dataFrameName = "Main map"
+                        df = arcpy.mapping.ListDataFrames(mxd, dataFrameName) [0]
+                        arcpy.SelectLayerByAttribute_management(lyr, "NEW_SELECTION", query)
+                        df.extent = lyr.getSelectedExtent()
+                        #mxd.save()
+
+                        # Export to PDF
+                        pdfFileName = coreFileName + "-" + slugify(region) + "-" +str(self.event.default_pdf_res_dpi) + "dpi.pdf"
+                        pdfFileLocation = os.path.join(exportDirectory, pdfFileName)
+
+                        arcpy.mapping.ExportToPDF(mxd, pdfFileLocation, resolution=int(self.event.default_pdf_res_dpi))
+                        if arcpy.Exists(os.path.join(exportDirectory, shpFile)):
+                            arcpy.Delete_management(os.path.join(exportDirectory, shpFile))
 
         # Create Export XML
         exportXmlFileLocation = self.generateXml(exportParams)
