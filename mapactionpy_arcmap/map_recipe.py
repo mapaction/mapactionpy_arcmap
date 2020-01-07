@@ -19,4 +19,3 @@ class MapRecipe:
                 hasQueryColumnName = True
                 break
         return hasQueryColumnName
-

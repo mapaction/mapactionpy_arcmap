@@ -85,7 +85,7 @@ class ArcMapRunner:
             else:
                 raise Exception("Error: Could not derive layer config file from " + self.crashMoveFolder)
 
-        self.layerDefinition = LayerProperties(self.layerPropertiesFile)    
+        self.layerDefinition = LayerProperties(self.layerPropertiesFile)
 
         if self.layerDirectory is None:
             if self.cmf is not None:
@@ -259,14 +259,14 @@ class ArcMapRunner:
         #######################################################################################################
         if self.recipe.hasQueryColumnName:
             # Disable view of Affected Country
-            locationMapLayerName = "locationmap-s0-py-affectedcountry" # Hard-coded
-            layerDefinition = self.layerDefinition.properties.get(locationMapLayerName)            
+            locationMapLayerName = "locationmap-s0-py-affectedcountry"  # Hard-coded
+            layerDefinition = self.layerDefinition.properties.get(locationMapLayerName)
             locationMapDataFrameName = layerDefinition.mapFrame
-            locationMapDataFrame = arcpy.mapping.ListDataFrames(mxd, locationMapDataFrameName) [0]
+            locationMapDataFrame = arcpy.mapping.ListDataFrames(mxd, locationMapDataFrameName)[0]
             locationMapLyr = arcpy.mapping.ListLayers(mxd, locationMapLayerName, locationMapDataFrame)[0]
-            locationMapDataFrame.extent=locationMapLyr.getExtent()
+            locationMapDataFrame.extent = locationMapLyr.getExtent()
             locationMapLyr.visible = False
- 
+
             for layer in self.recipe.layers:
                 if (layer.get('columnName', None) is not None):
                     layerName = layer.get('name')
@@ -274,25 +274,25 @@ class ArcMapRunner:
                     fieldNames = [queryColumn]
                     # For each layer and column name, export a regional map
                     layerDefinition = self.layerDefinition.properties.get(layerName)
-                    df = arcpy.mapping.ListDataFrames(mxd, layerDefinition.mapFrame) [0]
+                    df = arcpy.mapping.ListDataFrames(mxd, layerDefinition.mapFrame)[0]
                     lyr = arcpy.mapping.ListLayers(mxd, layerName, df)[0]
 
-                    regions=list()
+                    regions = list()
                     with arcpy.da.UpdateCursor(lyr.dataSource, fieldNames) as cursor:
                         for row in cursor:
                             regions.append(row[0])
 
                     for region in regions:
                         dataFrameName = "Main map"
-                        df = arcpy.mapping.ListDataFrames(mxd, dataFrameName) [0]
+                        df = arcpy.mapping.ListDataFrames(mxd, dataFrameName)[0]
 
                         # Select hthe next region
-                        query="\"" + queryColumn + "\" = \'" + region + "\'"
+                        query = "\"" + queryColumn + "\" = \'" + region + "\'"
                         arcpy.SelectLayerByAttribute_management(lyr, "NEW_SELECTION", query)
 
                         # Get the extent of the selected area
                         df.extent = lyr.getSelectedExtent()
-                
+
                         # Create a polygon using the bounding box
                         array = arcpy.Array()
                         array.add(df.extent.lowerLeft)
@@ -307,16 +307,16 @@ class ArcMapRunner:
                         array.removeAll()
 
                         # Export the extent to a shapefile
-                        shapeFileName="extent_" + slugify(unicode(region)).replace('-', '')
+                        shapeFileName = "extent_" + slugify(unicode(region)).replace('-', '')
                         shpFile = shapeFileName + ".shp"
-                        
+
                         if arcpy.Exists(os.path.join(exportDirectory, shpFile)):
                             arcpy.Delete_management(os.path.join(exportDirectory, shpFile))
                         arcpy.CopyFeatures_management(polygon, os.path.join(exportDirectory, shpFile))
 
                         # For the 'extent' layer...
                         locationMapDataFrameName = "Location map"
-                        locationMapDataFrame = arcpy.mapping.ListDataFrames(mxd, locationMapDataFrameName) [0]
+                        locationMapDataFrame = arcpy.mapping.ListDataFrames(mxd, locationMapDataFrameName)[0]
                         extentLayerName = "locationmap-s0-py-extent"
                         extentLayer = arcpy.mapping.ListLayers(mxd, extentLayerName, locationMapDataFrame)[0]
 
@@ -326,7 +326,7 @@ class ArcMapRunner:
 
                         # In Main map, zoom to the selected region
                         dataFrameName = "Main map"
-                        df = arcpy.mapping.ListDataFrames(mxd, dataFrameName) [0]
+                        df = arcpy.mapping.ListDataFrames(mxd, dataFrameName)[0]
                         arcpy.SelectLayerByAttribute_management(lyr, "NEW_SELECTION", query)
                         df.extent = lyr.getSelectedExtent()
 
@@ -334,12 +334,13 @@ class ArcMapRunner:
                             if elm.name == "title":
                                 elm.text = self.recipe.category + " map of " + self.countryName +\
                                     '\n' +\
-                                    "<CLR red = '255'>Sheet - " + region + "</CLR>" 
+                                    "<CLR red = '255'>Sheet - " + region + "</CLR>"
                             if elm.name == "map_no":
                                 elm.text = self.recipe.mapnumber + "_Sheet_" + region.replace(' ', '_')
 
                         # Export to PDF
-                        pdfFileName = coreFileName + "-" + slugify(unicode(region)) + "-" +str(self.event.default_pdf_res_dpi) + "dpi.pdf"
+                        pdfFileName = coreFileName + "-" + \
+                            slugify(unicode(region)) + "-" + str(self.event.default_pdf_res_dpi) + "dpi.pdf"
                         pdfFileLocation = os.path.join(exportDirectory, pdfFileName)
 
                         arcpy.mapping.ExportToPDF(mxd, pdfFileLocation, resolution=int(self.event.default_pdf_res_dpi))
