@@ -140,7 +140,7 @@ class ArcMapRunner:
             os.mkdir(mapNumberDirectory)
 
         # Construct MXD name
-        mapFileName = slugify(productName)
+        mapFileName = slugify(unicode(productName))
         versionNumber = self.get_map_version_number(mapNumberDirectory, self.recipe.mapnumber, mapFileName)
         mapFileName = self.recipe.mapnumber + "-v" + str(versionNumber).zfill(2) + "_" + mapFileName + ".mxd"
         copiedFile = os.path.join(mapNumberDirectory, mapFileName)
@@ -307,7 +307,7 @@ class ArcMapRunner:
                         array.removeAll()
 
                         # Export the extent to a shapefile
-                        shapeFileName="extent_" + slugify(region).replace('-', '')
+                        shapeFileName="extent_" + slugify(unicode(region)).replace('-', '')
                         shpFile = shapeFileName + ".shp"
                         
                         if arcpy.Exists(os.path.join(exportDirectory, shpFile)):
@@ -339,7 +339,7 @@ class ArcMapRunner:
                                 elm.text = self.recipe.mapnumber + "_Sheet_" + region.replace(' ', '_')
 
                         # Export to PDF
-                        pdfFileName = coreFileName + "-" + slugify(region) + "-" +str(self.event.default_pdf_res_dpi) + "dpi.pdf"
+                        pdfFileName = coreFileName + "-" + slugify(unicode(region)) + "-" +str(self.event.default_pdf_res_dpi) + "dpi.pdf"
                         pdfFileLocation = os.path.join(exportDirectory, pdfFileName)
 
                         arcpy.mapping.ExportToPDF(mxd, pdfFileLocation, resolution=int(self.event.default_pdf_res_dpi))

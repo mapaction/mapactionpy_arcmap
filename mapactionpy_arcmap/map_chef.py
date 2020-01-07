@@ -388,7 +388,6 @@ class MapChef:
 
     def applyZoom(self, dataFrame, lyr, zoomMultiplier):
         if (zoomMultiplier != 0):
-            print ("Zooming to layer: " + lyr.name)
             buffer = zoomMultiplier
             arcpy.env.overwriteOutput = "True"
             extent = lyr.getExtent(True)  # visible extent of layer
