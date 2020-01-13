@@ -7,7 +7,7 @@ from map_report import MapReport
 from map_result import MapResult
 from mapactionpy_controller.event import Event
 from mapactionpy_controller.crash_move_folder import CrashMoveFolder
-# from mapactionpy_controller.name_convention import NamingConvention
+from mapactionpy_controller.name_convention import NamingConvention
 from layer_properties import LayerProperties
 from datetime import datetime
 
@@ -34,7 +34,6 @@ class MapChef:
            versionNumber {int} -- version number of map
         """
         self.mxd = mxd
-
         self.layerPropertiesJsonFile = layerPropertiesJsonFile
         self.cookbookJsonFile = cookbookJsonFile
         self.crashMoveFolder = crashMoveFolder
@@ -224,12 +223,12 @@ class MapChef:
                     if (added is True):
                         if addToLegend is False:
                             self.legendEntriesToRemove.append(lyr.name)
-                            # if (self.namingConvention is not None):
-                            # dnr = self.namingConvention.validate(datasetName)
-                            # We want to capture Description:
-                            # if 'Description' in dnr.source._fields:
-                            #    if (dnr.source.Description.lower() not in ('unknown', 'undefined', 'mapaction')):
-                            #        self.dataSources.add(dnr.source.Description)
+                            if (self.namingConvention is not None):
+                                dnr = self.namingConvention.validate(datasetName)
+                                # We want to capture Description:
+                                if 'Description' in dnr.source._fields:
+                                    if (dnr.source.Description.lower() not in ('unknown', 'undefined', 'mapaction')):
+                                        self.dataSources.add(dnr.source.Description)
 
                         if (self.replaceDataSourceOnly):
                             self.mxd.save()
@@ -506,7 +505,6 @@ class MapChef:
                         mapResult.message = "Layer added successfully"
                         mapResult.added = True
                         mapResult.dataSource = dataFile.replace("\\", "/")
-                        self.mxd.save()
                         break
                     except Exception:
                         pass

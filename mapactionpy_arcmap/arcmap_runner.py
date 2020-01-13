@@ -106,7 +106,6 @@ class ArcMapRunner:
                             self.crashMoveFolder, self.layerDirectory, self.versionNumber)
         self.chef.cook(self.productName, self.countryName, self.replaceOnly)
         self.chef.alignLegend(self.orientation)
-        del mxd
         reportJson = self.chef.report()
         print(reportJson)
 
