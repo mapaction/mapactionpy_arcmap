@@ -337,6 +337,8 @@ class ArcMapRunner:
                             if elm.name == "map_no":
                                 elm.text = self.recipe.mapnumber + "_Sheet_" + region.replace(' ', '_')
 
+                        # Clear selection, otherwise the selected feature is highlighted in the exported map        
+                        arcpy.SelectLayerByAttribute_management(lyr, "CLEAR_SELECTION")
                         # Export to PDF
                         pdfFileName = coreFileName + "-" + \
                             slugify(unicode(region)) + "-" + str(self.event.default_pdf_res_dpi) + "dpi.pdf"
