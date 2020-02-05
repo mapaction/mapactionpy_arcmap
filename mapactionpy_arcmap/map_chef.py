@@ -7,7 +7,7 @@ from map_report import MapReport
 from map_result import MapResult
 from mapactionpy_controller.event import Event
 from mapactionpy_controller.crash_move_folder import CrashMoveFolder
-from mapactionpy_controller.name_convention import NamingConvention
+#from mapactionpy_controller.name_convention import NamingConvention
 from layer_properties import LayerProperties
 from datetime import datetime
 
