@@ -203,7 +203,7 @@ class ArcMapRunner:
         # Accumulate parameters for export XML
         exportParams = {}
         versionString = "v" + str(self.versionNumber).zfill(2)
-        exportDirectory = os.path.join(self.cmf.export_dir, self.mapNumber, versionString)
+        exportDirectory = os.path.join(self.cmf.export_dir, self.mapNumber, versionString).replace('/', '\\')
         exportParams["exportDirectory"] = exportDirectory
         try:
             os.makedirs(exportDirectory)
