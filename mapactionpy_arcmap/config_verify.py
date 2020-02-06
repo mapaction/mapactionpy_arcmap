@@ -34,7 +34,7 @@ def get_unique_lyr_names(cookbook, lyr_props, lyr_dir):
 
     for recipe in cookbook.get_products():
         for l in recipe.layers:
-            cb_unique_lyrs.add(l)
+            cb_unique_lyrs.add(l.name)
 
     for l in lyr_props.properties:
         lp_unique_lyrs.add(l.layerName)
@@ -70,7 +70,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description='This tool checks the internal self-consistex`ncy of the cookbook file, layerProperties file and the' # noqa
+        description='This tool checks the internal self-consistency of the cookbook file, layerProperties file and the'  # noqa
                     ' layerfiles within the layerDirectory'
     )
     parser.add_argument("-b", "--cookbook", dest="cookbookFile", required=True,
