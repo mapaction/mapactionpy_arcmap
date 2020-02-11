@@ -422,8 +422,8 @@ class ArcMapRunner:
         if (language is not None):
             row["language"] = language.name
         else:
-            row["language"] = None    
-
+            row["language"] = None
+            
         row["createdate"] = None
         row["createtime"] = None
         row["summary"] = None
