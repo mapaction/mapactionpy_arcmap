@@ -106,8 +106,11 @@ class ArcMapRunner:
                             self.crashMoveFolder, self.layerDirectory, self.versionNumber)
         self.chef.cook(self.productName, self.countryName, self.replaceOnly)
         self.chef.alignLegend(self.orientation)
-        reportJson = self.chef.report()
-        print(reportJson)
+
+        # Output the Map Generation report alongside the MXD
+        reportJsonFile = self.mxdTemplate.replace(".mxd", ".json")
+        with open(reportJsonFile, 'w') as outfile:
+            outfile.write(self.chef.report())
 
     def get_template(self, orientation, cookbookFile, crashMoveFolder, productName):
         arcGisVersion = crashMoveFolder.arcgis_version
@@ -416,8 +419,10 @@ class ArcMapRunner:
 
         row["language-iso2"] = self.event.language_iso2
         language = pycountry.languages.get(alpha_2=self.event.language_iso2)
-        row["language"] = language.name
-
+        if (language is not None):
+            row["language"] = language.name
+        else:
+            row["language"] = None
         row["createdate"] = None
         row["createtime"] = None
         row["summary"] = None
