@@ -419,7 +419,10 @@ class ArcMapRunner:
 
         row["language-iso2"] = self.event.language_iso2
         language = pycountry.languages.get(alpha_2=self.event.language_iso2)
-        row["language"] = language.name
+        if (language is not None):
+            row["language"] = language.name
+        else:
+            row["language"] = None    
 
         row["createdate"] = None
         row["createtime"] = None
