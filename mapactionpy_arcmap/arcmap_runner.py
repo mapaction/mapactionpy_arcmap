@@ -423,7 +423,6 @@ class ArcMapRunner:
             row["language"] = language.name
         else:
             row["language"] = None
-            
         row["createdate"] = None
         row["createtime"] = None
         row["summary"] = None
