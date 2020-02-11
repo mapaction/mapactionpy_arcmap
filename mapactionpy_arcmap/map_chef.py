@@ -5,6 +5,7 @@ import re
 from map_cookbook import MapCookbook
 from map_report import MapReport
 from map_result import MapResult
+from data_source import DataSource
 from mapactionpy_controller.event import Event
 from mapactionpy_controller.crash_move_folder import CrashMoveFolder
 # from mapactionpy_controller.name_convention import NamingConvention
@@ -466,7 +467,9 @@ class MapChef:
                         newLayer.replaceDataSource(dataDirectory, datasetType, datasetName)
                         mapResult.message = "Layer updated successfully"
                         mapResult.added = True
-                        mapResult.dataSource = dataFile.replace("\\", "/")
+                        ds = DataSource(dataFile)
+                        mapResult.dataSource = dataFile.replace("\\", "/").replace(self.crashMoveFolder.replace("\\", "/"), "")
+                        mapResult.hash = ds.calculate_checksum()
                         break
                     except Exception:
                         pass
@@ -504,7 +507,9 @@ class MapChef:
                         layerToAdd.replaceDataSource(dataDirectory, datasetType, datasetName)
                         mapResult.message = "Layer added successfully"
                         mapResult.added = True
-                        mapResult.dataSource = dataFile.replace("\\", "/")
+                        ds = DataSource(dataFile)
+                        mapResult.dataSource = dataFile.replace("\\", "/").replace(self.crashMoveFolder.replace("\\", "/"), "")
+                        mapResult.hash = ds.calculate_checksum()
                         break
                     except Exception:
                         pass
@@ -553,11 +558,16 @@ class MapChef:
                                                           layerProperties.labelClasses,
                                                           self.countryName,
                                                           layerProperties.addToLegend)
-                    mapResult.dataSource = geoDatabase + os.sep + raster
+
+                    dataFile= geoDatabase + os.sep + raster
+                    ds = DataSource(dataFile)
+                    mapResult.dataSource = dataFile.replace("\\", "/").replace(self.crashMoveFolder.replace("\\", "/"), "")
+                    mapResult.hash = ds.calculate_checksum()
                     break
             featureClasses = arcpy.ListFeatureClasses()
             for featureClass in featureClasses:
                 if re.match(parts[1], featureClass):
+                    # Found Geodatabase.  Stop iterating.
                     self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, layerProperties.mapFrame)[0]
                     mapResult.added = self.addDataToLayer(self.dataFrame,
                                                           geoDatabase,
@@ -567,8 +577,10 @@ class MapChef:
                                                           layerProperties.labelClasses,
                                                           self.countryName,
                                                           layerProperties.addToLegend)
-                    mapResult.dataSource = geoDatabase + os.sep + featureClass
-                    # Found Geodatabase.  Stop iterating.
+                    dataFile = geoDatabase + os.sep + featureClass
+                    ds = DataSource(dataFile)
+                    mapResult.dataSource = dataFile.replace("\\", "/").replace(self.crashMoveFolder.replace("\\", "/"), "")
+                    mapResult.hash = ds.calculate_checksum()
                     break
 
         return mapResult

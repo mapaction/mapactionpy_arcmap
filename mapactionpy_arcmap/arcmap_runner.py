@@ -106,8 +106,11 @@ class ArcMapRunner:
                             self.crashMoveFolder, self.layerDirectory, self.versionNumber)
         self.chef.cook(self.productName, self.countryName, self.replaceOnly)
         self.chef.alignLegend(self.orientation)
-        reportJson = self.chef.report()
-        print(reportJson)
+        
+        # Output the Map Generation report alongside the MXD
+        reportJsonFile=self.mxdTemplate.replace(".mxd", ".json")
+        with open(reportJsonFile, 'w') as outfile:
+            outfile.write(self.chef.report())
 
     def get_template(self, orientation, cookbookFile, crashMoveFolder, productName):
         arcGisVersion = crashMoveFolder.arcgis_version
