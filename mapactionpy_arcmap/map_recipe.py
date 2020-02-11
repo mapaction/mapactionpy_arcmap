@@ -15,7 +15,6 @@ class MapRecipe:
     def containsQueryColumn(self):
         hasQueryColumnName = False
         for layer in self.layers:
-            #if (layer['columnName'] is not None):
             if (layer.get('columnName', None) is not None):
                 hasQueryColumnName = True
                 break

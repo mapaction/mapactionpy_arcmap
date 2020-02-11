@@ -2,6 +2,7 @@ import os
 import hashlib
 import glob
 
+
 class DataSource:
     def __init__(self, pathToDataSource):
         self.parts = list()
@@ -20,7 +21,7 @@ class DataSource:
         return hash.hexdigest()
 
     def constituentParts(self, fileName):
-        paths_to_hash=list()
+        paths_to_hash = list()
         directoryName = os.path.dirname(fileName)
         baseName = os.path.basename(fileName)
         root, ext = os.path.splitext(baseName)

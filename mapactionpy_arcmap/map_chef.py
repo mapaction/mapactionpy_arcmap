@@ -468,7 +468,7 @@ class MapChef:
                         mapResult.message = "Layer updated successfully"
                         mapResult.added = True
                         ds = DataSource(dataFile)
-                        mapResult.dataSource = dataFile.replace("\\", "/").replace(self.crashMoveFolder.replace("\\", "/"), "")
+                        mapResult.dataSource = dataFile.replace("\\", "/").replace(self.crashMoveFolder.replace("\\", "/"), "")   # noqa
                         mapResult.hash = ds.calculate_checksum()
                         break
                     except Exception:
@@ -508,7 +508,7 @@ class MapChef:
                         mapResult.message = "Layer added successfully"
                         mapResult.added = True
                         ds = DataSource(dataFile)
-                        mapResult.dataSource = dataFile.replace("\\", "/").replace(self.crashMoveFolder.replace("\\", "/"), "")
+                        mapResult.dataSource = dataFile.replace("\\", "/").replace(self.crashMoveFolder.replace("\\", "/"), "")   # noqa
                         mapResult.hash = ds.calculate_checksum()
                         break
                     except Exception:
@@ -559,9 +559,9 @@ class MapChef:
                                                           self.countryName,
                                                           layerProperties.addToLegend)
 
-                    dataFile= geoDatabase + os.sep + raster
+                    dataFile = geoDatabase + os.sep + raster
                     ds = DataSource(dataFile)
-                    mapResult.dataSource = dataFile.replace("\\", "/").replace(self.crashMoveFolder.replace("\\", "/"), "")
+                    mapResult.dataSource = dataFile.replace("\\", "/").replace(self.crashMoveFolder.replace("\\", "/"), "")  # noqa
                     mapResult.hash = ds.calculate_checksum()
                     break
             featureClasses = arcpy.ListFeatureClasses()
@@ -579,7 +579,7 @@ class MapChef:
                                                           layerProperties.addToLegend)
                     dataFile = geoDatabase + os.sep + featureClass
                     ds = DataSource(dataFile)
-                    mapResult.dataSource = dataFile.replace("\\", "/").replace(self.crashMoveFolder.replace("\\", "/"), "")
+                    mapResult.dataSource = dataFile.replace("\\", "/").replace(self.crashMoveFolder.replace("\\", "/"), "")  # noqa
                     mapResult.hash = ds.calculate_checksum()
                     break
 
