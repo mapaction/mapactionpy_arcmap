@@ -1,5 +1,6 @@
 import arcpy
 import argparse
+import json
 import decimal
 import errno
 import glob
@@ -13,6 +14,7 @@ from zipfile import ZipFile
 from resizeimage import resizeimage
 from map_chef import MapChef
 from map_cookbook import MapCookbook
+from data_source import DataSource
 from layer_properties import LayerProperties
 from mapactionpy_controller.crash_move_folder import CrashMoveFolder
 from mapactionpy_controller.event import Event
@@ -95,22 +97,24 @@ class ArcMapRunner:
 
     def generate(self):
         # Construct a Crash Move Folder object if the cmf_description.json exists
-
+        generationRequired = False
         if self.mxdTemplate is None:
             self.orientation = self.get_orientation(self.countryName)
-            self.mxdTemplate, self.mapNumber, self.versionNumber = self.get_template(
+            self.mxdTemplate, self.mapNumber, self.versionNumber, generationRequired = self.get_template(
                 self.orientation, self.cookbookFile, self.cmf, self.productName)
-        mxd = arcpy.mapping.MapDocument(self.mxdTemplate)
+        if (generationRequired):
+            mxd = arcpy.mapping.MapDocument(self.mxdTemplate)
 
-        self.chef = MapChef(mxd, self.cookbookFile, self.layerPropertiesFile,
-                            self.crashMoveFolder, self.layerDirectory, self.versionNumber)
-        self.chef.cook(self.productName, self.countryName, self.replaceOnly)
-        self.chef.alignLegend(self.orientation)
+            self.chef = MapChef(mxd, self.cookbookFile, self.layerPropertiesFile,
+                                self.crashMoveFolder, self.layerDirectory, self.versionNumber)
+            self.chef.cook(self.productName, self.countryName, self.replaceOnly)
+            self.chef.alignLegend(self.orientation)
 
-        # Output the Map Generation report alongside the MXD
-        reportJsonFile = self.mxdTemplate.replace(".mxd", ".json")
-        with open(reportJsonFile, 'w') as outfile:
-            outfile.write(self.chef.report())
+            # Output the Map Generation report alongside the MXD
+            reportJsonFile = self.mxdTemplate.replace(".mxd", ".json")
+            with open(reportJsonFile, 'w') as outfile:
+                outfile.write(self.chef.report())
+        return generationRequired
 
     def get_template(self, orientation, cookbookFile, crashMoveFolder, productName):
         arcGisVersion = crashMoveFolder.arcgis_version
@@ -144,14 +148,38 @@ class ArcMapRunner:
         # Construct MXD name
         mapFileName = slugify(unicode(productName))
         versionNumber = self.get_map_version_number(mapNumberDirectory, self.recipe.mapnumber, mapFileName)
-        mapFileName = self.recipe.mapnumber + "-v" + str(versionNumber).zfill(2) + "_" + mapFileName + ".mxd"
-        copiedFile = os.path.join(mapNumberDirectory, mapFileName)
-        copyfile(srcTemplateFile, copiedFile)
-        return copiedFile, self.recipe.mapnumber, versionNumber
+        previousReportFile = self.recipe.mapnumber + "-v" + str((versionNumber-1)).zfill(2) + "_" + mapFileName + ".json"  # noqa
+        copiedFile = "NOT SET"
+        generationRequired = True
+        if (os.path.exists(os.path.join(mapNumberDirectory, previousReportFile))):
+            generationRequired = self.haveDataSourcesChanged(os.path.join(mapNumberDirectory, previousReportFile))
+
+        if (generationRequired is True):
+            mapFileName = self.recipe.mapnumber + "-v" + str(versionNumber).zfill(2) + "_" + mapFileName + ".mxd"
+            copiedFile = os.path.join(mapNumberDirectory, mapFileName)
+            copyfile(srcTemplateFile, copiedFile)
+
+        return copiedFile, self.recipe.mapnumber, versionNumber, generationRequired
+
+    def haveDataSourcesChanged(self, previousReportFile):
+        returnValue = False
+        with open(previousReportFile, 'r') as myfile:
+            data = myfile.read()
+            # parse file
+            obj = json.loads(data)
+            for result in obj['results']:
+                dataFile = os.path.join(self.event.cmf_descriptor_path, (result['dataSource'].strip('/')))
+                previousHash = result['hash']
+                ds = DataSource(dataFile)
+                latestHash = ds.calculate_checksum()
+                if (latestHash != previousHash):
+                    returnValue = True
+                    break
+        return returnValue
 
     def get_map_version_number(self, mapNumberDirectory, mapNumber, mapFileName):
         versionNumber = 0
-        files = glob.glob(mapNumberDirectory + "/" + mapNumber+'-v[0-9][0-9]_' + mapFileName + '.mxd')
+        files = glob.glob(mapNumberDirectory + os.sep + mapNumber+'-v[0-9][0-9]_' + mapFileName + '.mxd')
         for file in files:
             versionNumber = int(os.path.basename(file).replace(mapNumber + '-v', '').replace(('_' + mapFileName+'.mxd'), ''))  # noqa
         versionNumber = versionNumber + 1
@@ -530,6 +558,8 @@ if __name__ == '__main__':
                           args.productName,
                           args.countryName,
                           orientation)
-    runner.generate()
-    if (args.export):
+    productGenerated = runner.generate()
+    if (productGenerated and args.export):
         runner.export()
+    else:
+        print("No product generated.  No changes since last execution.")
