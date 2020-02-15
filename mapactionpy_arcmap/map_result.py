@@ -20,3 +20,4 @@ class MapResult:
         self.dateStamp = now.strftime("%d/%m/%Y %H:%M:%S")
         self.added = False
         self.message = ""
+        self.hash = ""

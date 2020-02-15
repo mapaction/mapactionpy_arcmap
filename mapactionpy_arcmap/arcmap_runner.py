@@ -169,7 +169,7 @@ class ArcMapRunner:
             obj = json.loads(data)
             for result in obj['results']:
                 dataFile = os.path.join(self.event.cmf_descriptor_path, (result['dataSource'].strip('/')))
-                previousHash = result['hash']
+                previousHash = result.get('hash', "")
                 ds = DataSource(dataFile)
                 latestHash = ds.calculate_checksum()
                 if (latestHash != previousHash):
