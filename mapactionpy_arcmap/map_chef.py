@@ -614,7 +614,7 @@ class MapChef:
         if (orientation.lower() == "landscape"):
             position = "side"
         jpegPath = os.path.join(self.cmfConfig.legend_images, mapNumber + "_" + orientation + "_" + position + ".jpg")
-        
+
         if os.path.exists(jpegPath) and (self.hasElement("PICTURE_ELEMENT", imageElementName)):
             self.setPictureElement(imageElementName, jpegPath)
 
