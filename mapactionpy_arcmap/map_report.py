@@ -4,7 +4,7 @@ class MapReport:
     Contains overall summary and a status for each layer.
     """
 
-    def __init__(self, productName):
+    def __init__(self, productName, summary=None):
         """
         Initialise to success for the product
 

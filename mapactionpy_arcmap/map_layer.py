@@ -12,7 +12,6 @@ class MapLayer:
         self.layerName = row["LayerName"]
         self.regExp = row["RegExp"]
         self.definitionQuery = row["DefinitionQuery"]
-        self.display = row["Display"]
         self.addToLegend = row["AddToLegend"]
         self.labelClasses = list()
         for labelClass in row["LabelClasses"]:

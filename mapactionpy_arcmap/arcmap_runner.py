@@ -14,10 +14,12 @@ from zipfile import ZipFile
 from resizeimage import resizeimage
 from map_chef import MapChef
 from map_cookbook import MapCookbook
+from map_report import MapReport
 from data_source import DataSource
 from layer_properties import LayerProperties
 from mapactionpy_controller.crash_move_folder import CrashMoveFolder
 from mapactionpy_controller.event import Event
+import jsonpickle
 from map_doc import MapDoc
 from map_data import MapData
 
@@ -96,25 +98,27 @@ class ArcMapRunner:
                 raise Exception("Error: Could not derive layer rendering directory from " + self.crashMoveFolder)
 
     def generate(self):
-        # Construct a Crash Move Folder object if the cmf_description.json exists
-        generationRequired = False
-        if self.mxdTemplate is None:
-            self.orientation = self.get_orientation(self.countryName)
-            self.mxdTemplate, self.mapNumber, self.versionNumber, generationRequired = self.get_template(
-                self.orientation, self.cookbookFile, self.cmf, self.productName)
+        # Construct a Crash Move Folder object if the cmf_description.json exists        if self.mxdTemplate is None:
+        self.orientation = self.get_orientation(self.countryName)
+        self.mxdTemplate, self.mapNumber, self.versionNumber, generationRequired = self.get_template(
+            self.orientation, self.cookbookFile, self.cmf, self.productName)
+        self.replaceOnly = True
         if (generationRequired):
             mxd = arcpy.mapping.MapDocument(self.mxdTemplate)
 
             self.chef = MapChef(mxd, self.cookbookFile, self.layerPropertiesFile,
                                 self.crashMoveFolder, self.layerDirectory, self.versionNumber)
             self.chef.cook(self.productName, self.countryName, self.replaceOnly)
-            self.chef.alignLegend(self.orientation)
-
-            # Output the Map Generation report alongside the MXD
-            reportJsonFile = self.mxdTemplate.replace(".mxd", ".json")
-            with open(reportJsonFile, 'w') as outfile:
-                outfile.write(self.chef.report())
+            self.chef.addLegendJpeg(self.mapNumber, self.orientation)
+            
+            self.output_report(self.chef.report())
         return generationRequired
+
+    def output_report(self, report):
+        # Output the Map Generation report alongside the MXD
+        reportJsonFile = self.mxdTemplate.replace(".mxd", ".json")
+        with open(reportJsonFile, 'w') as outfile:
+            outfile.write(report)
 
     def get_template(self, orientation, cookbookFile, crashMoveFolder, productName):
         arcGisVersion = crashMoveFolder.arcgis_version
@@ -154,9 +158,9 @@ class ArcMapRunner:
         if (os.path.exists(os.path.join(mapNumberDirectory, previousReportFile))):
             generationRequired = self.haveDataSourcesChanged(os.path.join(mapNumberDirectory, previousReportFile))
 
+        mapFileName = self.recipe.mapnumber + "-v" + str(versionNumber).zfill(2) + "_" + mapFileName + ".mxd"
+        copiedFile = os.path.join(mapNumberDirectory, mapFileName)
         if (generationRequired is True):
-            mapFileName = self.recipe.mapnumber + "-v" + str(versionNumber).zfill(2) + "_" + mapFileName + ".mxd"
-            copiedFile = os.path.join(mapNumberDirectory, mapFileName)
             copyfile(srcTemplateFile, copiedFile)
 
         return copiedFile, self.recipe.mapnumber, versionNumber, generationRequired
@@ -559,7 +563,11 @@ if __name__ == '__main__':
                           args.countryName,
                           orientation)
     productGenerated = runner.generate()
-    if (productGenerated and args.export):
-        runner.export()
+
+    if (not productGenerated):
+        report = MapReport(args.productName, None)
+        report.summary = "No product generated.  No changes since last execution."
+        runner.output_report(jsonpickle.encode(report, unpicklable=False))
     else:
-        print("No product generated.  No changes since last execution.")
+        if (args.export):
+            runner.export()

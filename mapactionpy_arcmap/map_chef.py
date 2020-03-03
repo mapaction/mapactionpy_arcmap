@@ -140,15 +140,38 @@ class MapChef:
                     arcpy.mapping.RemoveLayer(df, lyr)
         self.mxd.save()
 
+    def removeLayersNotInRecipe(self):
+        """
+        Removes layers which are not listed in the recipe
+        """
+        save = False
+        recipe = self.cookbook.products.get(self.productName, None)
+        if (recipe is not None):
+            recipeLayerName=list()
+            for layer in recipe.layers:
+                recipeLayerName.append(layer['name'])
+            for df in arcpy.mapping.ListDataFrames(self.mxd):
+                for lyr in arcpy.mapping.ListLayers(self.mxd, "", df):
+                    if (not lyr.isGroupLayer):
+                        if (lyr.name not in recipeLayerName):
+                            arcpy.mapping.RemoveLayer(df, lyr)
+                            save = True
+        if (save):
+            self.mxd.save()
+
     def cook(self, productName, countryName, replaceDataSourceOnly=False):
         self.countryName = countryName
         self.replaceDataSourceOnly = replaceDataSourceOnly
         arcpy.env.addOutputsToMap = False
-        if not replaceDataSourceOnly:
+        self.productName = productName
+        if replaceDataSourceOnly:
+            self.removeLayersNotInRecipe()
+        else:
             self.disableLayers()
             self.removeLayers()
-        self.mapReport = MapReport(productName)
-        recipe = self.cookbook.products.get(productName, None)
+        self.mapReport = MapReport(productName, 
+                                    self.mxd.filePath.replace("\\", "/").replace(self.crashMoveFolder.replace("\\", "/"), ""))  # noqa
+        recipe = self.cookbook.products.get(self.productName, None)
         if (recipe is not None):
             self.export = recipe.export
             if (len(recipe.summary) > 0):
@@ -389,7 +412,7 @@ class MapChef:
     def applyZoom(self, dataFrame, lyr, zoomMultiplier):
         if (zoomMultiplier != 0):
             buffer = zoomMultiplier
-            arcpy.env.overwriteOutput = "True"
+            arcpy.env.overwriteOutput = True
             extent = lyr.getExtent(True)  # visible extent of layer
 
             extBuffDist = ((int(abs(extent.lowerLeft.X - extent.lowerRight.X))) * buffer)
@@ -584,3 +607,35 @@ class MapChef:
                     break
 
         return mapResult
+
+    def addLegendJpeg(self, mapNumber, orientation):
+        imageElementName = "legend_jpg"
+        position="bottom"
+        if (orientation.lower() == "landscape"):
+            position="side"
+
+        jpegPath=os.path.join(self.cmfConfig.legend_images, mapNumber + "_" + orientation + "_" + position + ".jpg")
+        
+        if os.path.exists(jpegPath) and (self.hasElement("PICTURE_ELEMENT", imageElementName)):
+            self.setPictureElement(imageElementName, jpegPath)
+
+
+    def hasElement(self, elementType, elementName):
+        result = False
+        for elm in arcpy.mapping.ListLayoutElements(self.mxd, elementType):
+            if (elm.name == elementName):
+                result = True
+                break
+        return result
+
+
+    def setPictureElement(self, elementName, imagePath):
+        result = False
+        for elm in arcpy.mapping.ListLayoutElements(self.mxd, "PICTURE_ELEMENT"):
+            if (elm.name == elementName):
+                elm.sourceImage = imagePath
+                self.mxd.save()
+                result = True
+                break
+        return result
+        
