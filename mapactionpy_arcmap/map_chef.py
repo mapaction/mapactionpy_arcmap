@@ -147,7 +147,7 @@ class MapChef:
         save = False
         recipe = self.cookbook.products.get(self.productName, None)
         if (recipe is not None):
-            recipeLayerName=list()
+            recipeLayerName = list()
             for layer in recipe.layers:
                 recipeLayerName.append(layer['name'])
             for df in arcpy.mapping.ListDataFrames(self.mxd):
@@ -169,7 +169,7 @@ class MapChef:
         else:
             self.disableLayers()
             self.removeLayers()
-        self.mapReport = MapReport(productName, 
+        self.mapReport = MapReport(productName,
                                     self.mxd.filePath.replace("\\", "/").replace(self.crashMoveFolder.replace("\\", "/"), ""))  # noqa
         recipe = self.cookbook.products.get(self.productName, None)
         if (recipe is not None):
@@ -610,15 +610,13 @@ class MapChef:
 
     def addLegendJpeg(self, mapNumber, orientation):
         imageElementName = "legend_jpg"
-        position="bottom"
+        position = "bottom"
         if (orientation.lower() == "landscape"):
-            position="side"
-
-        jpegPath=os.path.join(self.cmfConfig.legend_images, mapNumber + "_" + orientation + "_" + position + ".jpg")
+            position = "side"
+        jpegPath = os.path.join(self.cmfConfig.legend_images, mapNumber + "_" + orientation + "_" + position + ".jpg")
         
         if os.path.exists(jpegPath) and (self.hasElement("PICTURE_ELEMENT", imageElementName)):
             self.setPictureElement(imageElementName, jpegPath)
-
 
     def hasElement(self, elementType, elementName):
         result = False
@@ -627,7 +625,6 @@ class MapChef:
                 result = True
                 break
         return result
-
 
     def setPictureElement(self, elementName, imagePath):
         result = False
@@ -638,4 +635,3 @@ class MapChef:
                 result = True
                 break
         return result
-        

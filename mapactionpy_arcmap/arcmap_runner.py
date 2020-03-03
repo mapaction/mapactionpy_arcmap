@@ -110,7 +110,6 @@ class ArcMapRunner:
                                 self.crashMoveFolder, self.layerDirectory, self.versionNumber)
             self.chef.cook(self.productName, self.countryName, self.replaceOnly)
             self.chef.addLegendJpeg(self.mapNumber, self.orientation)
-            
             self.output_report(self.chef.report())
         return generationRequired
 
