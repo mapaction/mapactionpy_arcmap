@@ -1,11 +1,19 @@
+# TODO: asmith 2020/03/04
+# This whole file should be moved to the mapactionpy_controller module.
 from xml.etree.ElementTree import Element, SubElement, tostring
 import xml.dom.minidom
 
 
 class MapDoc:
+    # TODO: asmith 2020/03/04
+    # See the MapData class for comments about that class. I would suggest that this constructor
+    # should accept it's parameters without requiring a MapData object. Possiblt as kwargs, meaning
+    # that a dict could be directly passed to it.
     def __init__(self, mapdata):
         self.mapdata = mapdata
 
+    # TODO: asmith 2020/03/04
+    # This method name need a verb in it. to_xml() or something like that?
     def xml(self):
         mapDoc = Element('mapdoc')
 

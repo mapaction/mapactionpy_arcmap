@@ -1,3 +1,5 @@
+# TODO: asmith 2020/03/04
+# This whole file should be moved to the mapactionpy_controller module.
 from MapCookbook import MapCookbook
 from LayerProperties import LayerProperties
 import os
@@ -67,7 +69,9 @@ def main(args):
         if in_cookbook:
             print("\t".join(map(str, (in_cookbook, in_lyr_props, in_lyr_dir, l))))
 
-
+# TODO: asmith 2020/03/04
+# This commandline interface and arg parser should be merged with other commandline interfaces 
+# such as the one in mapactionpy_controller.check_naming_convention.py
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='This tool checks the internal self-consistency of the cookbook file, layerProperties file and the'  # noqa
