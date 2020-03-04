@@ -3,10 +3,12 @@
 # 1) I'm afraid I do not understand the purpose/value of this class. The only place I can see it is
 # used is in ArcMapRunner.export(). The export() method builds up a dict containing the various bits
 # of metadata which gets past to the constructor to MapData and then the MapData object gets past to
-# the MapDoc object. Is there a reason why the ArcMapRunner.export() method couldn't pass its dict 
+# the MapDoc object. Is there a reason why the ArcMapRunner.export() method couldn't pass its dict
 # directly to the MapDoc constructor (possibly as kwargs)?
-# 
+#
 # 2) If this file is to be kept then it should be moved to the mapactionpy_controller module.
+
+
 class MapData:
     def __init__(self, row):
         # Constructor.  Creates an instance of MapData for the Export XML

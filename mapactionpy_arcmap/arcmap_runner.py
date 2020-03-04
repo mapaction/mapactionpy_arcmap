@@ -28,7 +28,7 @@ class ArcMapRunner:
     """
 
     # TODO: asmith 2020/03/03
-    # 
+    #
     # 1) I think that this constructor could be made much simpler by only requiring either
     # an Event object or an event_description.json file. Nearly all of the other parameters
     # could be detrived from oue of those.
@@ -36,15 +36,15 @@ class ArcMapRunner:
     # 2) If the path to the event_description.json file is used, make it the path to the file
     # itself and not the containing directory. That would avoid the need to hardcode the filename
     # of the event_description.json file.
-    # 
-    # 3) Would it be appropriate for the Event object to handle the orientation parameter? It there 
+    #
+    # 3) Would it be appropriate for the Event object to handle the orientation parameter? It there
     # a use case where this would need to be overriden on a case by case basis?
     #
     # 4) I do not see the need for the ArcMapRunner to have it's own members which duplicate those
     # of the Event obejct or the CMF object. Eg. `myrunner.cmf.layer_properties` is fine.
     #
     # 5) If there is a case for allowing the user to manaually specify or override all of the values
-    # that are typically included in the cmf_description.json file and/or the event_description.json 
+    # that are typically included in the cmf_description.json file and/or the event_description.json
     # file than the wrangling and validation of those commandline args should be done outside of this
     # class and in the mapactionpy_controller module.
     def __init__(self,
@@ -88,7 +88,7 @@ class ArcMapRunner:
         if os.path.exists(self.eventFilePath):
             self.event = Event(self.eventFilePath)
             # TODO: asmith 2020/03/03
-            # `os.path.join` is not required here. The Event object gaurentees that 
+            # `os.path.join` is not required here. The Event object gaurentees that
             # `self.event.cmf_descriptor_path` is the fully qualified path to the file itself
             # not the parent directory.
             self.cmf = CrashMoveFolder(os.path.join(self.event.cmf_descriptor_path, "cmf_description.json"))
@@ -134,7 +134,7 @@ class ArcMapRunner:
         #   * As far as I can see this object encapsulates the properties of multiple layers
         #     (not merely multiple properties of a single layer).
         #   * Also `layerDefinition` is easily confussed with the DefinitionQuery of a layer (which
-        #     it's not). 
+        #     it's not).
         self.layerDefinition = LayerProperties(self.layerPropertiesFile)
 
         if self.layerDirectory is None:
@@ -143,10 +143,10 @@ class ArcMapRunner:
             else:
                 raise Exception("Error: Could not derive layer rendering directory from " + self.crashMoveFolder)
 
-
     # TODO: asmith 2020/03/03
-    # method name is unclear. Generate what? How does this relate to 
-    # the `generateXml` method? 
+    # method name is unclear. Generate what? How does this relate to
+    # the `generateXml` method?
+
     def generate(self):
         # Construct a Crash Move Folder object if the cmf_description.json exists
         generationRequired = False
@@ -171,14 +171,14 @@ class ArcMapRunner:
     # TODO: asmith 2020/03/03
     # There is a lot going on in this method and I'm not sure I understand all of it. However here
     # are some thoughts:
-    # 
-    # 1) If the MapCookbook class had a method that validated the existance of all of the 
+    #
+    # 1) If the MapCookbook class had a method that validated the existance of all of the
     # templates it refers to then this method could be simplied somewhat. eg `self.recipe.template_mxd`
     # This would also make it simpler for the Cookbook to be tested/validated earlier and without
     # requiring any data; See https://wiki.mapaction.org/display/orgdev/Automatable+tests+of+CMF+contents
     #
     # 2) Why is the arcGisVersion required? Is this just to navigate the naming convention for mxd templates?
-    # Would it be appropriate and/or simpler to ammend the name of the template files? They are already in a 
+    # Would it be appropriate and/or simpler to ammend the name of the template files? They are already in a
     # dir called 'arcgis_10_6'. Or is there another arcpy related reason why it is required? Without it, it
     # would be possible to move this whole method over to the controller where it could be re-used for the
     # QGIS implenmentation.
@@ -242,7 +242,7 @@ class ArcMapRunner:
         return copiedFile, self.recipe.mapnumber, versionNumber, generationRequired
 
     # TODO: asmith 2020/03/03
-    # Instinctively I would like to see this moved to the MapReport class with an __eq__ method which 
+    # Instinctively I would like to see this moved to the MapReport class with an __eq__ method which
     # would look very much like this one.
     def haveDataSourcesChanged(self, previousReportFile):
         returnValue = False
@@ -261,8 +261,8 @@ class ArcMapRunner:
         return returnValue
 
     # TODO: asmith 2020/03/03
-    # 
-    # 1) Please aviod hardcoding the naming convention for the mxds wherever possible. The Naming Convention 
+    #
+    # 1) Please aviod hardcoding the naming convention for the mxds wherever possible. The Naming Convention
     # classes can aviod the need to hardcode the naming convention for the input mxd templates. It might be
     # possible to aviod the need to hardcode the naming convention for the output mxds using a
     # String.Template be specified within the Cookbook?
@@ -283,28 +283,28 @@ class ArcMapRunner:
             versionNumber = 1
         return versionNumber
 
-
     # TODO: asmith 2020/03/03
     #
-    # 1) Given we have versions of our templates which are not only in landscape and portrait, but have 
+    # 1) Given we have versions of our templates which are not only in landscape and portrait, but have
     # the marginalia on the side or bottom of the map, is returning one of (landscape|portrait) suffient?
     # Would it be more useful/flexible to have a function which returns the aspect ratio and then a
     # seperate function which translates that into the relavant template name?
-    # 
+    #
     # 2) This is (as far as I'm aware) the only function in the whole automation workflow that requires
-    # internet access. Whilst normally this wouldn't be a limitation at runtime, it seems a pity to 
+    # internet access. Whilst normally this wouldn't be a limitation at runtime, it seems a pity to
     # make runtime internet access a requirement just for this. International boundaries change rarely.
-    # Therefore it might be an option to have an low resolution file embedded solely for the use of 
+    # Therefore it might be an option to have an low resolution file embedded solely for the use of
     # calcuating the aspect ratio (or even pre-canned lookup table of aspect ratios).
-    # 
+    #
     # 3) An embedded lookup table of asspect ratios, could be a useful workaround for countires such
     # as FIJI/ NZ which span -180/180 degrees
-    # 
-    # 4) For large countries we may what to make the maps for just a single state/region/whatever the 
+    #
+    # 4) For large countries we may what to make the maps for just a single state/region/whatever the
     # admin1 level is called.
     #
-    # 5) Fictional counties. Probably a low priority and related to #4, but how do we handle running 
+    # 5) Fictional counties. Probably a low priority and related to #4, but how do we handle running
     # this tool on fictional countries - for exercise purposes?
+
     def get_orientation(self, countryName):
         if (self.orientation is None):
             url = "https://nominatim.openstreetmap.org/search?country=" + countryName.replace(" ", "+") + "&format=json"
@@ -351,9 +351,9 @@ class ArcMapRunner:
     # This method is very long. Serpartate into multiple method. Some fo these will can be entirely
     # functional with no side-effects (eg wrangling parameters) whilst other will be highly proceedural
     # where the actual files writen to the filesystem.
-    # 
+    #
     # As a suggestion; it could be broken up something like this:
-    # 
+    #
     # export(self)
     #   """
     #   Accumulate parameters for export XML, then calls _do_export(....)
@@ -377,11 +377,12 @@ class ArcMapRunner:
     #   """
     #
     # Other comments have been added thoughout the method.
+
     def export(self):
         # TODO: asmith 2020/03/03
         # 1) Seperate the section "Accumulate parameters for export XML" into it's own method
         # 2) Please aviod hardcoding the naming convention for the output mxds.
-        
+
         # Accumulate parameters for export XML
         exportParams = {}
         versionString = "v" + str(self.versionNumber).zfill(2)
@@ -390,7 +391,7 @@ class ArcMapRunner:
         try:
             os.makedirs(exportDirectory)
         except OSError as exc:  # Python >2.5
-            # Note 'errno.EEXIST' is not a typo. There should be two 'E's. 
+            # Note 'errno.EEXIST' is not a typo. There should be two 'E's.
             # https://docs.python.org/2/library/errno.html#errno.EEXIST
             if exc.errno == errno.EEXIST and os.path.isdir(exportDirectory):
                 pass
@@ -401,7 +402,7 @@ class ArcMapRunner:
         # End of method for the section "Accumulate parameters for export XML"
 
         # TODO: asmith 2020/03/03
-        # Seperate this section into a method nameded something like 
+        # Seperate this section into a method nameded something like
         # _do_export(self, lots, of, specific, args)
         mxd = arcpy.mapping.MapDocument(self.mxdTemplate)
 
@@ -497,7 +498,7 @@ class ArcMapRunner:
             # then not saved afterwards. Is this intentional?
             for layer in self.recipe.layers:
                 # TODO: asmith 2020/03/03
-                # 
+                #
                 # 1) The snipit `if (layer.get('columnName', None) is not None):` occurs in a couple of
                 # locations (here and in MapRecipe.containsQueryColumn()). As a double negitive it is not
                 # clear what is meant (I cannot find a `columnName` entry in the example mapCookbook.json).
@@ -512,9 +513,9 @@ class ArcMapRunner:
                     lyr = arcpy.mapping.ListLayers(mxd, layerName, df)[0]
 
                     # TODO: asmith 2020/03/03
-                    # 
+                    #
                     # Presummably `regions` here means admin1 boundaries or some other internal
-                    # administrative devision? 
+                    # administrative devision?
                     regions = list()
                     with arcpy.da.UpdateCursor(lyr.dataSource, fieldNames) as cursor:
                         for row in cursor:
@@ -525,7 +526,7 @@ class ArcMapRunner:
                     # Simulating Data Driven Pages to fine given the limitations in the arcpy API for
                     # controlling them.
                     #
-                    # 1) If this is DDP, then I presume that this is triggered by the 
+                    # 1) If this is DDP, then I presume that this is triggered by the
                     # `if (layer.get('columnName', None) is not None):` line above? If so then please
                     # could we change the format of the mapCookBook.json so that this is more appartent
                     # to the reader of the mapCookBook.json file?
@@ -626,19 +627,18 @@ class ArcMapRunner:
             # TODO: asmith 2020/03/03
             # Given we are explictly setting the pdfFileName for each page within the DDPs
             # it is possible return a list of all of the filenames for all of the PDFs. Please
-            # can we use this list to include in the zip file. There are edge cases where just 
+            # can we use this list to include in the zip file. There are edge cases where just
             # adding all of the pdfs in a particular directory might not behave correctly (eg if
             # the previous run had crashed midway for some reason)
             for pdf in os.listdir(exportDirectory):
                 if pdf.endswith(".pdf"):
                     zipObj.write(os.path.join(exportDirectory, pdf),
                                  os.path.basename(os.path.join(exportDirectory, pdf)))
-        print ("Export complete to " + exportDirectory)
+        print("Export complete to " + exportDirectory)
 
         # TODO: asmith 2020/03/03
         # End of method nameded something like
         # _zip_exported_files(....)
-
 
     """
     Generates Export XML file
@@ -769,19 +769,19 @@ def add_bool_arg(parser, name, default=False):
 
 
 # TODO: asmith 2020/03/03
-# 1) Personally I am not convineced by the need to allow the user to manaually specify or override 
+# 1) Personally I am not convineced by the need to allow the user to manaually specify or override
 # all of the values that are typically included in the cmf_description.json file and/or the
 # event_description.json (unless it is necessary for the ArcMap esriAddin).
 #
 # If this is desirable/required, then the wrangling and validation of those commandline args
 # should be done outside of this class and in the mapactionpy_controller module.
 #
-# 2) I believe that there is a bug in the handling of the `--product` parameter. Also I take a 
+# 2) I believe that there is a bug in the handling of the `--product` parameter. Also I take a
 # different view as to what the default behaviour should be.
-# BUG: At present the `--product` parameter is marked as optional, though I'm pretty sure that 
+# BUG: At present the `--product` parameter is marked as optional, though I'm pretty sure that
 # that a value of None would cause problems later on. I can't seen if a a string which ISN'T a
 # product name in the mapCookbook.json is handled gracefully or not.
-# Default behaviour: My prefered behaviour if no productName is specified, would be that that 
+# Default behaviour: My prefered behaviour if no productName is specified, would be that that
 # tool should attempt to create *all* of the products listed in the mapCookbook.json. Let's
 # automate everything!
 if __name__ == '__main__':
@@ -801,7 +801,7 @@ if __name__ == '__main__':
                         type=lambda x: is_valid_file(parser, x))
     # TODO: asmith 2020/03/03
     # The `--cmf` argument should require the path to the `cmf_description.json` *file*. This
-    # means that we don't need to hardcode the name of that file anywhere. The name of the 
+    # means that we don't need to hardcode the name of that file anywhere. The name of the
     # file is merely convention.
     parser.add_argument("-cmf", "--cmf", dest="crashMoveFolder", required=True,
                         help="path the Crash Move Folder", metavar="FILE",

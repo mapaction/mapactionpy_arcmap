@@ -28,6 +28,7 @@ def _get_version_number():
         except Exception:
             return ''
 
+
 # TODO: asmith
 # install_requires should include `mapactionpy_controller`
 setup(name='mapactionpy_arcmap',
