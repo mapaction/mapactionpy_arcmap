@@ -5,7 +5,7 @@ from datetime import datetime
 
 # TODO: asmith 2020/03/06
 #
-# 1) Based on the description in the docstring, woudl "LayerResult" be a more appropriate name for
+# 1) Based on the description in the docstring, would "LayerResult" be a more appropriate name for
 # this class?
 #
 # 2) What are valid states for this object. eg Can I legitimately have:

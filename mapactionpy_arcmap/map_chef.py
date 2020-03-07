@@ -181,8 +181,8 @@ class MapChef:
     # TODO asmith 2020/03/06
     # I would suggest that:
     #   * If `cook() only gets called once in the life of a MapChef object, then it should be
-    #     entire procedural, with not parameters (everything set via the constructor) and
-    #     subsequent attempt to call it shoudl result in an exception
+    #     entire procedural, with no parameters (everything set via the constructor) and
+    #     subsequent attempt to call `cook()` should result in an exception
     #   * If `cook()` can be called multiple times, then the `mxd` and the `map_version_number`
     #     should be parameters for the cook method and not for the constructor.
     #
