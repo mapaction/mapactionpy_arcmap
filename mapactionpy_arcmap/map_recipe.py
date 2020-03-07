@@ -7,6 +7,8 @@ class MapRecipe:
     MapRecipe - Ordered list of layers for each Map Product
     """
 
+    # TODO: asmith 2020/03/06
+    # Please could we use a more meaningful name than "row" for this parameter? Isn't it a dict?
     def __init__(self, row):
         self.mapnumber = row["mapnumber"]
         self.category = row["category"]
