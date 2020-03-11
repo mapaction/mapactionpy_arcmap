@@ -56,7 +56,7 @@ class MapChef:
            versionNumber {int} -- version number of map
         """
         # TODO asmith 2020/03/06
-        # See comment on the `cook()` method abotu where and when the `mxd` parameter should be
+        # See comment on the `cook()` method about where and when the `mxd` parameter should be
         # passed.
         self.mxd = mxd
         self.layerPropertiesJsonFile = layerPropertiesJsonFile
