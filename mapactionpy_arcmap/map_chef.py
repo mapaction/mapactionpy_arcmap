@@ -2,9 +2,9 @@ import os
 import arcpy
 import jsonpickle
 import re
-from map_cookbook import MapCookbook
-from map_report import MapReport
-from map_result import MapResult
+from mapactionpy_controller.map_cookbook import MapCookbook
+from mapactionpy_controller.map_report import MapReport
+from mapactionpy_controller.map_result import MapResult
 from data_source import DataSource
 from mapactionpy_controller.event import Event
 from mapactionpy_controller.crash_move_folder import CrashMoveFolder
