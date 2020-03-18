@@ -13,12 +13,12 @@ from PIL import Image
 from zipfile import ZipFile
 from resizeimage import resizeimage
 from map_chef import MapChef
-from map_cookbook import MapCookbook
-from data_source import DataSource
-from layer_properties import LayerProperties
+from mapactionpy_controller.map_cookbook import MapCookbook
+from mapactionpy_controller.data_source import DataSource
+from mapactionpy_controller.layer_properties import LayerProperties
 from mapactionpy_controller.crash_move_folder import CrashMoveFolder
 from mapactionpy_controller.event import Event
-from map_doc import MapDoc
+from mapactionpy_controller.map_doc import MapDoc
 from map_data import MapData
 
 
