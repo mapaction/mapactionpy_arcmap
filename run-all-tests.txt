@@ -1,0 +1,14 @@
+echo Developers:
+echo 1. Copy this file and rename it "run-all-tests.cmd" (the new file is ignored by git).
+echo 2. Update the paths to the python.exe to match your local environment.
+echo 3. Run the script regularly to for linting, unittests and test coverage reports.
+
+:: Py 2.7
+"C:/py27arcgis106/ArcGIS10.6/python.exe" -m autopep8 --in-place --max-line-length=120 --recursive .
+"C:/py27arcgis106/ArcGIS10.6/python.exe" -m flake8
+"C:/py27arcgis106/ArcGIS10.6/python.exe" -m coverage run -m unittest discover -v ./mapactionpy_arcmap/tests
+"C:/py27arcgis106/ArcGIS10.6/python.exe" -m coverage report -m --include="./*"
+ 
+
+::& "C:/Users/Andy/AppData/Roaming/Python/Python36/Scripts/coverage.exe"
+::& "C:\Users\Andy\AppData\Roaming\Python\Python36\Scripts\coverage.exe" report --include="./*"
