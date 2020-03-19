@@ -5,11 +5,11 @@ import re
 from mapactionpy_controller.map_cookbook import MapCookbook
 from mapactionpy_controller.map_report import MapReport
 from mapactionpy_controller.map_result import MapResult
-from data_source import DataSource
+from mapactionpy_controller.data_source import DataSource
 from mapactionpy_controller.event import Event
 from mapactionpy_controller.crash_move_folder import CrashMoveFolder
 # from mapactionpy_controller.name_convention import NamingConvention
-from layer_properties import LayerProperties
+from mapactionpy_controller.layer_properties import LayerProperties
 from datetime import datetime
 
 # TODO asmith 2020/03/06

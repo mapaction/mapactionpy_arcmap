@@ -784,7 +784,7 @@ def add_bool_arg(parser, name, default=False):
 # Default behaviour: My prefered behaviour if no productName is specified, would be that that
 # tool should attempt to create *all* of the products listed in the mapCookbook.json. Let's
 # automate everything!
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser(
         description='This component accepts a template MXD file, a list of the'
         'relevant datasets along with other information required to create an'
@@ -844,3 +844,7 @@ if __name__ == '__main__':
         runner.export()
     else:
         print("No product generated.  No changes since last execution.")
+
+
+if __name__ == '__main__':
+    main()
