@@ -64,15 +64,16 @@ class MapChef:
         self.crashMoveFolder = crashMoveFolder
         self.layerDirectory = layerDirectory
         self.cookbook = MapCookbook(self.cookbookJsonFile)
-        self.layerProperties = LayerProperties(self.layerPropertiesJsonFile)
-        self.legendEntriesToRemove = list()
         # TODO asmith 2020/03/06
         # `countryName` should be added into the event object.
         self.countryName = None
         # TODO asmith 2020/03/06
         # Please do not hardcode filenames.
-        eventFilePath = os.path.join(crashMoveFolder, "event_description.json")
-        cmfFilePath = os.path.join(crashMoveFolder, "cmf_description.json")
+        # cmfFilePath = os.path.join(crashMoveFolder, "cmf_description.json")
+        self.cmfConfig = CrashMoveFolder(crashMoveFolder)
+        eventFilePath = os.path.join(self.cmfConfig.path, "event_description.json")
+        self.layerProperties = LayerProperties(self.cmfConfig, '.lyr')
+        self.legendEntriesToRemove = list()
 
         self.datasetTypes = ["SHAPEFILE_WORKSPACE",
                              "RASTER_WORKSPACE",
@@ -108,9 +109,8 @@ class MapChef:
 
         if os.path.exists(eventFilePath):
             self.event = Event(eventFilePath)
-        if os.path.exists(cmfFilePath):
-            self.cmfConfig = CrashMoveFolder(cmfFilePath)
-            # self.namingConvention = NamingConvention(self.cmfConfig.data_nc_definition)
+        else:
+            raise ValueError('"Cannot open Event description file at path {}'.format(eventFilePath))
 
     def disableLayers(self):
         """
