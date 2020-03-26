@@ -91,7 +91,7 @@ class ArcMapRunner:
             # `os.path.join` is not required here. The Event object gaurentees that
             # `self.event.cmf_descriptor_path` is the fully qualified path to the file itself
             # not the parent directory.
-            self.cmf = CrashMoveFolder(os.path.join(self.event.cmf_descriptor_path, "cmf_description.json"))
+            self.cmf = CrashMoveFolder(self.event.cmf_descriptor_path)
 
         # TODO: asmith 2020/03/03
         # This is very useful, but should live in the Event class.
@@ -135,7 +135,7 @@ class ArcMapRunner:
         #     (not merely multiple properties of a single layer).
         #   * Also `layerDefinition` is easily confussed with the DefinitionQuery of a layer (which
         #     it's not).
-        self.layerDefinition = LayerProperties(self.layerPropertiesFile)
+        self.layerDefinition = LayerProperties(self.cmf, '.lyr')
 
         if self.layerDirectory is None:
             if self.cmf is not None:
