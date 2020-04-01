@@ -13,3 +13,5 @@
 
 .idea/
 all-tests.cmd
+run-all-tests.cmd
+htmlcov/

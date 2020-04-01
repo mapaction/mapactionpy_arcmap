@@ -2,6 +2,15 @@ import argparse
 import os
 import arcpy
 
+# TODO: asmith 2020/03/03
+# What is the purpose of this file? Is this a tool that is just used within the
+# maintainance of the `default_crash_move_folder`? It's entirely legitimate if it
+# is, but it would be interesting to consider whether it could be intergrated into
+# the other tools better. For example could we dump the layer files to text files on
+# each commit of the `default_crash_move_folder` and keep the output within the git
+# repo. This would mean to would be easier to see *what* had changed when a binary
+# layer file changes.
+
 
 def is_valid_file(parser, arg):
     if not os.path.exists(arg):
@@ -80,6 +89,8 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
+        # TODO: asmith 2020/03/03
+        # presumably "layer files" not "later files"?
         description='Dumps the contents of later files.',
     )
     parser.add_argument("-ld", "--layerDirectory", dest="layerDirectory", required=True,

@@ -29,6 +29,8 @@ def _get_version_number():
             return ''
 
 
+# TODO: asmith
+# install_requires should include `mapactionpy_controller`
 setup(name='mapactionpy_arcmap',
       version=_get_version_number(),
       description='Used to drive ArcMap',
