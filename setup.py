@@ -9,7 +9,7 @@ def readme():
         return f.read()
 
 
-_base_version = '0.10'
+_base_version = '0.11'
 
 
 def _get_version_number():
