@@ -5,12 +5,8 @@ install:
 - pip install -r requirements-dev.txt
 - pip install python-coveralls
 - pip install .
-before_script:
-- flake8
 script:
-- coverage run --source ./mapactionpy_arcmap -m unittest discover -v ./mapactionpy_arcmap/tests
-after_success:
-- coveralls
+- flake8
 deploy:
   provider: pypi
   user: asmith_mapaction
