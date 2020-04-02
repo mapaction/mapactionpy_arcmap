@@ -7,10 +7,6 @@ install:
 - pip install .
 before_script:
 - flake8
-script:
-- coverage run --source ./mapactionpy_arcmap -m unittest discover -v ./mapactionpy_arcmap/tests
-after_success:
-- coveralls
 deploy:
   provider: pypi
   user: asmith_mapaction
