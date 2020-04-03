@@ -12,8 +12,9 @@ deploy:
   user: asmith_mapaction
   password:
     secure: w+xquPzLTNX7aeFycj0m1znQJM6f3u55k67rF4kROBXPUnO0zv5iT7HgWIEpOMvGBXzs/TXmXApH4IG0vBQXP2vUTWmQVUswvqV0ojA0yl6NqPrTeHICBF0sk0Cbg8R07hZLbh6hjDo29EwikqsnEhMErBo4/PsRqN0hSxvY7CUwzPmBfibzpJ28NJ2QnbtLJEDvuiO8jayTS9/3JPKeHojgiZ4w+VyDOZ0Kn5Y1c6Z/hitxRVBo8tQ1CErJOwZlWQ4HaDaOazd2lEaH1BxCxqwgDFAco0Z2TrOcZXFDxjL9y+8MkA0wzfQirkzTiMz2NnuzmbRHzVIC6+4Is+iJwdolTK/u1/sJKKdofAJr/8t2eOHxtJOv66oa6QCTMFfcAEizJNHRw3x0k07XT9AGlRh7+xMovq7Tco5rHe8maeaBZPQhp0wkl9vzutLg07DpwuXFOh3PEfpvWig/KZT8n/QOe8KJi1WSrlsNjXzdEcjl01typ9HDUR4OhuRoHiwS1d9Ri3PUNCCGDk4oBehi/PTFDDbAMD1eusM6S9srwBv/KJMMeidfKYORpbq5iLX6hIUokOgQ5iTNN2nHAQjJoYVazj4MVQ9zxZFxSsGDHn+Gnmft67ok0L7DtgH1gcT0FnpLwuNPXBHAD90V7osb4KkttlKLzhWazufmOy2KP38=
-  distributions: "sdist bdist_wheel"
+  distributions: "sdist"
   skip_existing: true
+  cleanup: false
   on:
     all_branches: true
-    condition: ${TRAVIS_BRANCH,,} =~ ^(master|${TRAVIS_TAG,,})$
+    # condition: ${TRAVIS_BRANCH,,} =~ ^(master|${TRAVIS_TAG,,})$

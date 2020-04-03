@@ -18,15 +18,21 @@ def _get_version_number():
 
     if travis_build:
         if travis_tag:
-            return travis_tag
+            version = travis_tag
         else:
-            return '{}.dev{}'.format(_base_version, travis_build)
+            version = '{}.dev{}'.format(_base_version, travis_build)
+
+        with open(path.join(root_dir, 'VERSION'), 'w') as version_file:
+            version_file.write(version.strip())
     else:
         try:
             ver = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD'])
-            return '{}+local.{}'.format(_base_version, ver.decode('ascii').strip())
+            version = '{}+local.{}'.format(_base_version, ver.decode('ascii').strip())
         except Exception:
-            return ''
+            with open(path.join(root_dir, 'VERSION')) as version_file:
+                version = version_file.read().strip()
+
+    return version
 
 
 # TODO: asmith
