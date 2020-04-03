@@ -2,14 +2,13 @@ import subprocess
 from setuptools import setup, find_packages
 from os import path, environ
 
+_base_version = '0.11'
+root_dir = path.abspath(path.dirname(__file__))
+
 
 def readme():
-    here = path.abspath(path.dirname(__file__))
-    with open(path.join(here, 'README.md')) as f:
+    with open(path.join(root_dir, 'README.md')) as f:
         return f.read()
-
-
-_base_version = '0.11'
 
 
 def _get_version_number():
