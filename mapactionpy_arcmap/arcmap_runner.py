@@ -48,26 +48,15 @@ class ArcMapRunner:
     # file than the wrangling and validation of those commandline args should be done outside of this
     # class and in the mapactionpy_controller module.
     def __init__(self,
-                 cookbookFile,
-                 layerConfig,
                  templateFile,
-                 crashMoveFolder,
-                 layerDirectory,
+                 eventConfig,
                  productName,
-                 countryName,
                  orientation=None):
-        self.cookbookFile = cookbookFile
-        self.layerPropertiesFile = layerConfig
         self.mxdTemplate = templateFile
-        self.crashMoveFolder = crashMoveFolder
-        self.layerDirectory = layerDirectory
+        self.cookbookFile = None
+        self.layerPropertiesFile = None
         self.productName = productName
-        self.countryName = countryName
-        # TODO: asmith 2020/03/03
-        # Do not hard code filenames
-        self.eventFilePath = os.path.join(crashMoveFolder, "event_description.json")
-        self.cmf = None
-        self.event = None
+        self.event = eventConfig
         self.replaceOnly = False
 
         # Determine orientation
@@ -84,30 +73,12 @@ class ArcMapRunner:
         self.maxx = 0
         self.maxy = 0
         self.chef = None
-
-        if os.path.exists(self.eventFilePath):
-            self.event = Event(self.eventFilePath)
-            # TODO: asmith 2020/03/03
-            # `os.path.join` is not required here. The Event object gaurentees that
-            # `self.event.cmf_descriptor_path` is the fully qualified path to the file itself
-            # not the parent directory.
-            self.cmf = CrashMoveFolder(self.event.cmf_descriptor_path)
-
-        # TODO: asmith 2020/03/03
-        # This is very useful, but should live in the Event class.
-
-        # If no country name supplied, need to find it from the event_description.json
-        if self.countryName is None:
-            if self.event is not None:
-                country = pycountry.countries.get(alpha_3=self.event.affected_country_iso3.upper())
-                self.countryName = country.name
-            else:
-                raise Exception("Error: Could not derive country from " + self.eventFilePath)
+        self.crashMoveFolder = CrashMoveFolder(self.event.cmf_descriptor_path)
 
         # TODO: asmith 2020/03/03
         # Much of here to line 132 is unrequired, as the CrashMoveFolder class already has a method
-        # for verifying the existance of all of the relevant files and directories. By default this
-        # happens when a CrashMoveFolder object is created. For the paraniod these two lines:
+        # for verifying the existence of all of the relevant files and directories. By default this
+        # happens when a CrashMoveFolder object is created. For the paranoid these two lines:
         # ```
         # if not self.cmf.verify_paths():
         #    raise ValueError("Cannot find paths and directories referenced by cmf {}".format(self.cmf.path))
@@ -115,33 +86,27 @@ class ArcMapRunner:
 
         # The following checks are used if the CMF description is over-ridden by the command line parameters
         if self.cookbookFile is None:
-            if self.cmf is not None:
-                self.cookbookFile = self.cmf.map_definitions
+            if self.crashMoveFolder is not None:
+                self.cookbookFile = self.crashMoveFolder.map_definitions
             else:
-                raise Exception("Error: Could not derive cookbook file from " + self.crashMoveFolder)
+                raise Exception("Error: Could not derive cookbook file from " + self.event.cmf_descriptor_path)
 
         self.cookbook = MapCookbook(self.cookbookFile)
         self.recipe = self.cookbook.products[productName]
 
         if self.layerPropertiesFile is None:
-            if self.cmf is not None:
-                self.layerPropertiesFile = self.cmf.layer_properties
+            if self.crashMoveFolder is not None:
+                self.layerPropertiesFile = self.crashMoveFolder.layer_properties
             else:
-                raise Exception("Error: Could not derive layer config file from " + self.crashMoveFolder)
-
+                raise Exception("Error: Could not derive layer config file from " + self.event.cmf_descriptor_path)
+        # OLD 132
         # TODO: asmith 2020/03/03
         # The name `self.layerDefinition` is unclear and should be changed.
         #   * As far as I can see this object encapsulates the properties of multiple layers
         #     (not merely multiple properties of a single layer).
-        #   * Also `layerDefinition` is easily confussed with the DefinitionQuery of a layer (which
+        #   * Also `layerDefinition` is easily confused with the DefinitionQuery of a layer (which
         #     it's not).
-        self.layerDefinition = LayerProperties(self.cmf, '.lyr')
-
-        if self.layerDirectory is None:
-            if self.cmf is not None:
-                self.layerDirectory = self.cmf.layer_rendering
-            else:
-                raise Exception("Error: Could not derive layer rendering directory from " + self.crashMoveFolder)
+        self.layerDefinition = LayerProperties(self.crashMoveFolder, '.lyr')
 
     # TODO: asmith 2020/03/03
     # method name is unclear. Generate what? How does this relate to
@@ -151,21 +116,25 @@ class ArcMapRunner:
         # Construct a Crash Move Folder object if the cmf_description.json exists
         generationRequired = False
         if self.mxdTemplate is None:
-            self.orientation = self.get_orientation(self.countryName)
+            self.orientation = self.get_orientation(self.event.country_name)
             self.mxdTemplate, self.mapNumber, self.versionNumber, generationRequired = self.get_template(
-                self.orientation, self.cookbookFile, self.cmf, self.productName)
+                self.orientation, self.cookbookFile, self.crashMoveFolder, self.productName)
         if (generationRequired):
             mxd = arcpy.mapping.MapDocument(self.mxdTemplate)
 
-            self.chef = MapChef(mxd, self.cookbookFile, self.layerPropertiesFile,
-                                self.crashMoveFolder, self.layerDirectory, self.versionNumber)
-            self.chef.cook(self.productName, self.countryName, self.replaceOnly)
+            self.chef = MapChef(mxd,
+                                self.cookbook,
+                                self.layerDefinition,
+                                self.crashMoveFolder,
+                                self.event,
+                                self.versionNumber)
+            self.chef.cook(self.recipe, self.replaceOnly)
             self.chef.alignLegend(self.orientation)
 
             # Output the Map Generation report alongside the MXD
             reportJsonFile = self.mxdTemplate.replace(".mxd", ".json")
             with open(reportJsonFile, 'w') as outfile:
-                outfile.write(self.chef.report())
+                outfile.write(self.chef.report_as_json())
         return generationRequired
 
     # TODO: asmith 2020/03/03
@@ -181,9 +150,9 @@ class ArcMapRunner:
     # Would it be appropriate and/or simpler to ammend the name of the template files? They are already in a
     # dir called 'arcgis_10_6'. Or is there another arcpy related reason why it is required? Without it, it
     # would be possible to move this whole method over to the controller where it could be re-used for the
-    # QGIS implenmentation.
+    # QGIS implementation.
     #
-    # 3) I think it would be more consistant to use the naming convention classes for the mxd template; eg
+    # 3) I think it would be more consistent to use the naming convention classes for the mxd template; eg
     # https://github.com/mapaction/mapactionpy_controller/pull/38 This helps avoid the need to hardcode the
     # naming convention for input mxd templates.
     #
@@ -224,8 +193,6 @@ class ArcMapRunner:
             os.mkdir(mapNumberDirectory)
 
         # Construct MXD name
-        # TODO: asmith 2020/03/03
-        # Actually nothing to do here, but I **really** like the use of slugify here. Very good!
         mapFileName = slugify(unicode(productName))
         versionNumber = self.get_map_version_number(mapNumberDirectory, self.recipe.mapnumber, mapFileName)
         previousReportFile = self.recipe.mapnumber + "-v" + str((versionNumber-1)).zfill(2) + "_" + mapFileName + ".json"  # noqa
@@ -251,7 +218,7 @@ class ArcMapRunner:
             # parse file
             obj = json.loads(data)
             for result in obj['results']:
-                dataFile = os.path.join(self.event.cmf_descriptor_path, (result['dataSource'].strip('/')))
+                dataFile = os.path.join(self.event.path, (result['dataSource'].strip('/')))
                 previousHash = result.get('hash', "")
                 ds = DataSource(dataFile)
                 latestHash = ds.calculate_checksum()
@@ -380,13 +347,15 @@ class ArcMapRunner:
 
     def export(self):
         # TODO: asmith 2020/03/03
-        # 1) Seperate the section "Accumulate parameters for export XML" into it's own method
-        # 2) Please aviod hardcoding the naming convention for the output mxds.
+        # 1) Separate the section "Accumulate parameters for export XML" into it's own method
+        # 2) Please avoid hardcoding the naming convention for the output mxds.
 
         # Accumulate parameters for export XML
         exportParams = {}
         versionString = "v" + str(self.versionNumber).zfill(2)
-        exportDirectory = os.path.join(self.cmf.export_dir, self.mapNumber, versionString).replace('/', '\\')
+        exportDirectory = os.path.join(self.crashMoveFolder.export_dir,
+                                       self.mapNumber,
+                                       versionString).replace('/', '\\')
         exportParams["exportDirectory"] = exportDirectory
         try:
             os.makedirs(exportDirectory)
@@ -402,7 +371,7 @@ class ArcMapRunner:
         # End of method for the section "Accumulate parameters for export XML"
 
         # TODO: asmith 2020/03/03
-        # Seperate this section into a method nameded something like
+        # Seperate this section into a method named something like
         # _do_export(self, lots, of, specific, args)
         mxd = arcpy.mapping.MapDocument(self.mxdTemplate)
 
@@ -528,7 +497,7 @@ class ArcMapRunner:
                     #
                     # 1) If this is DDP, then I presume that this is triggered by the
                     # `if (layer.get('columnName', None) is not None):` line above? If so then please
-                    # could we change the format of the mapCookBook.json so that this is more appartent
+                    # could we change the format of the mapCookBook.json so that this is more apparent
                     # to the reader of the mapCookBook.json file?
                     #
                     # 2) There appear to be a lot of hardcoded elements (eg the title and the map number)
@@ -536,7 +505,7 @@ class ArcMapRunner:
                     for region in regions:
                         # TODO: asmith 2020/03/03
                         # Please do not hardcode mapFrame names. If a particular mapframe as a special
-                        # meaning then this should be explict in the structure of the mapCookBook.json
+                        # meaning then this should be explicit in the structure of the mapCookBook.json
                         # and/or layerProperties.json files.
                         dataFrameName = "Main map"
                         df = arcpy.mapping.ListDataFrames(mxd, dataFrameName)[0]
@@ -587,7 +556,7 @@ class ArcMapRunner:
 
                         for elm in arcpy.mapping.ListLayoutElements(mxd, "TEXT_ELEMENT"):
                             if elm.name == "title":
-                                elm.text = self.recipe.category + " map of " + self.countryName +\
+                                elm.text = self.recipe.category + " map of " + self.event.country_name +\
                                     '\n' +\
                                     "<CLR red = '255'>Sheet - " + region + "</CLR>"
                             if elm.name == "map_no":
@@ -637,7 +606,7 @@ class ArcMapRunner:
         print("Export complete to " + exportDirectory)
 
         # TODO: asmith 2020/03/03
-        # End of method nameded something like
+        # End of method named something like
         # _zip_exported_files(....)
 
     """
@@ -659,7 +628,7 @@ class ArcMapRunner:
 
     # TODO: asmith 2020/03/03
     # 1) This method can be moved into the controller so that it can be re-used for the QGIS
-    # implenmentation
+    # implementation
     #
     # 2) Consider splitting this method into two. One which build the data structure for the
     # metadata and a seperate method which writes that metadata structure out to a file.
@@ -679,7 +648,7 @@ class ArcMapRunner:
         row["jpgfilesize"] = params["jpgFileSize"]
         row["glideno"] = self.event.glide_number
         row["title"] = self.productName
-        row["countries"] = self.countryName
+        row["countries"] = self.event.country_name
         row["xmin"] = self.minx
         row["ymin"] = self.miny
         row["xmax"] = self.maxx
@@ -721,9 +690,7 @@ class ArcMapRunner:
         row["access"] = "MapAction"  # Until we work out how to get the values for this
         row["accessnotes"] = ""
         row["location"] = ""
-        # TODO: asmith 2020/03/03
-        # I'd suggest that `row["qclevel"] = "Automatically generated"` might be appropriate
-        row["qclevel"] = "Local"
+        row["qclevel"] = "Automatically generated"
         row["qcname"] = ""
         row["themes"] = {}
         row["proj"] = ""
@@ -769,7 +736,7 @@ def add_bool_arg(parser, name, default=False):
 
 
 # TODO: asmith 2020/03/03
-# 1) Personally I am not convineced by the need to allow the user to manaually specify or override
+# 1) Personally I am not convinced by the need to allow the user to manually specify or override
 # all of the values that are typically included in the cmf_description.json file and/or the
 # event_description.json (unless it is necessary for the ArcMap esriAddin).
 #
@@ -799,25 +766,14 @@ def main():
     parser.add_argument("-t", "--template", dest="templateFile", required=False,
                         help="path to MXD file", metavar="FILE",
                         type=lambda x: is_valid_file(parser, x))
-    # TODO: asmith 2020/03/03
-    # The `--cmf` argument should require the path to the `cmf_description.json` *file*. This
-    # means that we don't need to hardcode the name of that file anywhere. The name of the
-    # file is merely convention.
-    parser.add_argument("-cmf", "--cmf", dest="crashMoveFolder", required=True,
-                        help="path the Crash Move Folder", metavar="FILE",
-                        type=lambda x: is_valid_directory(parser, x))
+    parser.add_argument("-e", "--e", dest="eventConfigFile", required=True,
+                        help="path the Event Config File", metavar="FILE",
+                        type=lambda x: is_valid_file(parser, x))
     parser.add_argument("-ld", "--layerDirectory", dest="layerDirectory", required=False,
                         help="path to layer directory", metavar="FILE",
                         type=lambda x: is_valid_directory(parser, x))
-    # TODO: asmith 2020/03/03
-    # I believe this is a bug (see above for fuller explanation). At present the `--product`
-    # parameter is marked as optional, though I'm pretty sure that a value of None would cause
-    # problems later on. Also I can't seen if a string which ISN'T a product name in the
-    # mapCookbook.json is handled gracefully or not.
-    parser.add_argument("-p", "--product", dest="productName", required=False,
+    parser.add_argument("-p", "--product", dest="productName", required=True,
                         help="Name of product")
-    parser.add_argument("-c", "--country", dest="countryName", required=False,
-                        help="Name of country")
     parser.add_argument("-o", "--orientation", dest="orientation", default=None, required=False,
                         help="landscape|portrait")
 
@@ -831,14 +787,12 @@ def main():
         else:
             orientation = "portrait"
 
-    runner = ArcMapRunner(args.cookbookFile,
-                          args.layerConfig,
-                          args.templateFile,
-                          args.crashMoveFolder,
-                          args.layerDirectory,
+    eventConfig = Event(args.eventConfigFile)
+    runner = ArcMapRunner(args.templateFile,
+                          eventConfig,
                           args.productName,
-                          args.countryName,
                           orientation)
+
     productGenerated = runner.generate()
     if (productGenerated and args.export):
         runner.export()
