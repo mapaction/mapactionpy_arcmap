@@ -1,12 +1,9 @@
 import arcpy
 import argparse
 import json
-import decimal
 import errno
 import glob
 import os
-import requests
-import pycountry
 from shutil import copyfile
 from slugify import slugify
 from PIL import Image
@@ -18,8 +15,7 @@ from mapactionpy_controller.data_source import DataSource
 from mapactionpy_controller.layer_properties import LayerProperties
 from mapactionpy_controller.crash_move_folder import CrashMoveFolder
 from mapactionpy_controller.event import Event
-from mapactionpy_controller.map_doc import MapDoc
-from map_data import MapData
+from mapactionpy_controller.xml_exporter import XmlExporter
 
 
 class ArcMapRunner:
@@ -37,11 +33,8 @@ class ArcMapRunner:
     # itself and not the containing directory. That would avoid the need to hardcode the filename
     # of the event_description.json file.
     #
-    # 3) Would it be appropriate for the Event object to handle the orientation parameter? It there
-    # a use case where this would need to be overriden on a case by case basis?
-    #
     # 4) I do not see the need for the ArcMapRunner to have it's own members which duplicate those
-    # of the Event obejct or the CMF object. Eg. `myrunner.cmf.layer_properties` is fine.
+    # of the Event object or the CMF object. Eg. `myrunner.cmf.layer_properties` is fine.
     #
     # 5) If there is a case for allowing the user to manaually specify or override all of the values
     # that are typically included in the cmf_description.json file and/or the event_description.json
@@ -50,8 +43,7 @@ class ArcMapRunner:
     def __init__(self,
                  templateFile,
                  eventConfig,
-                 productName,
-                 orientation=None):
+                 productName):
         self.mxdTemplate = templateFile
         self.cookbookFile = None
         self.layerPropertiesFile = None
@@ -59,8 +51,6 @@ class ArcMapRunner:
         self.event = eventConfig
         self.replaceOnly = False
 
-        # Determine orientation
-        self.orientation = orientation
         # TODO: asmith 2020/03/03
         # Do not hard code "real" values. Setting to `None` would seem safer here as that
         # ensures that if the versionNumber or mapNumber are not set correctly later in the
@@ -116,9 +106,8 @@ class ArcMapRunner:
         # Construct a Crash Move Folder object if the cmf_description.json exists
         generationRequired = False
         if self.mxdTemplate is None:
-            self.orientation = self.get_orientation(self.event.country_name)
             self.mxdTemplate, self.mapNumber, self.versionNumber, generationRequired = self.get_template(
-                self.orientation, self.cookbookFile, self.crashMoveFolder, self.productName)
+                self.cookbookFile, self.crashMoveFolder, self.productName)
         if (generationRequired):
             mxd = arcpy.mapping.MapDocument(self.mxdTemplate)
 
@@ -129,7 +118,7 @@ class ArcMapRunner:
                                 self.event,
                                 self.versionNumber)
             self.chef.cook(self.recipe, self.replaceOnly)
-            self.chef.alignLegend(self.orientation)
+            self.chef.alignLegend(self.event.orientation)
 
             # Output the Map Generation report alongside the MXD
             reportJsonFile = self.mxdTemplate.replace(".mxd", ".json")
@@ -160,12 +149,12 @@ class ArcMapRunner:
     # String.Template be specified within the Cookbook?
     # https://docs.python.org/2/library/string.html#formatspec
     # https://www.python.org/dev/peps/pep-3101/
-    def get_template(self, orientation, cookbookFile, crashMoveFolder, productName):
+    def get_template(self, cookbookFile, crashMoveFolder, productName):
         arcGisVersion = crashMoveFolder.arcgis_version
 
         # Need to get the theme from the recipe to get the path to the MXD
 
-        mapNumberTemplateFileName = self.recipe.mapnumber + "_"+orientation+".mxd"
+        mapNumberTemplateFileName = self.recipe.mapnumber + "_" + self.event.orientation + ".mxd"
         mapNumberTemplateFilePath = os.path.join(crashMoveFolder.mxd_templates, mapNumberTemplateFileName)
         if os.path.exists(mapNumberTemplateFilePath):
             srcTemplateFile = mapNumberTemplateFilePath
@@ -177,11 +166,15 @@ class ArcMapRunner:
             # This will fail is the category is specified in the recipe in a different case to the
             # the case used in for the template filename.
             if (self.recipe.category.lower() == "reference"):
-                templateFileName = arcGisVersion + "_" + self.recipe.category + "_" + orientation + "_bottom.mxd"
+                templateFileName = arcGisVersion + "_" + \
+                                   self.recipe.category + \
+                                   "_" + \
+                                   self.event.orientation + \
+                                   "_bottom.mxd"
             elif (self.recipe.category.lower() == "ddp reference"):
-                templateFileName = arcGisVersion + "_ddp_reference_" + orientation + ".mxd"
+                templateFileName = arcGisVersion + "_ddp_reference_" + self.event.orientation + ".mxd"
             elif (self.recipe.category.lower() == "thematic"):
-                templateFileName = arcGisVersion + "_" + self.recipe.category + "_" + orientation + ".mxd"
+                templateFileName = arcGisVersion + "_" + self.recipe.category + "_" + self.event.orientation + ".mxd"
             else:
                 raise Exception("Error: Could not get source MXD from: " + crashMoveFolder.mxd_templates)
 
@@ -194,7 +187,7 @@ class ArcMapRunner:
 
         # Construct MXD name
         mapFileName = slugify(unicode(productName))
-        versionNumber = self.get_map_version_number(mapNumberDirectory, self.recipe.mapnumber, mapFileName)
+        versionNumber = self.get_next_map_version_number(mapNumberDirectory, self.recipe.mapnumber, mapFileName)
         previousReportFile = self.recipe.mapnumber + "-v" + str((versionNumber-1)).zfill(2) + "_" + mapFileName + ".json"  # noqa
         copiedFile = "NOT SET"
         generationRequired = True
@@ -229,18 +222,16 @@ class ArcMapRunner:
 
     # TODO: asmith 2020/03/03
     #
-    # 1) Please aviod hardcoding the naming convention for the mxds wherever possible. The Naming Convention
-    # classes can aviod the need to hardcode the naming convention for the input mxd templates. It might be
-    # possible to aviod the need to hardcode the naming convention for the output mxds using a
+    # 1) Please avoid hardcoding the naming convention for the mxds wherever possible. The Naming Convention
+    # classes can avoid the need to hardcode the naming convention for the input mxd templates. It might be
+    # possible to avoid the need to hardcode the naming convention for the output mxds using a
     # String.Template be specified within the Cookbook?
     # https://docs.python.org/2/library/string.html#formatspec
     # https://www.python.org/dev/peps/pep-3101/
     #
     # 2) This only checks the filename for the mxd - it doesn't check the values within the text element of
     # the map layout view (and hence the output metadata).
-    #
-    # 3) A more acurate name for this method would be `get_next_map_version_number`.
-    def get_map_version_number(self, mapNumberDirectory, mapNumber, mapFileName):
+    def get_next_map_version_number(self, mapNumberDirectory, mapNumber, mapFileName):
         versionNumber = 0
         files = glob.glob(mapNumberDirectory + os.sep + mapNumber+'-v[0-9][0-9]_' + mapFileName + '.mxd')
         for file in files:
@@ -250,72 +241,11 @@ class ArcMapRunner:
             versionNumber = 1
         return versionNumber
 
-    # TODO: asmith 2020/03/03
-    #
-    # 1) Given we have versions of our templates which are not only in landscape and portrait, but have
-    # the marginalia on the side or bottom of the map, is returning one of (landscape|portrait) suffient?
-    # Would it be more useful/flexible to have a function which returns the aspect ratio and then a
-    # seperate function which translates that into the relavant template name?
-    #
-    # 2) This is (as far as I'm aware) the only function in the whole automation workflow that requires
-    # internet access. Whilst normally this wouldn't be a limitation at runtime, it seems a pity to
-    # make runtime internet access a requirement just for this. International boundaries change rarely.
-    # Therefore it might be an option to have an low resolution file embedded solely for the use of
-    # calcuating the aspect ratio (or even pre-canned lookup table of aspect ratios).
-    #
-    # 3) An embedded lookup table of asspect ratios, could be a useful workaround for countires such
-    # as FIJI/ NZ which span -180/180 degrees
-    #
-    # 4) For large countries we may what to make the maps for just a single state/region/whatever the
-    # admin1 level is called.
-    #
-    # 5) Fictional counties. Probably a low priority and related to #4, but how do we handle running
-    # this tool on fictional countries - for exercise purposes?
-
-    def get_orientation(self, countryName):
-        if (self.orientation is None):
-            url = "https://nominatim.openstreetmap.org/search?country=" + countryName.replace(" ", "+") + "&format=json"
-            resp = requests.get(url=url)
-
-            jsonObject = resp.json()
-
-            extentsSet = False
-            boundingbox = [0, 0, 0, 0]
-            for country in jsonObject:
-                if country['class'] == "boundary" and country['type'] == "administrative":
-                    boundingbox = country['boundingbox']
-                    extentsSet = True
-                    break
-            if extentsSet:
-                D = decimal.Decimal
-
-                self.minx = D(boundingbox[2])
-                self.miny = D(boundingbox[0])
-                self.maxx = D(boundingbox[3])
-                self.maxy = D(boundingbox[1])
-
-                orientation = "portrait"
-
-                # THIS DOESN'T WORK FOR FIJI/ NZ
-                xdiff = abs(self.maxx-self.minx)
-                ydiff = abs(self.maxy-self.miny)
-
-                # print("http://bboxfinder.com/#<miny>,<minx>,<maxy>,<maxx>")
-                # print("http://bboxfinder.com/#" + str(miny) + ","+ str(minx) + ","+ str(maxy) + ","+ str(maxx))
-
-                if xdiff > ydiff:
-                    orientation = "landscape"
-                return orientation
-            else:
-                raise Exception("Error: Could not derive country extent from " + url)
-        else:
-            return self.orientation
-
     """
     Generates all file for export
     """
     # TODO: asmith 2020/03/03
-    # This method is very long. Serpartate into multiple method. Some fo these will can be entirely
+    # This method is very long. Separate into multiple method. Some fo these will can be entirely
     # functional with no side-effects (eg wrangling parameters) whilst other will be highly proceedural
     # where the actual files writen to the filesystem.
     #
@@ -371,52 +301,21 @@ class ArcMapRunner:
         # End of method for the section "Accumulate parameters for export XML"
 
         # TODO: asmith 2020/03/03
-        # Seperate this section into a method named something like
+        # Separate this section into a method named something like
         # _do_export(self, lots, of, specific, args)
         mxd = arcpy.mapping.MapDocument(self.mxdTemplate)
 
         coreFileName = os.path.splitext(os.path.basename(self.mxdTemplate))[0]
         exportParams["coreFileName"] = coreFileName
         productType = "mapsheet"
-
         exportParams["productType"] = productType
-        # PDF
-        pdfFileName = coreFileName+"-"+str(self.event.default_pdf_res_dpi) + "dpi.pdf"
-        pdfFileLocation = os.path.join(exportDirectory, pdfFileName)
-        exportParams["pdfFileName"] = pdfFileName
-        arcpy.mapping.ExportToPDF(mxd, pdfFileLocation, resolution=int(self.event.default_pdf_res_dpi))
-        pdfFileSize = os.path.getsize(pdfFileLocation)
-        exportParams["pdfFileSize"] = pdfFileSize
 
-        # JPEG
-        jpgFileName = coreFileName+"-"+str(self.event.default_jpeg_res_dpi) + "dpi.jpg"
-        jpgFileLocation = os.path.join(exportDirectory, jpgFileName)
-        exportParams["jpgFileName"] = jpgFileName
-        arcpy.mapping.ExportToJPEG(mxd, jpgFileLocation)
-        jpgFileSize = os.path.getsize(jpgFileLocation)
-        exportParams["jpgFileSize"] = jpgFileSize
-
-        # PNG Thumbnail.  Need to create a larger image first.
-        # If this isn't done, the thumbnail is pixelated amd doesn't look good
-        pngTmpThumbNailFileName = "tmp-thumbnail.png"
-        pngTmpThumbNailFileLocation = os.path.join(exportDirectory, pngTmpThumbNailFileName)
-        arcpy.mapping.ExportToPNG(mxd, pngTmpThumbNailFileLocation)
-
-        pngThumbNailFileName = "thumbnail.png"
-        pngThumbNailFileLocation = os.path.join(exportDirectory, pngThumbNailFileName)
-
-        # Resize the thumbnail
-        fd_img = open(pngTmpThumbNailFileLocation, 'r+b')
-        img = Image.open(fd_img)
-        img = resizeimage.resize('thumbnail', img, [140, 99])
-        img.save(pngThumbNailFileLocation, img.format)
-        fd_img.close()
-
-        # Remove the temporary larger thumbnail
-        os.remove(pngTmpThumbNailFileLocation)
+        pdfFileLocation = self.exportPdf(coreFileName, exportDirectory, mxd, exportParams)
+        jpgFileLocation = self.exportJpeg(coreFileName, exportDirectory, mxd, exportParams)
+        pngThumbNailFileLocation = self.exportPngThumbNail(coreFileName, exportDirectory, mxd, exportParams)
 
         # TODO: asmith 2020/03/03
-        # End of method nameded something like
+        # End of method named something like
         # _do_export(self, lots, of, specific, args)
 
         #######################################################################################################
@@ -468,7 +367,7 @@ class ArcMapRunner:
             for layer in self.recipe.layers:
                 # TODO: asmith 2020/03/03
                 #
-                # 1) The snipit `if (layer.get('columnName', None) is not None):` occurs in a couple of
+                # 1) The snip-it `if (layer.get('columnName', None) is not None):` occurs in a couple of
                 # locations (here and in MapRecipe.containsQueryColumn()). As a double negitive it is not
                 # clear what is meant (I cannot find a `columnName` entry in the example mapCookbook.json).
                 # Would it help to expand the object model for the `layer` class to encapsulate this?
@@ -483,7 +382,7 @@ class ArcMapRunner:
 
                     # TODO: asmith 2020/03/03
                     #
-                    # Presummably `regions` here means admin1 boundaries or some other internal
+                    # Presumably `regions` here means admin1 boundaries or some other internal
                     # administrative devision?
                     regions = list()
                     with arcpy.da.UpdateCursor(lyr.dataSource, fieldNames) as cursor:
@@ -576,12 +475,19 @@ class ArcMapRunner:
         # TODO: asmith 2020/03/03
         # End of method nameded something like
         # _process_query_column_name(...)
-
-        # Create Export XML
-        exportXmlFileLocation = self.generateXml(exportParams)
+        xmlExporter = XmlExporter(self.event, self.chef)
+        exportParams['versionNumber'] = self.versionNumber
+        exportParams['mapNumber'] = self.mapNumber
+        exportParams['productName'] = self.productName
+        exportParams['versionNumber'] = self.versionNumber
+        exportParams["xmin"] = self.minx
+        exportParams["ymin"] = self.miny
+        exportParams["xmax"] = self.maxx
+        exportParams["ymax"] = self.maxy
+        exportXmlFileLocation = xmlExporter.write(exportParams)
 
         # TODO: asmith 2020/03/03
-        # Seperate this section into a method nameded something like
+        # Seperate this section into a method named something like
         # _zip_exported_files(....)
 
         # And now Zip
@@ -609,6 +515,47 @@ class ArcMapRunner:
         # End of method named something like
         # _zip_exported_files(....)
 
+    def exportJpeg(self, coreFileName, exportDirectory, mxd, exportParams):
+        # JPEG
+        jpgFileName = coreFileName+"-"+str(self.event.default_jpeg_res_dpi) + "dpi.jpg"
+        jpgFileLocation = os.path.join(exportDirectory, jpgFileName)
+        exportParams["jpgFileName"] = jpgFileName
+        arcpy.mapping.ExportToJPEG(mxd, jpgFileLocation)
+        jpgFileSize = os.path.getsize(jpgFileLocation)
+        exportParams["jpgFileSize"] = jpgFileSize
+        return jpgFileLocation
+
+    def exportPdf(self, coreFileName, exportDirectory, mxd, exportParams):
+        # PDF
+        pdfFileName = coreFileName+"-"+str(self.event.default_pdf_res_dpi) + "dpi.pdf"
+        pdfFileLocation = os.path.join(exportDirectory, pdfFileName)
+        exportParams["pdfFileName"] = pdfFileName
+        arcpy.mapping.ExportToPDF(mxd, pdfFileLocation, resolution=int(self.event.default_pdf_res_dpi))
+        pdfFileSize = os.path.getsize(pdfFileLocation)
+        exportParams["pdfFileSize"] = pdfFileSize
+        return pdfFileLocation
+
+    def exportPngThumbNail(self, coreFileName, exportDirectory, mxd, exportParams):
+        # PNG Thumbnail.  Need to create a larger image first.
+        # If this isn't done, the thumbnail is pixelated amd doesn't look good
+        pngTmpThumbNailFileName = "tmp-thumbnail.png"
+        pngTmpThumbNailFileLocation = os.path.join(exportDirectory, pngTmpThumbNailFileName)
+        arcpy.mapping.ExportToPNG(mxd, pngTmpThumbNailFileLocation)
+
+        pngThumbNailFileName = "thumbnail.png"
+        pngThumbNailFileLocation = os.path.join(exportDirectory, pngThumbNailFileName)
+
+        # Resize the thumbnail
+        fd_img = open(pngTmpThumbNailFileLocation, 'r+b')
+        img = Image.open(fd_img)
+        img = resizeimage.resize('thumbnail', img, [140, 99])
+        img.save(pngThumbNailFileLocation, img.format)
+        fd_img.close()
+
+        # Remove the temporary larger thumbnail
+        os.remove(pngTmpThumbNailFileLocation)
+        return pngThumbNailFileLocation
+
     """
     Generates Export XML file
 
@@ -625,91 +572,6 @@ class ArcMapRunner:
     Returns:
         Path to export XML file
     """
-
-    # TODO: asmith 2020/03/03
-    # 1) This method can be moved into the controller so that it can be re-used for the QGIS
-    # implementation
-    #
-    # 2) Consider splitting this method into two. One which build the data structure for the
-    # metadata and a seperate method which writes that metadata structure out to a file.
-    def generateXml(self, params):
-        # TODO: asmith 2020/03/03
-        # `row` doesn't seem to me to be the appropriate name for this dictionary.
-
-        # Set up dictionary for all the values required for the export XML file
-        row = {}
-        row["versionNumber"] = self.versionNumber
-        row["mapNumber"] = self.mapNumber
-        row["operationID"] = self.event.operation_id
-        row["sourceorg"] = self.event.default_source_organisation
-        row["pdffilename"] = params["pdfFileName"]
-        row["jpgfilename"] = params["jpgFileName"]
-        row["pdffilesize"] = params["pdfFileSize"]
-        row["jpgfilesize"] = params["jpgFileSize"]
-        row["glideno"] = self.event.glide_number
-        row["title"] = self.productName
-        row["countries"] = self.event.country_name
-        row["xmin"] = self.minx
-        row["ymin"] = self.miny
-        row["xmax"] = self.maxx
-        row["ymax"] = self.maxy
-        row["ref"] = params["coreFileName"]
-        row["mxdfilename"] = params["coreFileName"]
-        row["paperxmax"] = ""
-        row["paperxmin"] = ""
-        row["paperymax"] = ""
-        row["paperymin"] = ""
-        row["pdfresolutiondpi"] = self.event.default_pdf_res_dpi
-        row["jpgresolutiondpi"] = self.event.default_jpeg_res_dpi
-        if (self.versionNumber == 1):
-            row["status"] = "New"
-        else:
-            row["status"] = "Update"
-
-        row["language-iso2"] = self.event.language_iso2
-        language = pycountry.languages.get(alpha_2=self.event.language_iso2)
-        if (language is not None):
-            row["language"] = language.name
-        else:
-            row["language"] = None
-        row["createdate"] = None
-        row["createtime"] = None
-        row["summary"] = None
-        row["scale"] = None
-        row["datum"] = None
-
-        if (self.chef is not None):
-            row["createdate"] = self.chef.createDate
-            row["createtime"] = self.chef.createTime
-            row["summary"] = self.chef.summary
-            row["scale"] = self.chef.scale()
-            row["datum"] = self.chef.spatialReference()
-        row["imagerydate"] = ""
-        row["product-type"] = params["productType"]
-        row["papersize"] = "A3"
-        row["access"] = "MapAction"  # Until we work out how to get the values for this
-        row["accessnotes"] = ""
-        row["location"] = ""
-        row["qclevel"] = "Automatically generated"
-        row["qcname"] = ""
-        row["themes"] = {}
-        row["proj"] = ""
-        row["datasource"] = ""
-        row["kmlresolutiondpi"] = ""
-
-        exportData = MapData(row)
-        # TODO: asmith 2020/03/03
-        # suggest splitting the method here.
-        md = MapDoc(exportData)
-
-        exportXmlFileName = params["coreFileName"]+".xml"
-        exportXmlFileLocation = os.path.join(params["exportDirectory"], exportXmlFileName)
-
-        f = open(exportXmlFileLocation, "w")
-        f.write(md.xml())
-        f.close()
-
-        return exportXmlFileLocation
 
 
 def is_valid_file(parser, arg):
@@ -787,11 +649,10 @@ def main():
         else:
             orientation = "portrait"
 
-    eventConfig = Event(args.eventConfigFile)
+    eventConfig = Event(args.eventConfigFile, orientation)
     runner = ArcMapRunner(args.templateFile,
                           eventConfig,
-                          args.productName,
-                          orientation)
+                          args.productName)
 
     productGenerated = runner.generate()
     if (productGenerated and args.export):
