@@ -17,11 +17,11 @@ class TestMapChef(TestCase):
             self.parent_dir, 'tests', 'test_data', 'fixture_cmf_description_flat_test.json')
         self.cmf = CrashMoveFolder(self.path_to_valid_cmf_des)
         self.cookBook = MapCookbook(self.cmf.map_definitions)
-        self.event = Event(os.path.join(self.parent_dir, 'tests', 'test_data', 
-                                        'event_description.json')) 
+        self.event = Event(os.path.join(self.parent_dir, 'tests', 'test_data',
+                                        'event_description.json'))
         self.my_mxd_fname = os.path.join(self.parent_dir, 'tests', 'test_data',
                                          'output_arcgis_10_6_reference_landscape_bottom.mxd')
-        self.layerDefinition = LayerProperties(self.cmf, '.lyr')                                       
+        self.layerDefinition = LayerProperties(self.cmf, '.lyr')
 
     def test_map_chef_constructor(self):
         my_mxd = arcpy.mapping.MapDocument(self.my_mxd_fname)

@@ -109,7 +109,7 @@ class ArcMapRunner:
             self.mxdTemplate, self.mapNumber, self.versionNumber, generationRequired = self.get_template(
                 self.cookbookFile, self.crashMoveFolder, self.productName)
         else:
-            generationRequired = True        
+            generationRequired = True
         if (generationRequired):
             mxd = arcpy.mapping.MapDocument(self.mxdTemplate)
 
@@ -660,8 +660,8 @@ def main():
     if (templateUpdated):
         if (args.export):
             runner.export()
-        else:    
-            print("Template updated.  No product export requested.")    
+        else:
+            print("Template updated.  No product export requested.")
     else:
         print("No product generated.  No changes since last execution.")
 
