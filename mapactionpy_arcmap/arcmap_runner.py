@@ -108,6 +108,8 @@ class ArcMapRunner:
         if self.mxdTemplate is None:
             self.mxdTemplate, self.mapNumber, self.versionNumber, generationRequired = self.get_template(
                 self.cookbookFile, self.crashMoveFolder, self.productName)
+        else:
+            generationRequired = True        
         if (generationRequired):
             mxd = arcpy.mapping.MapDocument(self.mxdTemplate)
 
@@ -628,7 +630,7 @@ def main():
     parser.add_argument("-t", "--template", dest="templateFile", required=False,
                         help="path to MXD file", metavar="FILE",
                         type=lambda x: is_valid_file(parser, x))
-    parser.add_argument("-e", "--e", dest="eventConfigFile", required=True,
+    parser.add_argument("-e", "--eventConfigFile", dest="eventConfigFile", required=True,
                         help="path the Event Config File", metavar="FILE",
                         type=lambda x: is_valid_file(parser, x))
     parser.add_argument("-ld", "--layerDirectory", dest="layerDirectory", required=False,
@@ -654,9 +656,12 @@ def main():
                           eventConfig,
                           args.productName)
 
-    productGenerated = runner.generate()
-    if (productGenerated and args.export):
-        runner.export()
+    templateUpdated = runner.generate()
+    if (templateUpdated):
+        if (args.export):
+            runner.export()
+        else:    
+            print("Template updated.  No product export requested.")    
     else:
         print("No product generated.  No changes since last execution.")
 
