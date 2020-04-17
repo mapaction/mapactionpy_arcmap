@@ -197,7 +197,7 @@ class ArcMapRunner:
         # Need to get the theme from the recipe to get the path to the MXD
 
         mapNumberTemplateFileName = self.recipe.mapnumber + "_"+orientation+".mxd"
-        mapNumberTemplateFilePath = os.path.join(crashMoveFolder.mxd_templates, mapNumberTemplateFileName)
+        mapNumberTemplateFilePath = os.path.join(crashMoveFolder.map_templates, mapNumberTemplateFileName)
         if os.path.exists(mapNumberTemplateFilePath):
             srcTemplateFile = mapNumberTemplateFilePath
             # In this instance, we only want to replace the datasource, everything else should say as is
@@ -214,11 +214,11 @@ class ArcMapRunner:
             elif (self.recipe.category.lower() == "thematic"):
                 templateFileName = arcGisVersion + "_" + self.recipe.category + "_" + orientation + ".mxd"
             else:
-                raise Exception("Error: Could not get source MXD from: " + crashMoveFolder.mxd_templates)
+                raise Exception("Error: Could not get source MXD from: " + crashMoveFolder.map_templates)
 
-            srcTemplateFile = os.path.join(crashMoveFolder.mxd_templates, templateFileName)
+            srcTemplateFile = os.path.join(crashMoveFolder.map_templates, templateFileName)
 
-        mapNumberDirectory = os.path.join(crashMoveFolder.mxd_products, self.recipe.mapnumber)
+        mapNumberDirectory = os.path.join(crashMoveFolder.map_projects, self.recipe.mapnumber)
 
         if not(os.path.isdir(mapNumberDirectory)):
             os.mkdir(mapNumberDirectory)
