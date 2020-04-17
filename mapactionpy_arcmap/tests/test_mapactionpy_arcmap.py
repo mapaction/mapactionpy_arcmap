@@ -18,7 +18,7 @@ class TestArcMapRunner(TestCase):
     def test_arcmap_runner_main(self):
         sys.argv[1:] = ['--cookbook', self.cmf.map_definitions,
                         '--layerConfig', self.cmf.layer_properties,
-                        '--template', os.path.join(self.cmf.mxd_templates,
+                        '--template', os.path.join(self.cmf.map_templates,
                                                    'arcgis_10_6_reference_landscape_bottom.mxd'),
                         '--cmf', self.cmf.path,
                         '--layerDirectory', self.cmf.layer_rendering,
