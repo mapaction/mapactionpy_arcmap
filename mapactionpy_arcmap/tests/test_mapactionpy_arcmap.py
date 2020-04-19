@@ -16,21 +16,23 @@ class TestArcMapRunner(TestCase):
         self.cmf = CrashMoveFolder(self.path_to_valid_cmf_des)
 
     def test_arcmap_runner_main(self):
-        sys.argv[1:] = ['--cookbook', self.cmf.map_definitions,
-                        '--layerConfig', self.cmf.layer_properties,
+        sys.argv[1:] = ['--eventConfigFile', os.path.join(self.cmf.path, 'event_description.json'),
                         '--template', os.path.join(self.cmf.mxd_templates,
                                                    'arcgis_10_6_reference_landscape_bottom.mxd'),
-                        '--cmf', self.cmf.path,
-                        '--layerDirectory', self.cmf.layer_rendering,
-                        '--product', 'Example Map',
-                        '--country', 'FICTION-LAND',
-                        '--orientation', 'landscape']
-
-        arcmap_runner.main()
-        self.assertTrue(True)
-
+                        "--product", "Example Map"]
         try:
             arcmap_runner.main()
             self.assertTrue(True)
         except Exception as e:
             self.fail(e.message)
+
+    def test_arcmap_runner_main_unknown_product(self):
+        sys.argv[1:] = ['--eventConfigFile', os.path.join(self.cmf.path, 'event_description.json'),
+                        '--template', os.path.join(self.cmf.mxd_templates,
+                                                   'arcgis_10_6_reference_landscape_bottom.mxd'),
+                        "--product", "This product does not exist"]
+        try:
+            arcmap_runner.main()
+        except Exception as e:
+            self.assertTrue("Could not find recipe for product: \"" +
+                            sys.argv[6] + "\"" in str(e.message))

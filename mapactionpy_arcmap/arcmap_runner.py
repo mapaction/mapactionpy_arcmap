@@ -82,7 +82,11 @@ class ArcMapRunner:
                 raise Exception("Error: Could not derive cookbook file from " + self.event.cmf_descriptor_path)
 
         self.cookbook = MapCookbook(self.cookbookFile)
-        self.recipe = self.cookbook.products[productName]
+
+        try:
+            self.recipe = self.cookbook.products[productName]
+        except KeyError:
+            raise Exception("Error: Could not find recipe for product: \"" + productName + "\" in " + self.cookbookFile)
 
         if self.layerPropertiesFile is None:
             if self.crashMoveFolder is not None:
