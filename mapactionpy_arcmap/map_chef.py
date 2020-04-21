@@ -63,7 +63,7 @@ class MapChef:
         self.cookbookJsonFile = cookbookJsonFile
         self.crashMoveFolder = crashMoveFolder
         self.layerDirectory = layerDirectory
-        self.cookbook = MapCookbook(self.cookbookJsonFile)
+
         # TODO asmith 2020/03/06
         # `countryName` should be added into the event object.
         self.countryName = None
@@ -73,6 +73,10 @@ class MapChef:
         self.cmfConfig = CrashMoveFolder(crashMoveFolder)
         eventFilePath = os.path.join(self.cmfConfig.path, "event_description.json")
         self.layerProperties = LayerProperties(self.cmfConfig, '.lyr')
+
+        # self.cookbook = MapCookbook(self.cookbookJsonFile)
+        self.cookbook = MapCookbook(self.cmfConfig, self.layerProperties)
+
         self.legendEntriesToRemove = list()
 
         self.datasetTypes = ["SHAPEFILE_WORKSPACE",
@@ -91,7 +95,6 @@ class MapChef:
 
         self.replaceDataSourceOnly = False
         self.event = None
-        self.cmfConfig = None
         # It appears that this is not used - therefore should be removed. If it is used, then it
         # TODO asmith 2020/03/06
         # needs a more specific name. There exist Data, Layerfile, MXD and Template Naming

@@ -8,9 +8,9 @@
 	"layer_rendering": ".",
 	"legend_images": ".",
 	"map_definitions": "fixture_map_cook_book_minimal.json",
-	"map_projects_nc_definition": "mxd_naming_convention.json",
 	"map_projects": ".",
-  "map_templates": ".",
-  "map_template_nc_definition": "mxd_template_naming_convention.json",
+	"map_projects_nc_definition": "mxd_naming_convention.json",
+	"map_template_nc_definition": "mxd_template_naming_convention.json",
+	"map_templates": ".",
 	"original_data": "."
 }

@@ -105,6 +105,20 @@ class ArcMapRunner:
                 raise Exception("Error: Could not derive country from " + self.eventFilePath)
 
         # TODO: asmith 2020/03/03
+        # The name `self.layerDefinition` is unclear and should be changed.
+        #   * As far as I can see this object encapsulates the properties of multiple layers
+        #     (not merely multiple properties of a single layer).
+        #   * Also `layerDefinition` is easily confussed with the DefinitionQuery of a layer (which
+        #     it's not).
+        self.layerDefinition = LayerProperties(self.cmf, '.lyr')
+
+        if self.layerDirectory is None:
+            if self.cmf is not None:
+                self.layerDirectory = self.cmf.layer_rendering
+            else:
+                raise Exception("Error: Could not derive layer rendering directory from " + self.crashMoveFolder)
+
+        # TODO: asmith 2020/03/03
         # Much of here to line 132 is unrequired, as the CrashMoveFolder class already has a method
         # for verifying the existance of all of the relevant files and directories. By default this
         # happens when a CrashMoveFolder object is created. For the paraniod these two lines:
@@ -120,7 +134,8 @@ class ArcMapRunner:
             else:
                 raise Exception("Error: Could not derive cookbook file from " + self.crashMoveFolder)
 
-        self.cookbook = MapCookbook(self.cookbookFile)
+        # self.cookbook = MapCookbook(self.cookbookFile)
+        self.cookbook = MapCookbook(self.cmf, self.layerDefinition)
         self.recipe = self.cookbook.products[productName]
 
         if self.layerPropertiesFile is None:
@@ -128,20 +143,6 @@ class ArcMapRunner:
                 self.layerPropertiesFile = self.cmf.layer_properties
             else:
                 raise Exception("Error: Could not derive layer config file from " + self.crashMoveFolder)
-
-        # TODO: asmith 2020/03/03
-        # The name `self.layerDefinition` is unclear and should be changed.
-        #   * As far as I can see this object encapsulates the properties of multiple layers
-        #     (not merely multiple properties of a single layer).
-        #   * Also `layerDefinition` is easily confussed with the DefinitionQuery of a layer (which
-        #     it's not).
-        self.layerDefinition = LayerProperties(self.cmf, '.lyr')
-
-        if self.layerDirectory is None:
-            if self.cmf is not None:
-                self.layerDirectory = self.cmf.layer_rendering
-            else:
-                raise Exception("Error: Could not derive layer rendering directory from " + self.crashMoveFolder)
 
     # TODO: asmith 2020/03/03
     # method name is unclear. Generate what? How does this relate to

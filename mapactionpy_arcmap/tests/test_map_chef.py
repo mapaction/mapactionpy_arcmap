@@ -50,8 +50,8 @@ class TestMapChef(TestCase):
             versionNumber=1
         )
 
-        try:
-            mc.cook("Example Map", "FICTION-LAND")
-            self.assertTrue(True)
-        except Exception as e:
-            self.fail(e)
+        mc.cook("Example Map", "FICTION-LAND")
+        # If it gets this far without throwing an exception that good enough for this test
+        # At the commandline there is a more useful stacktrace if you don't explictly catch
+        # the exception and fail the test here.
+        self.assertTrue(True)
