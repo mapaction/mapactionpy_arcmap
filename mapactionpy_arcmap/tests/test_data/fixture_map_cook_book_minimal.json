@@ -5,21 +5,40 @@
 			"category": "Reference",
 			"product": "Example Map",
 			"export": true,
-			"layers": [
+			"summary": "Country overview with topography displayed",
+			"template": "reference",
+			"runners": [
 				{
-					"name": "mainmap_tran_por_pt_s0_allmaps"
-				},
-				{
-					"name": "mainmap_stle_stl_pt_s0_allmaps"
-				},
-				{
-					"name": "mainmap-s0-py-surroundingcountries"
-				},
-				{
-					"name": "locationmap_stle_stl_pt_s0_locationmaps"
+					"name": "arcmap",
+					"example_key": "example_value"
 				}
 			],
-			"summary": "Country overview with topography displayed"
+			"map_frames": [
+				{
+					"name": "Main map",
+					"scale_text_element": "scale",
+					"spatial_ref_text_element": "spatial_reference",
+					"layers": [
+						{
+							"name": "mainmap-s0-py-surroundingcountries"
+						},
+						{
+							"name": "mainmap_tran_por_pt_s0_allmaps"
+						},
+						{
+							"name": "mainmap_stle_stl_pt_s0_allmaps"
+						}
+					]
+				},
+				{
+					"name": "Location map",
+					"layers": [
+						{
+							"name": "locationmap_stle_stl_pt_s0_locationmaps"
+						}
+					]
+				}
+			]
 		}
 	]
 }

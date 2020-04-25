@@ -16,3 +16,4 @@ all-tests.cmd
 run-all-tests.cmd
 htmlcov/
 mapactionpy_arcmap/tests/test_data/output*
+mapactionpy_arcmap/tests/test_data/output_arcgis_10_6_reference_landscape_bottom.mxd
