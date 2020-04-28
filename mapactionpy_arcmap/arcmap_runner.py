@@ -51,7 +51,7 @@ class ArcMapRunner:
                  cookbookFile,
                  layerConfig,
                  templateFile,
-                 crashMoveFolder,
+                 cmf_descriptor_path,
                  layerDirectory,
                  productName,
                  countryName,
@@ -59,15 +59,16 @@ class ArcMapRunner:
         self.cookbookFile = cookbookFile
         self.layerPropertiesFile = layerConfig
         self.mxdTemplate = templateFile
-        self.crashMoveFolder = crashMoveFolder
+        self.crashMoveFolder = cmf_descriptor_path
         self.layerDirectory = layerDirectory
         self.productName = productName
         self.countryName = countryName
+        self.cmf = CrashMoveFolder(cmf_descriptor_path)
         # TODO: asmith 2020/03/03
-        # Do not hard code filenames
-        self.eventFilePath = os.path.join(crashMoveFolder, "event_description.json")
-        self.cmf = None
-        self.event = None
+        # For now tolerate a hack to hard code filenames
+        # In due course the Event object should be passed to the constructor
+        self.eventFilePath = os.path.join(self.cmf.path, "event_description.json")
+        self.event = Event(self.eventFilePath)
         self.replaceOnly = False
 
         # Determine orientation
@@ -84,14 +85,6 @@ class ArcMapRunner:
         self.maxx = 0
         self.maxy = 0
         self.chef = None
-
-        if os.path.exists(self.eventFilePath):
-            self.event = Event(self.eventFilePath)
-            # TODO: asmith 2020/03/03
-            # `os.path.join` is not required here. The Event object gaurentees that
-            # `self.event.cmf_descriptor_path` is the fully qualified path to the file itself
-            # not the parent directory.
-            self.cmf = CrashMoveFolder(self.event.cmf_descriptor_path)
 
         # TODO: asmith 2020/03/03
         # This is very useful, but should live in the Event class.
@@ -116,7 +109,7 @@ class ArcMapRunner:
             if self.cmf is not None:
                 self.layerDirectory = self.cmf.layer_rendering
             else:
-                raise Exception("Error: Could not derive layer rendering directory from " + self.crashMoveFolder)
+                raise Exception("Error: Could not derive layer rendering directory from " + cmf_descriptor_path)
 
         # TODO: asmith 2020/03/03
         # Much of here to line 132 is unrequired, as the CrashMoveFolder class already has a method
@@ -132,7 +125,7 @@ class ArcMapRunner:
             if self.cmf is not None:
                 self.cookbookFile = self.cmf.map_definitions
             else:
-                raise Exception("Error: Could not derive cookbook file from " + self.crashMoveFolder)
+                raise Exception("Error: Could not derive cookbook file from " + cmf_descriptor_path)
 
         # self.cookbook = MapCookbook(self.cookbookFile)
         self.cookbook = MapCookbook(self.cmf, self.layerDefinition)
@@ -142,7 +135,7 @@ class ArcMapRunner:
             if self.cmf is not None:
                 self.layerPropertiesFile = self.cmf.layer_properties
             else:
-                raise Exception("Error: Could not derive layer config file from " + self.crashMoveFolder)
+                raise Exception("Error: Could not derive layer config file from " + cmf_descriptor_path)
 
     # TODO: asmith 2020/03/03
     # method name is unclear. Generate what? How does this relate to
@@ -480,7 +473,7 @@ class ArcMapRunner:
             # ```
 
             # Disable view of Affected Country
-            locationMapLayerName = "locationmap-s0-py-affectedcountry"  # Hard-coded
+            locationMapLayerName = "locationmap-admn-ad0-py-s0-locationmaps"  # Hard-coded
             layerDefinition = self.layerDefinition.properties.get(locationMapLayerName)
             locationMapDataFrameName = layerDefinition.mapFrame
             locationMapDataFrame = arcpy.mapping.ListDataFrames(mxd, locationMapDataFrameName)[0]
@@ -806,7 +799,7 @@ def main():
     # file is merely convention.
     parser.add_argument("-cmf", "--cmf", dest="crashMoveFolder", required=True,
                         help="path the Crash Move Folder", metavar="FILE",
-                        type=lambda x: is_valid_directory(parser, x))
+                        type=lambda x: is_valid_file(parser, x))
     parser.add_argument("-ld", "--layerDirectory", dest="layerDirectory", required=False,
                         help="path to layer directory", metavar="FILE",
                         type=lambda x: is_valid_directory(parser, x))

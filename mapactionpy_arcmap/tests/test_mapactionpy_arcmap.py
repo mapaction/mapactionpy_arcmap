@@ -18,13 +18,14 @@ class TestArcMapRunner(TestCase):
     def test_arcmap_runner_main(self):
         sys.argv[1:] = ['--cookbook', self.cmf.map_definitions,
                         '--layerConfig', self.cmf.layer_properties,
-                        '--template', os.path.join(self.cmf.map_templates,
-                                                   'arcgis_10_6_reference_landscape_bottom.mxd'),
-                        '--cmf', self.cmf.path,
+                        '--cmf', self.path_to_valid_cmf_des,
                         '--layerDirectory', self.cmf.layer_rendering,
                         '--product', 'Example Map',
                         '--country', 'FICTION-LAND',
                         '--orientation', 'landscape']
+
+        #                '--template', os.path.join(self.cmf.map_templates,
+        #                                           'arcgis_10_6_reference_landscape_bottom.mxd'),
 
         arcmap_runner.main()
         self.assertTrue(True)

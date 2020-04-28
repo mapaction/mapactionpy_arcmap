@@ -214,8 +214,9 @@ class MapChef:
             # if len(recipe.summary):
             if (len(recipe.summary) > 0):
                 self.summary = recipe.summary
-            for layer in recipe.layers:
-                self.processLayer(layer)
+            for mf in recipe.map_frames.values():
+                for layer in mf.layers:
+                    self.processLayer(layer, mf)
         self.enableLayers()
         arcpy.RefreshTOC()
         arcpy.RefreshActiveView()
@@ -315,7 +316,7 @@ class MapChef:
     Updates or Adds a layer of data.  Maintains the Map Report.
     """
 
-    def processLayer(self, layer):
+    def processLayer(self, layer, map_frame):
         mapResult = MapResult(layer["name"])
         # TODO asmith 2020/03/06
         # As far as I can tell the use of `dict.get(...., None)` followed by various `if` statement
@@ -336,7 +337,7 @@ class MapChef:
                 # TODO asmith 2020/03/06
                 # Is there a check anywhere that ensures that the mapFrames listed in the
                 # layerProperties file/object exist within the MXD? What happens if they don't?
-                self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
+                self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, map_frame.name)[0]
                 try:
                     updateLayer = arcpy.mapping.ListLayers(self.mxd, properties.layerName, self.dataFrame)[0]
                     # Replace existing layer
