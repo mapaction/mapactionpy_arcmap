@@ -16,12 +16,12 @@ class TestMapChef(TestCase):
         self.path_to_valid_cmf_des = os.path.join(
             self.parent_dir, 'tests', 'test_data', 'fixture_cmf_description_flat_test.json')
         self.cmf = CrashMoveFolder(self.path_to_valid_cmf_des)
-        self.cookBook = MapCookbook(self.cmf.map_definitions)
         self.event = Event(os.path.join(self.parent_dir, 'tests', 'test_data',
                                         'event_description.json'))
         self.my_mxd_fname = os.path.join(self.parent_dir, 'tests', 'test_data',
                                          'output_arcgis_10_6_reference_landscape_bottom.mxd')
-        self.layerDefinition = LayerProperties(self.cmf, '.lyr')
+        self.layer_props = LayerProperties(self.cmf, '.lyr')
+        self.cookBook = MapCookbook(self.cmf, self.layer_props)
 
     def test_map_chef_constructor(self):
         my_mxd = arcpy.mapping.MapDocument(self.my_mxd_fname)
@@ -29,7 +29,7 @@ class TestMapChef(TestCase):
         mc = MapChef(
             my_mxd,
             self.cookBook,
-            self.layerDefinition,
+            self.layer_props,
             self.cmf,
             self.event,
             versionNumber=1
@@ -43,13 +43,11 @@ class TestMapChef(TestCase):
         mc = MapChef(
             my_mxd,
             self.cookBook,
-            self.layerDefinition,
+            self.layer_props,
             self.cmf,
             self.event,
             versionNumber=1
         )
-        try:
-            mc.cook(self.cookBook.products[productName])
-            self.assertTrue(True)
-        except Exception as e:
-            self.fail(e)
+
+        mc.cook(self.cookBook.products[productName])
+        self.assertTrue(True)

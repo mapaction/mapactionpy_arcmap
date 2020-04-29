@@ -55,21 +55,6 @@ class MapChef:
         # passed.
         self.mxd = mxd
         self.crashMoveFolder = crashMoveFolder
-        # TODO - from PR39
-        # self.layerDirectory = layerDirectory
-
-        # # TODO asmith 2020/03/06
-        # # `countryName` should be added into the event object.
-        # self.countryName = None
-        # # TODO asmith 2020/03/06
-        # # Please do not hardcode filenames.
-        # # cmfFilePath = os.path.join(crashMoveFolder, "cmf_description.json")
-        # self.cmfConfig = CrashMoveFolder(crashMoveFolder)
-        # eventFilePath = os.path.join(self.cmfConfig.path, "event_description.json")
-        # self.layerProperties = LayerProperties(self.cmfConfig, '.lyr')
-
-        # # self.cookbook = MapCookbook(self.cookbookJsonFile)
-        # self.cookbook = MapCookbook(self.cmfConfig, self.layerProperties)
 
         self.eventConfiguration = eventConfiguration
         self.cookbook = cookbook
@@ -191,29 +176,14 @@ class MapChef:
             self.disableLayers()
             self.removeLayers()
 
-        # from PR39
-        # self.mapReport = MapReport(productName)
-        # # TODO asmith 2020/03/06
-        # # Not with standing the above, the relevant Recipe object has already be indentified and
-        # # validated in the ArcMapRunner object. Why not just pass that instead of the productName?
-        # recipe = self.cookbook.products.get(productName, None)
-        # if (recipe is not None):
-        #     self.export = recipe.export
-        #     # TODO asmith 2020/03/06
-        #     # This works too and some would claim it is more pythonic
-        #     # if len(recipe.summary):
-        #     if (len(recipe.summary) > 0):
-        #         self.summary = recipe.summary
-        #     for mf in recipe.map_frames.values():
-        #         for layer in mf.layers:
-        #             self.processLayer(layer, mf)
-
         self.mapReport = MapReport(self.recipe.product)
         if (self.recipe is not None):
             if len(self.recipe.summary):
                 self.summary = self.recipe.summary
-            for layer in self.recipe.layers:
-                self.processLayer(layer)
+            for mf in self.recipe.map_frames.values():
+                for layer in mf.layers.values():
+                    self.processLayer(layer, mf)
+
         self.enableLayers()
         arcpy.RefreshTOC()
         arcpy.RefreshActiveView()
@@ -312,7 +282,10 @@ class MapChef:
     """
 
     def processLayer(self, layer, map_frame):
-        mapResult = MapResult(layer["name"])
+        print('\n$$$$$$$$$$$$$$$$$$$$$$$$$$')
+        print(layer, map_frame)
+        print('\n$$$$$$$$$$$$$$$$$$$$$$$$$$')
+        mapResult = MapResult(layer.layerName)
         # TODO asmith 2020/03/06
         # As far as I can tell the use of `dict.get(...., None)` followed by various `if` statement
         # which are checking for None values, is to cater for cases where there are inconsistencies
@@ -325,7 +298,9 @@ class MapChef:
         # Also the constructor for the LayerProperties object could also check
         # for the existance, on disk, of each of the named layer files. In this case it would also
         # be necessary to accommodate the possiblity that the files on disk may change at run time.
-        properties = self.layerProperties.properties.get(layer["name"], None)
+        # properties = self.layerProperties.properties.get(layer["name"], None)
+        properties = layer
+
         if (properties is not None):
             layerFilePath = os.path.join(self.crashMoveFolder.layer_rendering, (properties.layerName + ".lyr"))
             if (os.path.exists(layerFilePath)):
@@ -646,7 +621,11 @@ class MapChef:
                     self.mxd.save()
 
             if (mapResult.added is True):
-                self.applyZoom(self.dataFrame, layerToAdd, cookBookLayer.get('zoomMultiplier', 0))
+                # TODO add proper fix for applyZoom in line with these two cards
+                # https: // trello.com/c/Bs70ru1s/145-design-criteria-for-selecting-zoom-extent
+                # https://trello.com/c/piE3tKRp/146-implenment-rules-for-selection-zoom-extent
+                # self.applyZoom(self.dataFrame, layerToAdd, cookBookLayer.get('zoomMultiplier', 0))
+                self.applyZoom(self.dataFrame, layerToAdd, 0)
 
                 if layerProperties.addToLegend is False:
                     self.legendEntriesToRemove.append(layerToAdd.name)

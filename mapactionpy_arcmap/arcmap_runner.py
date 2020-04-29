@@ -71,13 +71,7 @@ class ArcMapRunner:
         #     (not merely multiple properties of a single layer).
         #   * Also `layerDefinition` is easily confussed with the DefinitionQuery of a layer (which
         #     it's not).
-        self.layerDefinition = LayerProperties(self.cmf, '.lyr')
-
-        if self.layerDirectory is None:
-            if self.cmf is not None:
-                self.layerDirectory = self.cmf.layer_rendering
-            else:
-                raise Exception("Error: Could not derive layer rendering directory from " + cmf_descriptor_path)
+        self.layerDefinition = LayerProperties(self.crashMoveFolder, '.lyr')
 
         # TODO: asmith 2020/03/03
         # Much of here to line 132 is unrequired, as the CrashMoveFolder class already has a method
@@ -95,7 +89,7 @@ class ArcMapRunner:
             else:
                 raise Exception("Error: Could not derive cookbook file from " + self.event.cmf_descriptor_path)
 
-        self.cookbook = MapCookbook(self.cmf, self.layerDefinition)
+        self.cookbook = MapCookbook(self.crashMoveFolder, self.layerDefinition)
         # self.cookbook = MapCookbook(self.cookbookFile)
 
         try:
@@ -176,7 +170,7 @@ class ArcMapRunner:
         # Need to get the theme from the recipe to get the path to the MXD
 
         mapNumberTemplateFileName = self.recipe.mapnumber + "_" + self.event.orientation + ".mxd"
-        mapNumberTemplateFilePath = os.path.join(crashMoveFolder.mxd_templates, mapNumberTemplateFileName)
+        mapNumberTemplateFilePath = os.path.join(crashMoveFolder.map_templates, mapNumberTemplateFileName)
         if os.path.exists(mapNumberTemplateFilePath):
             srcTemplateFile = mapNumberTemplateFilePath
             # In this instance, we only want to replace the datasource, everything else should say as is
@@ -188,10 +182,10 @@ class ArcMapRunner:
             # the case used in for the template filename.
             if (self.recipe.category.lower() == "reference"):
                 templateFileName = arcGisVersion + "_" + \
-                                   self.recipe.category + \
-                                   "_" + \
-                                   self.event.orientation + \
-                                   "_bottom.mxd"
+                    self.recipe.category + \
+                    "_" + \
+                    self.event.orientation + \
+                    "_bottom.mxd"
             elif (self.recipe.category.lower() == "ddp reference"):
                 templateFileName = arcGisVersion + "_ddp_reference_" + self.event.orientation + ".mxd"
             elif (self.recipe.category.lower() == "thematic"):
@@ -343,7 +337,7 @@ class ArcMapRunner:
         # TODO: asmith 2020/03/03
         # Seperate this section into a method nameded something like
         # _process_query_column_name(...)
-        if self.recipe.hasQueryColumnName:
+        if self.recipe.atlas:
             # TODO: asmith 2020/03/03
             #
             # 1) Please do not hard code layer file names! If a particular layer needs to have a special
