@@ -2,22 +2,17 @@ import os
 import arcpy
 import jsonpickle
 import re
-from mapactionpy_controller.map_cookbook import MapCookbook
 from mapactionpy_controller.map_report import MapReport
 from mapactionpy_controller.map_result import MapResult
 from mapactionpy_controller.data_source import DataSource
-from mapactionpy_controller.event import Event
-from mapactionpy_controller.crash_move_folder import CrashMoveFolder
-# from mapactionpy_controller.name_convention import NamingConvention
-from mapactionpy_controller.layer_properties import LayerProperties
 from datetime import datetime
 
 # TODO asmith 2020/03/06
-# What is the seperation of responsiblities between MapChef and ArcMapRunner? Why is the boundary
+# What is the separation of responsiblities between MapChef and ArcMapRunner? Why is the boundary
 # between the two classes where it is? If I was to add a new function how would I know whether it
 # should be added to MapChef or ArcMapRunner?
 #
-# Is it indented that the `cook()` method might be called multiple times in the life of a MapChef
+# Is it intended that the `cook()` method might be called multiple times in the life of a MapChef
 # object? At present it looks to me like `cook()` can only be called once. In which case why have
 # `cook()` as a public method and why not call it directly from the constructor.
 
@@ -27,7 +22,7 @@ class MapChef:
     Worker which creates a Map based on a predefined "recipe" from a cookbook
     """
     # TODO asmith 2020/03/06
-    # This constructor seem unecessarily complicated. In the ArcMapRunner these objects are already
+    # This constructor seem unnecessarily complicated. In the ArcMapRunner these objects are already
     # created:
     #   * MapCookbook object,
     #   * CrashMoveFolder object
@@ -41,42 +36,29 @@ class MapChef:
 
     def __init__(self,
                  mxd,
-                 cookbookJsonFile,
-                 layerPropertiesJsonFile,
+                 cookbook,
+                 layerDefinition,
                  crashMoveFolder,
-                 layerDirectory,
+                 eventConfiguration,
                  versionNumber=1):
         """
         Arguments:
            mxd {MXD file} -- MXD file.
-           cookbookJsonFile {str} -- Path to Map Cookbook json file
+           cookbook {MapCookbook} -- Path to Map Cookbook json file
            layerPropertiesJsonFile {str} -- Path to Layer Properties json file
-           crashMoveFolder {str} -- Path to Crash Move Folder json file
-           layerDirectory {str} -- Path to Layer (.lyr) files
+           crashMoveFolder {CrashMoveFolder} -- Path to Crash Move Folder json file
+           eventConfiguration {Event} -- Event Object
            versionNumber {int} -- version number of map
         """
         # TODO asmith 2020/03/06
         # See comment on the `cook()` method about where and when the `mxd` parameter should be
         # passed.
         self.mxd = mxd
-        self.layerPropertiesJsonFile = layerPropertiesJsonFile
-        self.cookbookJsonFile = cookbookJsonFile
         self.crashMoveFolder = crashMoveFolder
-        self.layerDirectory = layerDirectory
 
-        # TODO asmith 2020/03/06
-        # `countryName` should be added into the event object.
-        self.countryName = None
-        # TODO asmith 2020/03/06
-        # Please do not hardcode filenames.
-        # cmfFilePath = os.path.join(crashMoveFolder, "cmf_description.json")
-        self.cmfConfig = CrashMoveFolder(crashMoveFolder)
-        eventFilePath = os.path.join(self.cmfConfig.path, "event_description.json")
-        self.layerProperties = LayerProperties(self.cmfConfig, '.lyr')
-
-        # self.cookbook = MapCookbook(self.cookbookJsonFile)
-        self.cookbook = MapCookbook(self.cmfConfig, self.layerProperties)
-
+        self.eventConfiguration = eventConfiguration
+        self.cookbook = cookbook
+        self.layerProperties = layerDefinition
         self.legendEntriesToRemove = list()
 
         self.datasetTypes = ["SHAPEFILE_WORKSPACE",
@@ -94,7 +76,6 @@ class MapChef:
                              "VPF_WORKSPACE"]
 
         self.replaceDataSourceOnly = False
-        self.event = None
         # It appears that this is not used - therefore should be removed. If it is used, then it
         # TODO asmith 2020/03/06
         # needs a more specific name. There exist Data, Layerfile, MXD and Template Naming
@@ -109,11 +90,6 @@ class MapChef:
         self.createDate = datetime.utcnow().strftime("%d-%b-%Y")
         self.createTime = datetime.utcnow().strftime("%H:%M")
         self.export = False
-
-        if os.path.exists(eventFilePath):
-            self.event = Event(eventFilePath)
-        else:
-            raise ValueError('"Cannot open Event description file at path {}'.format(eventFilePath))
 
     def disableLayers(self):
         """
@@ -161,8 +137,8 @@ class MapChef:
         return spatialReferenceString
 
     # TODO asmith 2020/0306
-    # Do we need to ammocidate a use case where we would want to add layers but not make them
-    # visable? If so is this something that we deal with when we get to it?
+    # Do we need to accommodate a use case where we would want to add layers but not make them
+    # visible? If so is this something that we deal with when we get to it?
     def enableLayers(self):
         """
         Makes all layers visible for all data-frames
@@ -189,33 +165,25 @@ class MapChef:
     #   * If `cook()` can be called multiple times, then the `mxd` and the `map_version_number`
     #     should be parameters for the cook method and not for the constructor.
     #
-    # Not with standing the above, the relevant Recipe object has already be indentified and
+    # Not with standing the above, the relevant Recipe object has already be identified and
     # validated in the ArcMapRunner object. Why not just pass that instead of the productName?
-    def cook(self, productName, countryName, replaceDataSourceOnly=False):
-        # TODO asmith 2020/03/06
-        # The Event object should have an `countryName` member added (which can be guarenteed to
-        # match teh iso3 code for non-fictional countries). The value for the event.countryName
-        # should be used here.
-        self.countryName = countryName
+
+    def cook(self, recipe, replaceDataSourceOnly=False):
+        self.recipe = recipe
         self.replaceDataSourceOnly = replaceDataSourceOnly
         arcpy.env.addOutputsToMap = False
         if not replaceDataSourceOnly:
             self.disableLayers()
             self.removeLayers()
-        self.mapReport = MapReport(productName)
-        # TODO asmith 2020/03/06
-        # Not with standing the above, the relevant Recipe object has already be indentified and
-        # validated in the ArcMapRunner object. Why not just pass that instead of the productName?
-        recipe = self.cookbook.products.get(productName, None)
-        if (recipe is not None):
-            self.export = recipe.export
-            # TODO asmith 2020/03/06
-            # This works too and some would claim it is more pythonic
-            # if len(recipe.summary):
-            if (len(recipe.summary) > 0):
-                self.summary = recipe.summary
-            for layer in recipe.layers:
-                self.processLayer(layer)
+
+        self.mapReport = MapReport(self.recipe.product)
+        if (self.recipe is not None):
+            if len(self.recipe.summary):
+                self.summary = self.recipe.summary
+            for mf in self.recipe.map_frames.values():
+                for layer in mf.layers.values():
+                    self.processLayer(layer, mf)
+
         self.enableLayers()
         arcpy.RefreshTOC()
         arcpy.RefreshActiveView()
@@ -224,7 +192,7 @@ class MapChef:
         self.mxd.save()
 
         if (recipe is not None):
-            self.updateTextElements(productName, countryName, recipe.mapnumber)
+            self.updateTextElements()
             self.mxd.save()
 
     """
@@ -241,7 +209,6 @@ class MapChef:
         layer {arcpy._mapping.Layer} -- Layer to which data is added
         definitionQuery {str} -- Some layers have a definition query which select specific features from a SQL query
         labelClasses {list} -- List of LabelClass objects
-        countryName {str} -- Country name
 
     Returns:
         boolean -- added (true if successful)
@@ -254,7 +221,6 @@ class MapChef:
                        definitionQuery,
                        datasetName,
                        labelClasses,
-                       countryName,
                        addToLegend,
                        zoomMultiplier=0):
         added = False
@@ -263,7 +229,8 @@ class MapChef:
                 for labelClass in labelClasses:
                     for lblClass in lyr.labelClasses:
                         if (lblClass.className == labelClass.className):
-                            lblClass.SQLQuery = labelClass.SQLQuery.replace('{COUNTRY_NAME}', countryName)
+                            lblClass.SQLQuery = labelClass.SQLQuery.replace('{COUNTRY_NAME}',
+                                                                            self.eventConfiguration.country_name)
                             lblClass.expression = labelClass.expression
                             lblClass.showClassLabels = labelClass.showClassLabels
             if lyr.supports("DATASOURCE"):  # An annotation layer does not support DATASOURCE
@@ -275,7 +242,8 @@ class MapChef:
                         pass
 
                     if ((added is True) and (definitionQuery)):
-                        definitionQuery = definitionQuery.replace('{COUNTRY_NAME}', countryName)
+                        definitionQuery = definitionQuery.replace('{COUNTRY_NAME}',
+                                                                  self.eventConfiguration.country_name)
                         lyr.definitionQuery = definitionQuery
                         try:
                             arcpy.SelectLayerByAttribute_management(lyr, "SUBSET_SELECTION", definitionQuery)
@@ -305,46 +273,46 @@ class MapChef:
     """
     Returns map report in json format
     """
-    # TODO asmith 2020/03/06
-    # This method would benefit from a more descriptive name. How about `report_to_json`?
 
-    def report(self):
+    def report_as_json(self):
         return(jsonpickle.encode(self.mapReport, unpicklable=False))
 
     """
     Updates or Adds a layer of data.  Maintains the Map Report.
     """
 
-    def processLayer(self, layer):
-        mapResult = MapResult(layer["name"])
+    def processLayer(self, layer, map_frame):
+        print('\n$$$$$$$$$$$$$$$$$$$$$$$$$$')
+        print(layer, map_frame)
+        print('\n$$$$$$$$$$$$$$$$$$$$$$$$$$')
+        mapResult = MapResult(layer.layerName)
         # TODO asmith 2020/03/06
         # As far as I can tell the use of `dict.get(...., None)` followed by various `if` statement
-        # which are checking for None values, is to cater for cases where there are inconsistancies
+        # which are checking for None values, is to cater for cases where there are inconsistencies
         # between the mapCookBook and layerProperties files.
         #
-        # As an alternative implenmentation; how about if the constructor for mapCookBook required
-        # a LayerProperties object and then check the two files/objects for consistancy at the
+        # As an alternative implementation; how about if the constructor for mapCookBook required
+        # a LayerProperties object and then check the two files/objects for consistency at the
         # point of creation?
         #
         # Also the constructor for the LayerProperties object could also check
         # for the existance, on disk, of each of the named layer files. In this case it would also
-        # be necessary to accomidate the possiblity that the files on disk may change at run time.
-        properties = self.layerProperties.properties.get(layer["name"], None)
+        # be necessary to accommodate the possiblity that the files on disk may change at run time.
+        # properties = self.layerProperties.properties.get(layer["name"], None)
+        properties = layer
+
         if (properties is not None):
-            layerFilePath = os.path.join(self.layerDirectory, (properties.layerName + ".lyr"))
+            layerFilePath = os.path.join(self.crashMoveFolder.layer_rendering, (properties.layerName + ".lyr"))
             if (os.path.exists(layerFilePath)):
                 # TODO asmith 2020/03/06
                 # Is there a check anywhere that ensures that the mapFrames listed in the
                 # layerProperties file/object exist within the MXD? What happens if they don't?
-                self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, properties.mapFrame)[0]
+                self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, map_frame.name)[0]
                 try:
                     updateLayer = arcpy.mapping.ListLayers(self.mxd, properties.layerName, self.dataFrame)[0]
                     # Replace existing layer
                     mapResult = self.updateLayer(updateLayer, properties, layerFilePath)
-                # TODO asmith 2020/03/06
-                # Is catching the root Expection class here appropriate, or too far reaching?
-                # Is there a more ArcPy specifc Exception that we could catch here?
-                except Exception as ex:  # noqa
+                except IndexError:
                     # Layer doesn't exist, add new layer
                     mapResult = self.addLayer(properties, layerFilePath, layer)
 
@@ -353,7 +321,7 @@ class MapChef:
                         newLayer = arcpy.mapping.ListLayers(self.mxd, properties.layerName, self.dataFrame)[0]
                         self.applyZoom(self.dataFrame, newLayer, layer.get('zoomMultiplier', 0))
                     # TODO asmith 2020/03/06
-                    # Is catching the root Expection class here appropriate, or too far reaching?
+                    # Is catching the root Exception class here appropriate, or too far reaching?
                     # Is there a more specifc Exception that we could catch here?
                     except Exception:
                         pass
@@ -401,29 +369,20 @@ class MapChef:
     """
     Updates Text Elements in Marginalia
 
-    Arguments:
-        productName {str} -- Name of map product.  Used as map title.
-        countryName {str} -- Country name
-        mapNumber   {str} -- Map Action Map Number
     """
 
-    # TODO asmith 2020/03/06
-    # Why the mix of some variables as method parameters:
-    #    * productName, countryName, mapNumber
-    # and some as object members?
-    #    * self.createDate, self.createTime, self.summary, self.versionNumber
-    def updateTextElements(self, productName, countryName, mapNumber):
+    def updateTextElements(self):
         for elm in arcpy.mapping.ListLayoutElements(self.mxd, "TEXT_ELEMENT"):
             if elm.name == "country":
-                elm.text = countryName
+                elm.text = self.eventConfiguration.country_name
             if elm.name == "title":
-                elm.text = productName
+                elm.text = self.recipe.product
             if elm.name == "create_date_time":
                 elm.text = self.createDate + " " + self.createTime
             if elm.name == "summary":
                 elm.text = self.summary
             if elm.name == "map_no":
-                elm.text = mapNumber
+                elm.text = self.recipe.mapnumber
             if elm.name == "mxd_name":
                 elm.text = os.path.basename(self.mxd.filePath)
             if elm.name == "scale":
@@ -443,22 +402,22 @@ class MapChef:
             if elm.name == "spatial_reference":
                 elm.text = self.spatialReference()
             if elm.name == "glide_no":
-                if (self.event is not None):
-                    elm.text = self.event.glide_number
+                if (self.eventConfiguration is not None):
+                    elm.text = self.eventConfiguration.glide_number
             if elm.name == "donor_credit":
-                if (self.event is not None):
-                    elm.text = self.event.default_donor_credits
+                if (self.eventConfiguration is not None):
+                    elm.text = self.eventConfiguration.default_donor_credits
             if elm.name == "disclaimer":
-                if (self.event is not None):
-                    elm.text = self.event.default_disclaimer_text
+                if (self.eventConfiguration is not None):
+                    elm.text = self.eventConfiguration.default_disclaimer_text
             if elm.name == "map_producer":
-                if (self.event is not None):
+                if (self.eventConfiguration is not None):
                     elm.text = "Produced by " + \
-                        self.event.default_source_organisation + \
+                        self.eventConfiguration.default_source_organisation + \
                         os.linesep + \
-                        self.event.deployment_primary_email + \
+                        self.eventConfiguration.deployment_primary_email + \
                         os.linesep + \
-                        self.event.default_source_organisation_url
+                        self.eventConfiguration.default_source_organisation_url
         self.mxd.save()
 
     def showLegendEntries(self):
@@ -543,7 +502,7 @@ class MapChef:
             self.mxd.save()
 
     # TODO: asmith 2020/03/06
-    # `updateLayer()` and `addLayer()` seem very simular. Is it possible to refactor to reduce
+    # `updateLayer()` and `addLayer()` seem very similar. Is it possible to refactor to reduce
     # duplication?
     def updateLayer(self, layerToUpdate, layerProperties, layerFilePath):
         mapResult = None
@@ -555,7 +514,7 @@ class MapChef:
         return mapResult
 
     # TODO: asmith 2020/03/06
-    # `updateLayer()` and `addLayer()` seem very simular. Is it possible to refactor to reduce
+    # `updateLayer()` and `addLayer()` seem very similar. Is it possible to refactor to reduce
     # duplication?
     def addLayer(self, layerProperties, layerFilePath, cookbookLayer):
         mapResult = MapResult(layerProperties.layerName)
@@ -567,7 +526,7 @@ class MapChef:
         return mapResult
 
     # TODO: asmith 2020/03/06
-    # These three methods appear very simular:
+    # These three methods appear very similar:
     #   * `addLayerWithFile()`
     #   * `addLayerWithGdb()`
     #   * `updateLayerWithFile()`
@@ -575,7 +534,7 @@ class MapChef:
     def updateLayerWithFile(self, layerProperties, updateLayer, layerFilePath):
         mapResult = MapResult(layerProperties.layerName)
 
-        dataFiles = self.find(self.cmfConfig.active_data, layerProperties.regExp)
+        dataFiles = self.find(self.crashMoveFolder.active_data, layerProperties.regExp)
         for dataFile in (dataFiles):
             base = os.path.basename(dataFile)
             datasetName = os.path.splitext(base)[0]
@@ -590,12 +549,12 @@ class MapChef:
                     try:
                         if (newLayer.supports("DEFINITIONQUERY") and (layerProperties.definitionQuery)):
                             newLayer.definitionQuery = layerProperties.definitionQuery.replace(
-                                '{COUNTRY_NAME}', self.countryName)
+                                '{COUNTRY_NAME}', self.eventConfiguration.country_name)
                         newLayer.replaceDataSource(dataDirectory, datasetType, datasetName)
                         mapResult.message = "Layer updated successfully"
                         mapResult.added = True
                         ds = DataSource(dataFile)
-                        mapResult.dataSource = dataFile.replace("\\", "/").replace(self.crashMoveFolder.replace("\\", "/"), "")   # noqa
+                        mapResult.dataSource = dataFile.replace("\\", "/").replace(self.crashMoveFolder.path.replace("\\", "/"), "")   # noqa
                         mapResult.hash = ds.calculate_checksum()
                         break
                     except Exception:
@@ -612,14 +571,14 @@ class MapChef:
         return mapResult
 
     # TODO: asmith 2020/03/06
-    # These three methods appear very simular:
+    # These three methods appear very similar:
     #   * `addLayerWithFile()`
     #   * `addLayerWithGdb()`
     #   * `updateLayerWithFile()`
     # Is it possible to refactor to reduce duplication?
     def addLayerWithFile(self, layerProperties, layerToAdd, cookBookLayer):
         mapResult = MapResult(layerProperties.layerName)
-        dataFiles = self.find(self.cmfConfig.active_data, layerProperties.regExp)
+        dataFiles = self.find(self.crashMoveFolder.active_data, layerProperties.regExp)
 
         for dataFile in (dataFiles):
             base = os.path.basename(dataFile)
@@ -630,7 +589,8 @@ class MapChef:
                 for labelClass in layerProperties.labelClasses:
                     for lblClass in layerToAdd.labelClasses:
                         if (lblClass.className == labelClass.className):
-                            lblClass.SQLQuery = labelClass.SQLQuery.replace('{COUNTRY_NAME}', self.countryName)
+                            lblClass.SQLQuery = labelClass.SQLQuery.replace('{COUNTRY_NAME}',
+                                                                            self.eventConfiguration.country_name)
                             lblClass.expression = labelClass.expression
                             lblClass.showClassLabels = labelClass.showClassLabels
 
@@ -641,14 +601,15 @@ class MapChef:
                         mapResult.message = "Layer added successfully"
                         mapResult.added = True
                         ds = DataSource(dataFile)
-                        mapResult.dataSource = dataFile.replace("\\", "/").replace(self.crashMoveFolder.replace("\\", "/"), "")   # noqa
+                        mapResult.dataSource = dataFile.replace("\\", "/").replace(self.crashMoveFolder.path.replace("\\", "/"), "")   # noqa
                         mapResult.hash = ds.calculate_checksum()
                         break
                     except Exception:
                         pass
 
             if ((mapResult.added is True) and (layerProperties.definitionQuery)):
-                definitionQuery = layerProperties.definitionQuery.replace('{COUNTRY_NAME}', self.countryName)
+                definitionQuery = layerProperties.definitionQuery.replace('{COUNTRY_NAME}',
+                                                                          self.eventConfiguration.country_name)
                 layerToAdd.definitionQuery = definitionQuery
                 try:
                     arcpy.SelectLayerByAttribute_management(layerToAdd,
@@ -660,7 +621,11 @@ class MapChef:
                     self.mxd.save()
 
             if (mapResult.added is True):
-                self.applyZoom(self.dataFrame, layerToAdd, cookBookLayer.get('zoomMultiplier', 0))
+                # TODO add proper fix for applyZoom in line with these two cards
+                # https: // trello.com/c/Bs70ru1s/145-design-criteria-for-selecting-zoom-extent
+                # https://trello.com/c/piE3tKRp/146-implenment-rules-for-selection-zoom-extent
+                # self.applyZoom(self.dataFrame, layerToAdd, cookBookLayer.get('zoomMultiplier', 0))
+                self.applyZoom(self.dataFrame, layerToAdd, 0)
 
                 if layerProperties.addToLegend is False:
                     self.legendEntriesToRemove.append(layerToAdd.name)
@@ -671,7 +636,7 @@ class MapChef:
         return mapResult
 
     # TODO: asmith 2020/03/06
-    # These three methods appear very simular:
+    # These three methods appear very similar:
     #   * `addLayerWithFile()`
     #   * `addLayerWithGdb()`
     #   * `updateLayerWithFile()`
@@ -682,7 +647,7 @@ class MapChef:
         # It's a File Geodatabase
         parts = layerProperties.regExp.split("/")
         gdbPath = parts[0]
-        geoDatabases = self.find(self.cmfConfig.active_data, gdbPath, True)
+        geoDatabases = self.find(self.crashMoveFolder.active_data, gdbPath, True)
         for geoDatabase in geoDatabases:
             arcpy.env.workspace = geoDatabase
             rasters = arcpy.ListRasters("*")
@@ -695,12 +660,11 @@ class MapChef:
                                                           layerProperties.definitionQuery,
                                                           raster,
                                                           layerProperties.labelClasses,
-                                                          self.countryName,
                                                           layerProperties.addToLegend)
 
                     dataFile = geoDatabase + os.sep + raster
                     ds = DataSource(dataFile)
-                    mapResult.dataSource = dataFile.replace("\\", "/").replace(self.crashMoveFolder.replace("\\", "/"), "")  # noqa
+                    mapResult.dataSource = dataFile.replace("\\", "/").replace(self.crashMoveFolder.path.replace("\\", "/"), "")  # noqa
                     mapResult.hash = ds.calculate_checksum()
                     break
             featureClasses = arcpy.ListFeatureClasses()
@@ -714,11 +678,10 @@ class MapChef:
                                                           layerProperties.definitionQuery,
                                                           featureClass,
                                                           layerProperties.labelClasses,
-                                                          self.countryName,
                                                           layerProperties.addToLegend)
                     dataFile = geoDatabase + os.sep + featureClass
                     ds = DataSource(dataFile)
-                    mapResult.dataSource = dataFile.replace("\\", "/").replace(self.crashMoveFolder.replace("\\", "/"), "")  # noqa
+                    mapResult.dataSource = dataFile.replace("\\", "/").replace(self.crashMoveFolder.path.replace("\\", "/"), "")  # noqa
                     mapResult.hash = ds.calculate_checksum()
                     break
 

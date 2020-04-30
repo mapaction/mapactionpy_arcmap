@@ -6,6 +6,7 @@
 			"RegExp": "^[a-z]{3}_stle_ste_pt_(.*?)_(.*?)_([phm][phm])(.*?).shp$",
 			"DefinitionQuery": "fclass IN ('national_capital', 'city', 'capital', 'town')",
 			"Display": true,
+			"schema_definition": "null.schema",
 			"AddToLegend": true,
 			"LabelClasses": [{
 					"className": "National Capital",
@@ -27,6 +28,7 @@
 			"RegExp": "^[a-z]{3}_stle_ste_pt_(.*?)_(.*?)_([phm][phm])(.*?).shp$",
 			"DefinitionQuery": "fclass IN ('national_capital', 'capital')",
 			"Display": true,
+			"schema_definition": "null.schema",
 			"AddToLegend": true,
 			"LabelClasses": [{
 					"className": "National Capital",
@@ -42,6 +44,7 @@
 			"RegExp": "^[a-z]{3}_tran_sea_pt_(.*?)_(.*?)_([phm][phm])_(.*?).shp$",
 			"DefinitionQuery": "",
 			"Display": true,
+			"schema_definition": "null.schema",
 			"AddToLegend": true,
 			"LabelClasses": [
 
@@ -53,6 +56,7 @@
 			"RegExp": "aoi_admn_ad0_py_(.*?)_(.*?)_([phm][phm])(.*?).shp$",
 			"DefinitionQuery": "",
 			"Display": true,
+			"schema_definition": "null.schema",
 			"AddToLegend": false,
 			"LabelClasses": [{
 					"className": "This",

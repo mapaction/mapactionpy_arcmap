@@ -49,7 +49,6 @@ setup(name='mapactionpy_arcmap',
       install_requires=[
           'mapactionpy_controller',
           'argparse',
-          'requests',
           'slugify',
           'jsonpickle',
           'Pillow',

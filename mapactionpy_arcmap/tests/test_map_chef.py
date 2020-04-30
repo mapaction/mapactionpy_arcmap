@@ -2,9 +2,11 @@ import arcpy
 import os
 # import unittest
 from unittest import TestCase
-
 from mapactionpy_arcmap.map_chef import MapChef
 from mapactionpy_controller.crash_move_folder import CrashMoveFolder
+from mapactionpy_controller.map_cookbook import MapCookbook
+from mapactionpy_controller.event import Event
+from mapactionpy_controller.layer_properties import LayerProperties
 
 
 class TestMapChef(TestCase):
@@ -14,44 +16,38 @@ class TestMapChef(TestCase):
         self.path_to_valid_cmf_des = os.path.join(
             self.parent_dir, 'tests', 'test_data', 'fixture_cmf_description_flat_test.json')
         self.cmf = CrashMoveFolder(self.path_to_valid_cmf_des)
-
+        self.event = Event(os.path.join(self.parent_dir, 'tests', 'test_data',
+                                        'event_description.json'))
         self.my_mxd_fname = os.path.join(self.parent_dir, 'tests', 'test_data',
                                          'output_arcgis_10_6_reference_landscape_bottom.mxd')
+        self.layer_props = LayerProperties(self.cmf, '.lyr')
+        self.cookBook = MapCookbook(self.cmf, self.layer_props)
 
     def test_map_chef_constructor(self):
-        # def __init__(self,
-        #              mxd,
-        #              cookbookJsonFile,
-        #              layerPropertiesJsonFile,
-        #              crashMoveFolder,
-        #              layerDirectory,
-        #              versionNumber=1):
         my_mxd = arcpy.mapping.MapDocument(self.my_mxd_fname)
 
         mc = MapChef(
             my_mxd,
-            self.cmf.map_definitions,
-            self.cmf.layer_properties,
-            self.path_to_valid_cmf_des,
-            self.cmf.layer_rendering,
+            self.cookBook,
+            self.layer_props,
+            self.cmf,
+            self.event,
             versionNumber=1
         )
         self.assertIsInstance(mc, MapChef)
 
     def test_map_chef_cook(self):
         my_mxd = arcpy.mapping.MapDocument(self.my_mxd_fname)
+        productName = "Example Map"
 
         mc = MapChef(
             my_mxd,
-            self.cmf.map_definitions,
-            self.cmf.layer_properties,
-            self.path_to_valid_cmf_des,
-            self.cmf.layer_rendering,
+            self.cookBook,
+            self.layer_props,
+            self.cmf,
+            self.event,
             versionNumber=1
         )
 
-        mc.cook("Example Map", "FICTION-LAND")
-        # If it gets this far without throwing an exception that good enough for this test
-        # At the commandline there is a more useful stacktrace if you don't explictly catch
-        # the exception and fail the test here.
+        mc.cook(self.cookBook.products[productName])
         self.assertTrue(True)
