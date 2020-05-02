@@ -58,7 +58,6 @@ class MapChef:
 
         self.eventConfiguration = eventConfiguration
         self.cookbook = cookbook
-        self.layerProperties = layerDefinition
         self.legendEntriesToRemove = list()
 
         self.datasetTypes = ["SHAPEFILE_WORKSPACE",
@@ -270,19 +269,17 @@ class MapChef:
 
         return added
 
-    """
-    Returns map report in json format
-    """
-
     def report_as_json(self):
+        """
+        Returns map report in json format
+        """
         return(jsonpickle.encode(self.mapReport, unpicklable=False))
 
-    """
-    Updates or Adds a layer of data.  Maintains the Map Report.
-    """
-
-    def processLayer(self, layer, map_frame):
-        mapResult = MapResult(layer.name)
+    def processLayer(self, recipe_lyr, map_frame):
+        """
+        Updates or Adds a layer of data.  Maintains the Map Report.
+        """
+        mapResult = MapResult(recipe_lyr.name)
         # TODO asmith 2020/03/06
         # As far as I can tell the use of `dict.get(...., None)` followed by various `if` statement
         # which are checking for None values, is to cater for cases where there are inconsistencies
@@ -295,40 +292,32 @@ class MapChef:
         # Also the constructor for the LayerProperties object could also check
         # for the existance, on disk, of each of the named layer files. In this case it would also
         # be necessary to accommodate the possiblity that the files on disk may change at run time.
-        # properties = self.layerProperties.properties.get(layer["name"], None)
-        properties = layer
 
-        if (properties is not None):
-            layerFilePath = os.path.join(self.crashMoveFolder.layer_rendering, (properties.name + ".lyr"))
-            if (os.path.exists(layerFilePath)):
-                # TODO asmith 2020/03/06
-                # Is there a check anywhere that ensures that the mapFrames listed in the
-                # layerProperties file/object exist within the MXD? What happens if they don't?
-                self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, map_frame.name)[0]
+        layerFilePath = os.path.join(self.crashMoveFolder.layer_rendering, (recipe_lyr.name + ".lyr"))
+
+        if (os.path.exists(layerFilePath)):
+            self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, map_frame.name)[0]
+            try:
+                arc_lyr_to_update = arcpy.mapping.ListLayers(self.mxd, recipe_lyr.name, self.dataFrame)[0]
+                # Replace existing layer
+                mapResult = self.updateLayer(arc_lyr_to_update, recipe_lyr, layerFilePath)
+            except IndexError:
+                # Layer doesn't exist, add new layer
+                mapResult = self.addLayer(recipe_lyr, layerFilePath, recipe_lyr.name)
+
+            if (mapResult.added):
                 try:
-                    updateLayer = arcpy.mapping.ListLayers(self.mxd, properties.name, self.dataFrame)[0]
-                    # Replace existing layer
-                    mapResult = self.updateLayer(updateLayer, properties, layerFilePath)
-                except IndexError:
-                    # Layer doesn't exist, add new layer
-                    mapResult = self.addLayer(properties, layerFilePath, layer)
+                    newLayer = arcpy.mapping.ListLayers(self.mxd, recipe_lyr.name, self.dataFrame)[0]
+                    self.applyZoom(self.dataFrame, newLayer, recipe_lyr.get('zoomMultiplier', 0))
+                # TODO asmith 2020/03/06
+                # Is catching the root Exception class here appropriate, or too far reaching?
+                # Is there a more specifc Exception that we could catch here?
+                except Exception:
+                    pass
 
-                if (mapResult.added):
-                    try:
-                        newLayer = arcpy.mapping.ListLayers(self.mxd, properties.name, self.dataFrame)[0]
-                        self.applyZoom(self.dataFrame, newLayer, layer.get('zoomMultiplier', 0))
-                    # TODO asmith 2020/03/06
-                    # Is catching the root Exception class here appropriate, or too far reaching?
-                    # Is there a more specifc Exception that we could catch here?
-                    except Exception:
-                        pass
-
-            else:
-                mapResult.added = False
-                mapResult.message = "Layer file could not be found"
         else:
             mapResult.added = False
-            mapResult.message = "Layer property definition could not be found in the cookbook"
+            mapResult.message = "Layer file could not be found"
         self.mapReport.add(mapResult)
 
     def find(self, rootdir, regexp, gdb=False):
