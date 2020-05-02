@@ -180,8 +180,8 @@ class MapChef:
         if (self.recipe is not None):
             if len(self.recipe.summary):
                 self.summary = self.recipe.summary
-            for mf in self.recipe.map_frames.values():
-                for layer in mf.layers.values():
+            for mf in self.recipe.map_frames:
+                for layer in mf.layers:
                     self.processLayer(layer, mf)
 
         self.enableLayers()
@@ -282,10 +282,7 @@ class MapChef:
     """
 
     def processLayer(self, layer, map_frame):
-        print('\n$$$$$$$$$$$$$$$$$$$$$$$$$$')
-        print(layer, map_frame)
-        print('\n$$$$$$$$$$$$$$$$$$$$$$$$$$')
-        mapResult = MapResult(layer.layerName)
+        mapResult = MapResult(layer.name)
         # TODO asmith 2020/03/06
         # As far as I can tell the use of `dict.get(...., None)` followed by various `if` statement
         # which are checking for None values, is to cater for cases where there are inconsistencies
@@ -302,14 +299,14 @@ class MapChef:
         properties = layer
 
         if (properties is not None):
-            layerFilePath = os.path.join(self.crashMoveFolder.layer_rendering, (properties.layerName + ".lyr"))
+            layerFilePath = os.path.join(self.crashMoveFolder.layer_rendering, (properties.name + ".lyr"))
             if (os.path.exists(layerFilePath)):
                 # TODO asmith 2020/03/06
                 # Is there a check anywhere that ensures that the mapFrames listed in the
                 # layerProperties file/object exist within the MXD? What happens if they don't?
                 self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, map_frame.name)[0]
                 try:
-                    updateLayer = arcpy.mapping.ListLayers(self.mxd, properties.layerName, self.dataFrame)[0]
+                    updateLayer = arcpy.mapping.ListLayers(self.mxd, properties.name, self.dataFrame)[0]
                     # Replace existing layer
                     mapResult = self.updateLayer(updateLayer, properties, layerFilePath)
                 except IndexError:
@@ -318,7 +315,7 @@ class MapChef:
 
                 if (mapResult.added):
                     try:
-                        newLayer = arcpy.mapping.ListLayers(self.mxd, properties.layerName, self.dataFrame)[0]
+                        newLayer = arcpy.mapping.ListLayers(self.mxd, properties.name, self.dataFrame)[0]
                         self.applyZoom(self.dataFrame, newLayer, layer.get('zoomMultiplier', 0))
                     # TODO asmith 2020/03/06
                     # Is catching the root Exception class here appropriate, or too far reaching?
@@ -507,7 +504,7 @@ class MapChef:
     def updateLayer(self, layerToUpdate, layerProperties, layerFilePath):
         mapResult = None
 
-        if (".gdb/" not in layerProperties.regExp):
+        if (".gdb/" not in layerProperties.reg_exp):
             mapResult = self.updateLayerWithFile(layerProperties, layerToUpdate, layerFilePath)
         else:
             mapResult = self.updateLayerWithGdb(layerProperties)
@@ -517,9 +514,9 @@ class MapChef:
     # `updateLayer()` and `addLayer()` seem very similar. Is it possible to refactor to reduce
     # duplication?
     def addLayer(self, layerProperties, layerFilePath, cookbookLayer):
-        mapResult = MapResult(layerProperties.layerName)
+        mapResult = MapResult(layerProperties.name)
         layerToAdd = arcpy.mapping.Layer(layerFilePath)
-        if (".gdb/" not in layerProperties.regExp):
+        if (".gdb/" not in layerProperties.reg_exp):
             mapResult = self.addLayerWithFile(layerProperties, layerToAdd, cookbookLayer)
         else:
             mapResult = self.addLayerWithGdb(layerProperties, layerToAdd, cookbookLayer)
@@ -532,9 +529,9 @@ class MapChef:
     #   * `updateLayerWithFile()`
     # Is it possible to refactor to reduce duplication?
     def updateLayerWithFile(self, layerProperties, updateLayer, layerFilePath):
-        mapResult = MapResult(layerProperties.layerName)
+        mapResult = MapResult(layerProperties.name)
 
-        dataFiles = self.find(self.crashMoveFolder.active_data, layerProperties.regExp)
+        dataFiles = self.find(self.crashMoveFolder.active_data, layerProperties.reg_exp)
         for dataFile in (dataFiles):
             base = os.path.basename(dataFile)
             datasetName = os.path.splitext(base)[0]
@@ -566,7 +563,7 @@ class MapChef:
         return mapResult
 
     def updateLayerWithGdb(self, layerProperties):
-        mapResult = MapResult(layerProperties.layerName)
+        mapResult = MapResult(layerProperties.name)
         mapResult.message = "Update layer for a GeoDatabase not yet implemented"
         return mapResult
 
@@ -577,8 +574,8 @@ class MapChef:
     #   * `updateLayerWithFile()`
     # Is it possible to refactor to reduce duplication?
     def addLayerWithFile(self, layerProperties, layerToAdd, cookBookLayer):
-        mapResult = MapResult(layerProperties.layerName)
-        dataFiles = self.find(self.crashMoveFolder.active_data, layerProperties.regExp)
+        mapResult = MapResult(layerProperties.name)
+        dataFiles = self.find(self.crashMoveFolder.active_data, layerProperties.reg_exp)
 
         for dataFile in (dataFiles):
             base = os.path.basename(dataFile)
@@ -642,10 +639,10 @@ class MapChef:
     #   * `updateLayerWithFile()`
     # Is it possible to refactor to reduce duplication?
     def addLayerWithGdb(self, layerProperties, layerToAdd, cookBookLayer):
-        mapResult = MapResult(layerProperties.layerName)
+        mapResult = MapResult(layerProperties.name)
 
         # It's a File Geodatabase
-        parts = layerProperties.regExp.split("/")
+        parts = layerProperties.reg_exp.split("/")
         gdbPath = parts[0]
         geoDatabases = self.find(self.crashMoveFolder.active_data, gdbPath, True)
         for geoDatabase in geoDatabases:
