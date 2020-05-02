@@ -229,10 +229,10 @@ class MapChef:
                 for labelClass in labelClasses:
                     for lblClass in lyr.label_classes:
                         if (lblClass.className == labelClass.className):
-                            lblClass.SQLQuery = labelClass.SQLQuery.replace('{COUNTRY_NAME}',
-                                                                            self.eventConfiguration.country_name)
+                            lblClass.SQLQuery = labelClass.sql_query.replace('{COUNTRY_NAME}',
+                                                                             self.eventConfiguration.country_name)
                             lblClass.expression = labelClass.expression
-                            lblClass.showClassLabels = labelClass.showClassLabels
+                            lblClass.showClassLabels = labelClass.show_class_labels
             if lyr.supports("DATASOURCE"):  # An annotation layer does not support DATASOURCE
                 for datasetType in self.datasetTypes:
                     try:
@@ -586,10 +586,10 @@ class MapChef:
                 for labelClass in layerProperties.label_classes:
                     for lblClass in layerToAdd.labelClasses:
                         if (lblClass.className == labelClass.class_name):
-                            lblClass.SQLQuery = labelClass.SQLQuery.replace('{COUNTRY_NAME}',
-                                                                            self.eventConfiguration.country_name)
+                            lblClass.SQLQuery = labelClass.sql_query.replace('{COUNTRY_NAME}',
+                                                                             self.eventConfiguration.country_name)
                             lblClass.expression = labelClass.expression
-                            lblClass.showClassLabels = labelClass.showClassLabels
+                            lblClass.showClassLabels = labelClass.show_class_labels
 
             if layerToAdd.supports("DATASOURCE"):
                 for datasetType in self.datasetTypes:
