@@ -227,7 +227,7 @@ class MapChef:
         for lyr in arcpy.mapping.ListLayers(layer):
             if lyr.supports("LABELCLASSES"):
                 for labelClass in labelClasses:
-                    for lblClass in lyr.labelClasses:
+                    for lblClass in lyr.label_classes:
                         if (lblClass.className == labelClass.className):
                             lblClass.SQLQuery = labelClass.SQLQuery.replace('{COUNTRY_NAME}',
                                                                             self.eventConfiguration.country_name)
@@ -244,7 +244,7 @@ class MapChef:
                     if ((added is True) and (definitionQuery)):
                         definitionQuery = definitionQuery.replace('{COUNTRY_NAME}',
                                                                   self.eventConfiguration.country_name)
-                        lyr.definitionQuery = definitionQuery
+                        lyr.definition_query = definitionQuery
                         try:
                             arcpy.SelectLayerByAttribute_management(lyr, "SUBSET_SELECTION", definitionQuery)
                         except Exception:
@@ -544,8 +544,8 @@ class MapChef:
             if newLayer.supports("DATASOURCE"):
                 for datasetType in self.datasetTypes:
                     try:
-                        if (newLayer.supports("DEFINITIONQUERY") and (layerProperties.definitionQuery)):
-                            newLayer.definitionQuery = layerProperties.definitionQuery.replace(
+                        if (newLayer.supports("DEFINITIONQUERY") and (layerProperties.definition_query)):
+                            newLayer.definition_query = layerProperties.definition_query.replace(
                                 '{COUNTRY_NAME}', self.eventConfiguration.country_name)
                         newLayer.replaceDataSource(dataDirectory, datasetType, datasetName)
                         mapResult.message = "Layer updated successfully"
@@ -583,9 +583,9 @@ class MapChef:
             dataDirectory = os.path.dirname(os.path.realpath(dataFile))
 
             if layerToAdd.supports("LABELCLASSES"):
-                for labelClass in layerProperties.labelClasses:
+                for labelClass in layerProperties.label_classes:
                     for lblClass in layerToAdd.labelClasses:
-                        if (lblClass.className == labelClass.className):
+                        if (lblClass.className == labelClass.class_name):
                             lblClass.SQLQuery = labelClass.SQLQuery.replace('{COUNTRY_NAME}',
                                                                             self.eventConfiguration.country_name)
                             lblClass.expression = labelClass.expression
@@ -604,17 +604,17 @@ class MapChef:
                     except Exception:
                         pass
 
-            if ((mapResult.added is True) and (layerProperties.definitionQuery)):
-                definitionQuery = layerProperties.definitionQuery.replace('{COUNTRY_NAME}',
-                                                                          self.eventConfiguration.country_name)
-                layerToAdd.definitionQuery = definitionQuery
+            if ((mapResult.added is True) and (layerProperties.definition_query)):
+                definitionQuery = layerProperties.definition_query.replace('{COUNTRY_NAME}',
+                                                                           self.eventConfiguration.country_name)
+                layerToAdd.definition_query = definitionQuery
                 try:
                     arcpy.SelectLayerByAttribute_management(layerToAdd,
                                                             "SUBSET_SELECTION",
-                                                            layerProperties.definitionQuery)
+                                                            layerProperties.definition_query)
                 except Exception:
                     mapResult.added = False
-                    mapResult.message = "Selection query failed: " + layerProperties.definitionQuery
+                    mapResult.message = "Selection query failed: " + layerProperties.definition_query
                     self.mxd.save()
 
             if (mapResult.added is True):
@@ -624,7 +624,7 @@ class MapChef:
                 # self.applyZoom(self.dataFrame, layerToAdd, cookBookLayer.get('zoomMultiplier', 0))
                 self.applyZoom(self.dataFrame, layerToAdd, 0)
 
-                if layerProperties.addToLegend is False:
+                if layerProperties.add_to_legend is False:
                     self.legendEntriesToRemove.append(layerToAdd.name)
                 arcpy.mapping.AddLayer(self.dataFrame, layerToAdd, "BOTTOM")
                 self.mxd.save()
@@ -654,10 +654,10 @@ class MapChef:
                     mapResult.added = self.addDataToLayer(self.dataFrame,
                                                           geoDatabase,
                                                           layerToAdd,
-                                                          layerProperties.definitionQuery,
+                                                          layerProperties.definition_query,
                                                           raster,
-                                                          layerProperties.labelClasses,
-                                                          layerProperties.addToLegend)
+                                                          layerProperties.label_classes,
+                                                          layerProperties.add_to_legend)
 
                     dataFile = geoDatabase + os.sep + raster
                     ds = DataSource(dataFile)
@@ -672,10 +672,10 @@ class MapChef:
                     mapResult.added = self.addDataToLayer(self.dataFrame,
                                                           geoDatabase,
                                                           layerToAdd,
-                                                          layerProperties.definitionQuery,
+                                                          layerProperties.definition_query,
                                                           featureClass,
-                                                          layerProperties.labelClasses,
-                                                          layerProperties.addToLegend)
+                                                          layerProperties.label_classes,
+                                                          layerProperties.add_to_legend)
                     dataFile = geoDatabase + os.sep + featureClass
                     ds = DataSource(dataFile)
                     mapResult.dataSource = dataFile.replace("\\", "/").replace(self.crashMoveFolder.path.replace("\\", "/"), "")  # noqa
