@@ -293,7 +293,7 @@ class MapChef:
         # for the existance, on disk, of each of the named layer files. In this case it would also
         # be necessary to accommodate the possiblity that the files on disk may change at run time.
 
-        layerFilePath = os.path.join(self.crashMoveFolder.layer_rendering, (recipe_lyr.name + ".lyr"))
+        layerFilePath = recipe_lyr.layer_file_path
 
         if (os.path.exists(layerFilePath)):
             self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, map_frame.name)[0]
@@ -307,13 +307,14 @@ class MapChef:
 
             if (mapResult.added):
                 try:
-                    newLayer = arcpy.mapping.ListLayers(self.mxd, recipe_lyr.name, self.dataFrame)[0]
+                    lyr_list = arcpy.mapping.ListLayers(self.mxd, recipe_lyr.name, self.dataFrame)
+                    newLayer = lyr_list[0]
                     self.applyZoom(self.dataFrame, newLayer, recipe_lyr.get('zoomMultiplier', 0))
                 # TODO asmith 2020/03/06
                 # Is catching the root Exception class here appropriate, or too far reaching?
                 # Is there a more specifc Exception that we could catch here?
                 except Exception:
-                    pass
+                    raise
 
         else:
             mapResult.added = False
