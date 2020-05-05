@@ -181,7 +181,7 @@ class MapChef:
                 self.summary = self.recipe.summary
             for mf in self.recipe.map_frames:
                 for layer in mf.layers:
-                    self.processLayer(layer, mf)
+                    self.process_layer(layer, mf)
 
         self.enableLayers()
         arcpy.RefreshTOC()
@@ -275,50 +275,30 @@ class MapChef:
         """
         return(jsonpickle.encode(self.mapReport, unpicklable=False))
 
-    def processLayer(self, recipe_lyr, map_frame):
+    def process_layer(self, recipe_lyr, map_frame):
         """
         Updates or Adds a layer of data.  Maintains the Map Report.
         """
         mapResult = MapResult(recipe_lyr.name)
-        # TODO asmith 2020/03/06
-        # As far as I can tell the use of `dict.get(...., None)` followed by various `if` statement
-        # which are checking for None values, is to cater for cases where there are inconsistencies
-        # between the mapCookBook and layerProperties files.
-        #
-        # As an alternative implementation; how about if the constructor for mapCookBook required
-        # a LayerProperties object and then check the two files/objects for consistency at the
-        # point of creation?
-        #
-        # Also the constructor for the LayerProperties object could also check
-        # for the existance, on disk, of each of the named layer files. In this case it would also
-        # be necessary to accommodate the possiblity that the files on disk may change at run time.
+        self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, map_frame.name)[0]
+        try:
+            arc_lyr_to_update = arcpy.mapping.ListLayers(self.mxd, recipe_lyr.name, self.dataFrame)[0]
+            # Replace existing layer
+            mapResult = self.updateLayer(arc_lyr_to_update, recipe_lyr)
+        except IndexError:
+            # Layer doesn't exist, add new layer
+            mapResult = self.addLayer(recipe_lyr)
 
-        layerFilePath = recipe_lyr.layer_file_path
-
-        if (os.path.exists(layerFilePath)):
-            self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, map_frame.name)[0]
+        if mapResult.added:
             try:
-                arc_lyr_to_update = arcpy.mapping.ListLayers(self.mxd, recipe_lyr.name, self.dataFrame)[0]
-                # Replace existing layer
-                mapResult = self.updateLayer(arc_lyr_to_update, recipe_lyr, layerFilePath)
+                # Seperate the next two lines so that the cause of any exceptions is more easily
+                # appartent from the stack trace.
+                lyr_list = arcpy.mapping.ListLayers(self.mxd, recipe_lyr.name, self.dataFrame)
+                newLayer = lyr_list[0]
+                self.applyZoom(self.dataFrame, newLayer, recipe_lyr.get('zoomMultiplier', 0))
             except IndexError:
-                # Layer doesn't exist, add new layer
-                mapResult = self.addLayer(recipe_lyr, layerFilePath, recipe_lyr.name)
+                pass
 
-            if (mapResult.added):
-                try:
-                    lyr_list = arcpy.mapping.ListLayers(self.mxd, recipe_lyr.name, self.dataFrame)
-                    newLayer = lyr_list[0]
-                    self.applyZoom(self.dataFrame, newLayer, recipe_lyr.get('zoomMultiplier', 0))
-                # TODO asmith 2020/03/06
-                # Is catching the root Exception class here appropriate, or too far reaching?
-                # Is there a more specifc Exception that we could catch here?
-                except Exception:
-                    raise
-
-        else:
-            mapResult.added = False
-            mapResult.message = "Layer file could not be found"
         self.mapReport.add(mapResult)
 
     def find(self, rootdir, regexp, gdb=False):
@@ -491,25 +471,26 @@ class MapChef:
     # TODO: asmith 2020/03/06
     # `updateLayer()` and `addLayer()` seem very similar. Is it possible to refactor to reduce
     # duplication?
-    def updateLayer(self, layerToUpdate, layerProperties, layerFilePath):
+    def updateLayer(self, arc_lyr_to_update, recipe_lyr):
         mapResult = None
 
-        if (".gdb/" not in layerProperties.reg_exp):
-            mapResult = self.updateLayerWithFile(layerProperties, layerToUpdate, layerFilePath)
+        if (".gdb/" not in recipe_lyr.reg_exp):
+            mapResult = self.updateLayerWithFile(recipe_lyr, arc_lyr_to_update, recipe_lyr.layer_file_path)
         else:
-            mapResult = self.updateLayerWithGdb(layerProperties)
+            mapResult = self.updateLayerWithGdb(recipe_lyr)
         return mapResult
 
     # TODO: asmith 2020/03/06
     # `updateLayer()` and `addLayer()` seem very similar. Is it possible to refactor to reduce
     # duplication?
-    def addLayer(self, layerProperties, layerFilePath, cookbookLayer):
-        mapResult = MapResult(layerProperties.name)
-        layerToAdd = arcpy.mapping.Layer(layerFilePath)
-        if (".gdb/" not in layerProperties.reg_exp):
-            mapResult = self.addLayerWithFile(layerProperties, layerToAdd, cookbookLayer)
+    def addLayer(self, recipe_lyr):
+        # addLayer(recipe_lyr, recipe_lyr.layer_file_path, recipe_lyr.name)
+        mapResult = MapResult(recipe_lyr.name)
+        arc_lyr_to_add = arcpy.mapping.Layer(recipe_lyr.layer_file_path)
+        if (".gdb/" not in recipe_lyr.reg_exp):
+            mapResult = self.addLayerWithFile(recipe_lyr, arc_lyr_to_add, recipe_lyr.name)
         else:
-            mapResult = self.addLayerWithGdb(layerProperties, layerToAdd, cookbookLayer)
+            mapResult = self.addLayerWithGdb(recipe_lyr, arc_lyr_to_add, recipe_lyr.name)
         return mapResult
 
     # TODO: asmith 2020/03/06
