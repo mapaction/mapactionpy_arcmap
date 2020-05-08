@@ -11,7 +11,6 @@ jobs:
         - python -m pip install --upgrade pip
         - pip install mock
       env: PATH=/c/Python27:/c/Python27/Scripts:$PATH
-  allow_failures:
     # None of the jobs below matter. They are included as a measure of how much work
     # might be required at a future date to port this package to a different target GIS,
     # operating system or python version.
@@ -59,4 +58,4 @@ deploy:
   cleanup: false
   on:
     all_branches: true
-    # condition: ${TRAVIS_BRANCH,,} =~ ^(master|${TRAVIS_TAG,,})$
+    condition: ${TRAVIS_BRANCH,,} =~ ^(master|${TRAVIS_TAG,,})$
