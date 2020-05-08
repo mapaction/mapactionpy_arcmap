@@ -72,18 +72,19 @@ pipelines:
         scm: 8d4486df-9f5c-47fe-963e-ebd6ae376f83
     stages:
       - *testing_stages
-    #<artifact type="build" src="target/**/*.xml" />
-#           <artifact type="test" src="target/junit-output" dest="junit"/>
-  # master-mapy-arcmap:
-  #   group: mapactionpy_arcmap
-  #   label_template: ${COUNT}
-  #   lock_behavior: unlockWhenFinished
-  #   materials:
-  #     mapy-arcmap:
-  #       git: https://github.com/mapaction/mapactionpy_arcmap.git
-  #       branch: master
-  #   stages:
-  #     - *testing_stages
+  master-mapy-arcmap:
+    group: mapactionpy_arcmap
+    label_template: ${COUNT}
+    lock_behavior: unlockWhenFinished
+    materials:
+      mapy-arcmap:
+        git: https://github.com/mapaction/mapactionpy_arcmap.git
+        branch: master
+    stages:
+      - *testing_stages
+
+    # <artifact type="build" src="target/**/*.xml" />
+    # <artifact type="test" src="target/junit-output" dest="junit"/>
 
     # stages:
     #   - *testing_stages
