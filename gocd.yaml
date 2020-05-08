@@ -1,7 +1,7 @@
 format_version: 9
 common:
   testing_stages: &testing_stages
-    - stage-pull-and-test:
+    - setup-and-test:
         resources:
           - hq
           - windows
@@ -21,6 +21,14 @@ common:
                 - "-m"
                 - virtualenv
                 - env
+          - exec:
+              command: "env/Scripts/python.exe"
+              arguments:
+              - "-m"
+              - pip
+              - install
+              - "-r"
+              - mapy-controller/requirements-dev.txt
           - exec:
               command: "env/Scripts/python.exe"
               arguments:
