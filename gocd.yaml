@@ -1,0 +1,68 @@
+format_version: 9
+common:
+  testing_stages: &testing_stages
+    - stage-pull-and-test:
+        resources:
+          - hq
+          - windows
+          - arcmap10-6
+        tasks:
+          - exec:
+              command: cmd
+              arguments:
+                - "/c"
+                - "C:/py27arcgis106/ArcGIS10.6/python.exe"
+                - "-m"
+                - virtualenv
+                - env
+          - exec:
+              command: "env/Scripts/python.exe"
+              arguments:
+              - "-m"
+              - pip
+              - install
+              - "-e"
+              - mapy-controller
+          - exec:
+              command: "env/Scripts/python.exe"
+              arguments:
+              - "-m"
+              - flake8
+          - exec:
+              command: "env/Scripts/python.exe"
+              arguments:
+              - "-m"
+              - coverage
+              - run
+              - "-m"
+              - unittest
+              - discover
+              - "-v"
+              - "./mapactionpy_arcmap/tests"
+
+pipelines:
+  unittest-mapy-arcmap:
+    group: Default-CMF-Group
+    label_template: ${COUNT}
+    lock_behavior: unlockWhenFinished
+    materials:
+      mapy-controller:
+        scm: 7b37b961-6310-45e4-9968-25a17397b6a3
+        destination: mapy-controller
+    stages:
+      - *testing_stages
+    #<artifact type="build" src="target/**/*.xml" />
+#           <artifact type="test" src="target/junit-output" dest="junit"/>
+
+    # stages:
+    #   - *testing_stages
+    #   - deploy:
+    #       resources:
+    #         - hq
+    #         - windows
+    #       artifacts:
+    #         - build:
+    #             source: default-cmf/deploy-to-fileserver.log
+    #       tasks:
+    #         - exec:
+    #             command: default-cmf/deploy-to-fileserver.cmd
