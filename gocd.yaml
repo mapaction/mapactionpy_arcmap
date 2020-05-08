@@ -46,6 +46,7 @@ common:
               arguments:
               - "-m"
               - flake8
+              - mapactionpy_arcmap
           - exec:
               command: "env/Scripts/python.exe"
               arguments:
