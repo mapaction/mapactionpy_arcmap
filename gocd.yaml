@@ -22,14 +22,8 @@ common:
                 - virtualenv
                 - "--system-site-packages"
                 - env
-          - exec:
-              command: "env/Scripts/python.exe"
-              arguments:
-              - "-m"
-              - pip
-              - install
-              - "-r"
-              - requirements-dev.txt
+          # Install mapactionpy-controller from git, before installing
+          # the mapactionpy-arcmap dependancies from requirements-dev.txt
           - exec:
               command: "env/Scripts/python.exe"
               arguments:
@@ -37,7 +31,23 @@ common:
               - pip
               - install
               - "-e"
-              - "."
+              - mapy-controller
+          - exec:
+              command: "env/Scripts/python.exe"
+              arguments:
+              - "-m"
+              - pip
+              - install
+              - "-r"
+              - mapy-arcmap/requirements-dev.txt
+          - exec:
+              command: "env/Scripts/python.exe"
+              arguments:
+              - "-m"
+              - pip
+              - install
+              - "-e"
+              - mapy-arcmap
           - exec:
               command: "mkdir"
               arguments:
@@ -47,7 +57,7 @@ common:
               arguments:
               - "-m"
               - flake8
-              - mapactionpy_arcmap
+              - mapy-arcmap
           - exec:
               command: "env/Scripts/python.exe"
               arguments:
@@ -57,7 +67,7 @@ common:
               - "-m"
               - xmlrunner
               - discover
-              - "mapactionpy_arcmap/tests"
+              - "mapy-arcmap/mapactionpy_arcmap/tests"
               - "-o"
               - "junit-reports"
           - exec:
@@ -65,13 +75,31 @@ common:
 
 
 pipelines:
-  unittest-mapy-arcmap:
+  unittest-mapy-arcmap-prs-in-combo:
     group: mapactionpy_arcmap
     label_template: ${COUNT}
     lock_behavior: unlockWhenFinished
     materials:
       mapy-arcmap:
         scm: 8d4486df-9f5c-47fe-963e-ebd6ae376f83
+        destination: mapy-arcmap
+      mapy-controller:
+        scm: 7b37b961-6310-45e4-9968-25a17397b6a3
+        destination: mapy-controller
+    stages:
+      - *testing_stages
+  unittest-mapy-arcmap-prs-against-master-controller:
+    group: mapactionpy_arcmap
+    label_template: ${COUNT}
+    lock_behavior: unlockWhenFinished
+    materials:
+      mapy-arcmap:
+        scm: 8d4486df-9f5c-47fe-963e-ebd6ae376f83
+        destination: mapy-arcmap
+      mapy-controller:
+        git: https://github.com/mapaction/mapactionpy_controller.git
+        branch: master
+        destination: mapy-controller
     stages:
       - *testing_stages
   master-mapy-arcmap:
@@ -82,8 +110,14 @@ pipelines:
       mapy-arcmap:
         git: https://github.com/mapaction/mapactionpy_arcmap.git
         branch: master
+        destination: mapy-arcmap
+      mapy-controller:
+        git: https://github.com/mapaction/mapactionpy_controller.git
+        branch: master
+        destination: mapy-controller
     stages:
       - *testing_stages
+
 
     # <artifact type="build" src="target/**/*.xml" />
     # <artifact type="test" src="target/junit-output" dest="junit"/>
