@@ -6,6 +6,12 @@ common:
           - hq
           - windows
           - arcmap10-6
+        artifacts:
+          - test:
+              source: "junit-output"
+          # - test:
+          #<artifact type="build" src="target/**/*.xml" />
+
         tasks:
           - exec:
               command: cmd
@@ -29,20 +35,26 @@ common:
               - "-m"
               - flake8
           - exec:
+              command: "mkdir"
+              arguments:
+              - "junit-reports"
+          - exec:
               command: "env/Scripts/python.exe"
               arguments:
               - "-m"
               - coverage
               - run
               - "-m"
-              - unittest
+              - xmlrunner
               - discover
-              - "-v"
-              - "./mapactionpy_arcmap/tests"
+              - "mapactionpy_arcmap/tests"
+              - "-o"
+              - "../junit-reports"
+
 
 pipelines:
   unittest-mapy-arcmap:
-    group: Default-CMF-Group
+    group: mapactionpy_arcmap
     label_template: ${COUNT}
     lock_behavior: unlockWhenFinished
     materials:
