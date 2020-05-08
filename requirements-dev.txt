@@ -1,4 +1,3 @@
--r requirements.txt
 unittest-xml-reporting
 coverage
 flake8
