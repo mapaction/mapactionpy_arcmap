@@ -28,7 +28,7 @@ common:
               - pip
               - install
               - "-r"
-              - mapy-controller/requirements-dev.txt
+              - requirements-dev.txt
           - exec:
               command: "env/Scripts/python.exe"
               arguments:
@@ -36,16 +36,16 @@ common:
               - pip
               - install
               - "-e"
-              - mapy-controller
+              - "."
+          - exec:
+              command: "mkdir"
+              arguments:
+              - "junit-reports"
           - exec:
               command: "env/Scripts/python.exe"
               arguments:
               - "-m"
               - flake8
-          - exec:
-              command: "mkdir"
-              arguments:
-              - "junit-reports"
           - exec:
               command: "env/Scripts/python.exe"
               arguments:
@@ -57,7 +57,9 @@ common:
               - discover
               - "mapactionpy_arcmap/tests"
               - "-o"
-              - "../junit-reports"
+              - "junit-reports"
+          - exec:
+              command: "coveralls"
 
 
 pipelines:
@@ -68,7 +70,6 @@ pipelines:
     materials:
       mapy-controller:
         scm: 7b37b961-6310-45e4-9968-25a17397b6a3
-        destination: mapy-controller
     stages:
       - *testing_stages
     #<artifact type="build" src="target/**/*.xml" />

@@ -1,3 +1,4 @@
 unittest-xml-reporting
 coverage
+python-coveralls
 flake8
