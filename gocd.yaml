@@ -20,6 +20,7 @@ common:
                 - "C:/py27arcgis106/ArcGIS10.6/python.exe"
                 - "-m"
                 - virtualenv
+                - "--system-site-packages"
                 - env
           - exec:
               command: "env/Scripts/python.exe"
