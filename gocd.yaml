@@ -8,7 +8,7 @@ common:
           - arcmap10-6
         artifacts:
           - test:
-              source: "junit-reports"
+              source: "junit-reports/*.xml"
           # - test:
           #<artifact type="build" src="target/**/*.xml" />
 
@@ -59,20 +59,7 @@ common:
               - flake8
               - mapy-arcmap
           - exec:
-              command: "env/Scripts/python.exe"
-              arguments:
-              - "-m"
-              - coverage
-              - run
-              - "-m"
-              - xmlrunner
-              - discover
-              - "mapy-arcmap/mapactionpy_arcmap/tests"
-              - "-o"
-              - "junit-reports"
-          - exec:
-              command: "env/Scripts/coveralls.exe"
-
+              command: "mapy-arcmap/gocd-run-and-report-unittests.cmd"
 
 pipelines:
   unittest-mapy-arcmap-prs-in-combo:
