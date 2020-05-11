@@ -8,7 +8,7 @@ common:
           - arcmap10-6
         artifacts:
           - test:
-              source: "junit-output"
+              source: "junit-reports"
           # - test:
           #<artifact type="build" src="target/**/*.xml" />
 
@@ -71,7 +71,7 @@ common:
               - "-o"
               - "junit-reports"
           - exec:
-              command: "coveralls"
+              command: "env/Scripts/coveralls.exe"
 
 
 pipelines:
