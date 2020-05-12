@@ -10,9 +10,6 @@ common:
           - test:
               source: "junit-reports/*.xml"
               destination: test-reports
-          # - test:
-          #<artifact type="build" src="target/**/*.xml" />
-
         tasks:
           - exec:
               command: cmd
