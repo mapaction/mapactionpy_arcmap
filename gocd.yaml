@@ -59,6 +59,7 @@ common:
               - "-m"
               - flake8
               - mapy-arcmap
+              - "--append-config=mapy-arcmap/.flake8"
           - exec:
               command: "mapy-arcmap/gocd-run-and-report-unittests.cmd"
 
