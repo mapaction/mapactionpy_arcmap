@@ -18,3 +18,4 @@ htmlcov/
 mapactionpy_arcmap/tests/test_data/output*
 mapactionpy_arcmap/tests/test_data/output_arcgis_10_6_reference_landscape_bottom.mxd
 mapactionpy_arcmap/tests/test_data/arcgis_10_6_reference_landscape_bottom.json
+junit-reports/

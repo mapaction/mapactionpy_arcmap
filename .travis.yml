@@ -1,6 +1,50 @@
 language: python
-python:
-- '2.7'
+os: linux
+dist: xenial
+jobs:
+  include:
+    # This is the target environment
+    - name: "Python 2.7 on Windows"
+      os: windows           # Windows 10.0.17134 N/A Build 17134
+      language: shell       # 'language: python' is an error on Travis CI Windows
+      before_install:
+        - choco install python2
+        - python -m pip install --upgrade pip
+        - pip install mock
+      env: PATH=/c/Python27:/c/Python27/Scripts:$PATH
+    # Only required becuase deployto to PyPi appears to work better on a linux VM.
+    - name: "Python 2.7 on Xenial Linux"
+      python: 2.7
+  allow_failures:
+    # None of the jobs below matter. They are included as a measure of how much work
+    # might be required at a future date to port this package to a different target GIS,
+    # operating system or python version.
+    #
+    # Python 3.7 is used by QGIS v3.12
+    - name: "Python 3.7 on Xenial Linux"
+      python: 3.7           
+    # Python 3.6 is used by ArcGIS Pro v2.4
+    - name: "Python 3.6 on Xenial Linux"
+      python: 3.6           # Required for ArcGIS Pro v2.4
+
+    # Python 3.7 is used by QGIS v3.12
+    - name: "Python 3.7 on Windows"
+      os: windows           # Windows 10.0.17134 N/A Build 17134
+      language: shell       # 'language: python' is an error on Travis CI Windows
+      before_install:
+        - choco install python --version 3.7.0
+        - python -m pip install --upgrade pip
+      env: PATH=/c/Python37:/c/Python37/Scripts:$PATH
+    # Python 3.6 is used by ArcGIS Pro v2.4
+    - name: "Python 3.6 on Windows"
+      os: windows           # Windows 10.0.17134 N/A Build 17134
+      language: shell       # 'language: python' is an error on Travis CI Windows
+      before_install:
+        - choco install python --version 3.6.8
+        - python -m pip install --upgrade pip
+      env: PATH=/c/Python36:/c/Python36/Scripts:$PATH
+    # Python 2.7 is used by ArcMap 10.6
+
 install:
 - pip install -r requirements-dev.txt
 - pip install python-coveralls
@@ -17,4 +61,4 @@ deploy:
   cleanup: false
   on:
     all_branches: true
-    # condition: ${TRAVIS_BRANCH,,} =~ ^(master|${TRAVIS_TAG,,})$
+    condition: ${TRAVIS_OS_NAME,,} =~ ^linux$ && ${TRAVIS_BRANCH,,} =~ ^(master|${TRAVIS_TAG,,})$
