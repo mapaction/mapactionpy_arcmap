@@ -291,43 +291,69 @@ class ArcMapRunner:
     # Other comments have been added thoughout the method.
 
     def export(self):
+        export_params = {}
+        export_params = self._create_export_dir(export_params)
+        export_params = self._do_export(export_params)
+        self._export_atlas()
+        self._zip_exported_files()
+
         # TODO: asmith 2020/03/03
         # 1) Separate the section "Accumulate parameters for export XML" into it's own method
         # 2) Please avoid hardcoding the naming convention for the output mxds.
 
+
+    def _create_export_dir(self, export_params):
         # Accumulate parameters for export XML
-        exportParams = {}
         versionString = "v" + str(self.versionNumber).zfill(2)
-        exportDirectory = os.path.join(self.crashMoveFolder.export_dir,
+        export_directory = os.path.join(self.crashMoveFolder.export_dir,
                                        self.mapNumber,
                                        versionString).replace('/', '\\')
-        exportParams["exportDirectory"] = exportDirectory
+        export_params["exportDirectory"] = export_directory
         try:
-            os.makedirs(exportDirectory)
+            os.makedirs(export_directory)
         except OSError as exc:  # Python >2.5
             # Note 'errno.EEXIST' is not a typo. There should be two 'E's.
             # https://docs.python.org/2/library/errno.html#errno.EEXIST
-            if exc.errno == errno.EEXIST and os.path.isdir(exportDirectory):
+            if exc.errno == errno.EEXIST and os.path.isdir(export_directory):
                 pass
             else:
                 raise
 
+        return export_params
+
         # TODO: asmith 2020/03/03
         # End of method for the section "Accumulate parameters for export XML"
+
 
         # TODO: asmith 2020/03/03
         # Separate this section into a method named something like
         # _do_export(self, lots, of, specific, args)
+
+    def _do_export(self, export_params, lots, of, specific, args):
         mxd = arcpy.mapping.MapDocument(self.mxdTemplate)
 
         coreFileName = os.path.splitext(os.path.basename(self.mxdTemplate))[0]
-        exportParams["coreFileName"] = coreFileName
+        export_params["coreFileName"] = coreFileName
         productType = "mapsheet"
-        exportParams["productType"] = productType
+        export_params["productType"] = productType
 
-        pdfFileLocation = self.exportPdf(coreFileName, exportDirectory, mxd, exportParams)
-        jpgFileLocation = self.exportJpeg(coreFileName, exportDirectory, mxd, exportParams)
-        pngThumbNailFileLocation = self.exportPngThumbNail(coreFileName, exportDirectory, mxd, exportParams)
+        pdfFileLocation = self.exportPdf(coreFileName, exportDirectory, mxd, export_params)
+        jpgFileLocation = self.exportJpeg(coreFileName, exportDirectory, mxd, export_params)
+        pngThumbNailFileLocation = self.exportPngThumbNail(coreFileName, exportDirectory, mxd, export_params)
+
+        if self.recipe.atlas:
+            self._export_atlas()
+
+        xmlExporter = XmlExporter(self.event, self.chef)
+        export_params['versionNumber'] = self.versionNumber
+        export_params['mapNumber'] = self.mapNumber
+        export_params['productName'] = self.productName
+        export_params['versionNumber'] = self.versionNumber
+        export_params["xmin"] = self.minx
+        export_params["ymin"] = self.miny
+        export_params["xmax"] = self.maxx
+        export_params["ymax"] = self.maxy
+        exportXmlFileLocation = xmlExporter.write(export_params)
 
         # TODO: asmith 2020/03/03
         # End of method named something like
@@ -337,6 +363,7 @@ class ArcMapRunner:
         # TODO: asmith 2020/03/03
         # Seperate this section into a method nameded something like
         # _process_query_column_name(...)
+    def _export_atlas(self):
         if self.recipe.atlas:
             # TODO: asmith 2020/03/03
             #
@@ -490,21 +517,13 @@ class ArcMapRunner:
         # TODO: asmith 2020/03/03
         # End of method nameded something like
         # _process_query_column_name(...)
-        xmlExporter = XmlExporter(self.event, self.chef)
-        exportParams['versionNumber'] = self.versionNumber
-        exportParams['mapNumber'] = self.mapNumber
-        exportParams['productName'] = self.productName
-        exportParams['versionNumber'] = self.versionNumber
-        exportParams["xmin"] = self.minx
-        exportParams["ymin"] = self.miny
-        exportParams["xmax"] = self.maxx
-        exportParams["ymax"] = self.maxy
-        exportXmlFileLocation = xmlExporter.write(exportParams)
+
 
         # TODO: asmith 2020/03/03
         # Seperate this section into a method named something like
         # _zip_exported_files(....)
 
+    def _zip_exported_files(self):
         # And now Zip
         zipFileName = coreFileName+".zip"
         zipFileLocation = os.path.join(exportDirectory, zipFileName)
