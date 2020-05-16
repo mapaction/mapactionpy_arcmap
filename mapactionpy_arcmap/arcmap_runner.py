@@ -1,6 +1,5 @@
 import arcpy
 import argparse
-import json
 import errno
 import glob
 import os
@@ -11,7 +10,6 @@ from zipfile import ZipFile
 from resizeimage import resizeimage
 from map_chef import MapChef
 from mapactionpy_controller.map_cookbook import MapCookbook
-from mapactionpy_controller.data_source import DataSource
 from mapactionpy_controller.layer_properties import LayerProperties
 from mapactionpy_controller.crash_move_folder import CrashMoveFolder
 from mapactionpy_controller.event import Event
@@ -301,13 +299,12 @@ class ArcMapRunner:
         # 1) Separate the section "Accumulate parameters for export XML" into it's own method
         # 2) Please avoid hardcoding the naming convention for the output mxds.
 
-
     def _create_export_dir(self, export_params):
         # Accumulate parameters for export XML
         versionString = "v" + str(self.versionNumber).zfill(2)
         export_directory = os.path.join(self.crashMoveFolder.export_dir,
-                                       self.mapNumber,
-                                       versionString).replace('/', '\\')
+                                        self.mapNumber,
+                                        versionString).replace('/', '\\')
         export_params["exportDirectory"] = export_directory
         try:
             os.makedirs(export_directory)
@@ -324,7 +321,6 @@ class ArcMapRunner:
         # TODO: asmith 2020/03/03
         # End of method for the section "Accumulate parameters for export XML"
 
-
         # TODO: asmith 2020/03/03
         # Separate this section into a method named something like
         # _do_export(self, lots, of, specific, args)
@@ -340,7 +336,8 @@ class ArcMapRunner:
 
         export_params['pdfFileLocation'] = self.exportPdf(core_file_name, export_dir, arc_mxd, export_params)
         export_params['jpgFileLocation'] = self.exportJpeg(core_file_name, export_dir, arc_mxd, export_params)
-        export_params['pngThumbNailFileLocation'] = self.exportPngThumbNail(core_file_name, export_dir, arc_mxd, export_params)
+        export_params['pngThumbNailFileLocation'] = self.exportPngThumbNail(
+            core_file_name, export_dir, arc_mxd, export_params)
 
         if self.recipe.atlas:
             self._export_atlas(self.recipe, arc_mxd, export_dir, core_file_name)
@@ -358,11 +355,10 @@ class ArcMapRunner:
 
         return export_params
 
-
     def _export_atlas(self, recipe_with_atlas, arc_mxd, export_dir, core_file_name):
         if not recipe_with_atlas.atlas:
             raise ValueError('Cannot export atlas. The specified recipe does not contain an atlas definition')
-        
+
         # Disable view of Affected Country
         # TODO: create a seperate method _disable_view_of_affected_polygon
         # locationMapLayerName = "locationmap-admn-ad0-py-s0-locationmaps"  # Hard-coded
@@ -373,8 +369,14 @@ class ArcMapRunner:
         # locationMapDataFrame.extent = locationMapLyr.getExtent()
         # locationMapLyr.visible = False
 
-        recipe_frame = [mf for mf in recipe_with_atlas.map_frames if mf.name == recipe_with_atlas.atlas.map_frame][0]
-        recipe_lyr = [recipe_lyr for recipe_lyr in recipe_frame.layers if recipe_lyr.name == recipe_with_atlas.atlas.layer_name][0]
+        # recipe_frame = [mf for mf in recipe_with_atlas.map_frames if mf.name
+        #    == recipe_with_atlas.atlas.map_frame][0]
+        #
+        # recipe_lyr = [recipe_lyr for recipe_lyr in recipe_frame.layers if
+        #     recipe_lyr.name == recipe_with_atlas.atlas.layer_name][0]
+
+        recipe_frame = recipe_with_atlas.get_frame(recipe_with_atlas.atlas.map_frame)
+        recipe_lyr = recipe_frame.get_layer(recipe_with_atlas.atlas.layer_name)
         queryColumn = recipe_with_atlas.atlas.column_name
 
         lyr_index = recipe_frame.layers.index(recipe_lyr)
@@ -385,7 +387,7 @@ class ArcMapRunner:
         #
         # Presumably `regions` here means admin1 boundaries or some other internal
         # administrative devision? Replace with a more generic name.
-        
+
         # For each layer and column name, export a regional map
         regions = list()
         # UpdateCursor requires that the queryColumn must be passed as a list or tuple
@@ -393,7 +395,7 @@ class ArcMapRunner:
             for row in cursor:
                 regions.append(row[0])
 
-        # This loop simulates the behaviour of Data Driven Pages. This is becuase of the 
+        # This loop simulates the behaviour of Data Driven Pages. This is because of the
         # limitations in the arcpy API for maniplulating DDPs.
         for region in regions:
             # TODO: asmith 2020/03/03
@@ -464,7 +466,6 @@ class ArcMapRunner:
             # if arcpy.Exists(os.path.join(export_dir, shpFile)):
             #     arcpy.Delete_management(os.path.join(export_dir, shpFile))
 
-
     def _zip_exported_files(self, export_params):
         # Get key params as local variables
         core_file_name = export_params['coreFileName']
@@ -492,7 +493,6 @@ class ArcMapRunner:
                     zipObj.write(os.path.join(export_dir, pdf),
                                  os.path.basename(os.path.join(export_dir, pdf)))
         print("Export complete to " + export_dir)
-
 
     def exportJpeg(self, coreFileName, exportDirectory, mxd, exportParams):
         # JPEG
