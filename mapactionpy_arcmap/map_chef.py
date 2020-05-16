@@ -282,6 +282,8 @@ class MapChef:
         mapResult = MapResult(recipe_lyr.name)
         self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, map_frame.name)[0]
         try:
+            # BUG
+            # The layer name in the TOC is not necessarily == recipe_lyr.name
             arc_lyr_to_update = arcpy.mapping.ListLayers(self.mxd, recipe_lyr.name, self.dataFrame)[0]
             # Replace existing layer
             mapResult = self.updateLayer(arc_lyr_to_update, recipe_lyr)
@@ -293,6 +295,8 @@ class MapChef:
             try:
                 # Seperate the next two lines so that the cause of any exceptions is more easily
                 # appartent from the stack trace.
+                # BUG
+                # The layer name in the TOC is not necessarily == recipe_lyr.name
                 lyr_list = arcpy.mapping.ListLayers(self.mxd, recipe_lyr.name, self.dataFrame)
                 newLayer = lyr_list[0]
                 self.applyZoom(self.dataFrame, newLayer, recipe_lyr.get('zoomMultiplier', 0))
@@ -511,6 +515,8 @@ class MapChef:
             sourceLayer = arcpy.mapping.Layer(layerFilePath)
             arcpy.mapping.UpdateLayer(self.dataFrame, updateLayer, sourceLayer, False)
 
+            # BUG
+            # The layer name in the TOC is not necessarily == recipe_lyr.name
             newLayer = arcpy.mapping.ListLayers(self.mxd, updateLayer.name, self.dataFrame)[0]
             if newLayer.supports("DATASOURCE"):
                 for datasetType in self.datasetTypes:

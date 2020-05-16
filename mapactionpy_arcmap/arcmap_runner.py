@@ -220,20 +220,21 @@ class ArcMapRunner:
     # Instinctively I would like to see this moved to the MapReport class with an __eq__ method which
     # would look very much like this one.
     def haveDataSourcesChanged(self, previousReportFile):
-        returnValue = False
-        with open(previousReportFile, 'r') as myfile:
-            data = myfile.read()
-            # parse file
-            obj = json.loads(data)
-            for result in obj['results']:
-                dataFile = os.path.join(self.event.path, (result['dataSource'].strip('/')))
-                previousHash = result.get('hash', "")
-                ds = DataSource(dataFile)
-                latestHash = ds.calculate_checksum()
-                if (latestHash != previousHash):
-                    returnValue = True
-                    break
-        return returnValue
+        # returnValue = False
+        # with open(previousReportFile, 'r') as myfile:
+        #     data = myfile.read()
+        #     # parse file
+        #     obj = json.loads(data)
+        #     for result in obj['results']:
+        #         dataFile = os.path.join(self.event.path, (result['dataSource'].strip('/')))
+        #         previousHash = result.get('hash', "")
+        #         ds = DataSource(dataFile)
+        #         latestHash = ds.calculate_checksum()
+        #         if (latestHash != previousHash):
+        #             returnValue = True
+        #             break
+        # return returnValue
+        return True
 
     # TODO: asmith 2020/03/03
     #
@@ -294,8 +295,7 @@ class ArcMapRunner:
         export_params = {}
         export_params = self._create_export_dir(export_params)
         export_params = self._do_export(export_params)
-        self._export_atlas()
-        self._zip_exported_files()
+        self._zip_exported_files(export_params)
 
         # TODO: asmith 2020/03/03
         # 1) Separate the section "Accumulate parameters for export XML" into it's own method
@@ -329,20 +329,21 @@ class ArcMapRunner:
         # Separate this section into a method named something like
         # _do_export(self, lots, of, specific, args)
 
-    def _do_export(self, export_params, lots, of, specific, args):
-        mxd = arcpy.mapping.MapDocument(self.mxdTemplate)
+    def _do_export(self, export_params):
+        export_dir = export_params["exportDirectory"]
+        arc_mxd = arcpy.mapping.MapDocument(self.mxdTemplate)
 
-        coreFileName = os.path.splitext(os.path.basename(self.mxdTemplate))[0]
-        export_params["coreFileName"] = coreFileName
+        core_file_name = os.path.splitext(os.path.basename(self.mxdTemplate))[0]
+        export_params["coreFileName"] = core_file_name
         productType = "mapsheet"
         export_params["productType"] = productType
 
-        pdfFileLocation = self.exportPdf(coreFileName, exportDirectory, mxd, export_params)
-        jpgFileLocation = self.exportJpeg(coreFileName, exportDirectory, mxd, export_params)
-        pngThumbNailFileLocation = self.exportPngThumbNail(coreFileName, exportDirectory, mxd, export_params)
+        export_params['pdfFileLocation'] = self.exportPdf(core_file_name, export_dir, arc_mxd, export_params)
+        export_params['jpgFileLocation'] = self.exportJpeg(core_file_name, export_dir, arc_mxd, export_params)
+        export_params['pngThumbNailFileLocation'] = self.exportPngThumbNail(core_file_name, export_dir, arc_mxd, export_params)
 
         if self.recipe.atlas:
-            self._export_atlas()
+            self._export_atlas(self.recipe, arc_mxd, export_dir, core_file_name)
 
         xmlExporter = XmlExporter(self.event, self.chef)
         export_params['versionNumber'] = self.versionNumber
@@ -353,185 +354,132 @@ class ArcMapRunner:
         export_params["ymin"] = self.miny
         export_params["xmax"] = self.maxx
         export_params["ymax"] = self.maxy
-        exportXmlFileLocation = xmlExporter.write(export_params)
+        export_params['exportXmlFileLocation'] = xmlExporter.write(export_params)
+
+        return export_params
+
+
+    def _export_atlas(self, recipe_with_atlas, arc_mxd, export_dir, core_file_name):
+        if not recipe_with_atlas.atlas:
+            raise ValueError('Cannot export atlas. The specified recipe does not contain an atlas definition')
+        
+        # Disable view of Affected Country
+        # TODO: create a seperate method _disable_view_of_affected_polygon
+        # locationMapLayerName = "locationmap-admn-ad0-py-s0-locationmaps"  # Hard-coded
+        # layerDefinition = self.layerDefinition.properties.get(locationMapLayerName)
+        # locationMapDataFrameName = layerDefinition.mapFrame
+        # locationMapDataFrame = arcpy.mapping.ListDataFrames(arc_mxd, locationMapDataFrameName)[0]
+        # locationMapLyr = arcpy.mapping.ListLayers(arc_mxd, locationMapLayerName, locationMapDataFrame)[0]
+        # locationMapDataFrame.extent = locationMapLyr.getExtent()
+        # locationMapLyr.visible = False
+
+        recipe_frame = [mf for mf in recipe_with_atlas.map_frames if mf.name == recipe_with_atlas.atlas.map_frame][0]
+        recipe_lyr = [recipe_lyr for recipe_lyr in recipe_frame.layers if recipe_lyr.name == recipe_with_atlas.atlas.layer_name][0]
+        queryColumn = recipe_with_atlas.atlas.column_name
+
+        lyr_index = recipe_frame.layers.index(recipe_lyr)
+        arc_df = arcpy.mapping.ListDataFrames(arc_mxd, recipe_frame.name)[0]
+        arc_lyr = arcpy.mapping.ListLayers(arc_mxd, None, arc_df)[lyr_index]
 
         # TODO: asmith 2020/03/03
-        # End of method named something like
-        # _do_export(self, lots, of, specific, args)
+        #
+        # Presumably `regions` here means admin1 boundaries or some other internal
+        # administrative devision? Replace with a more generic name.
+        
+        # For each layer and column name, export a regional map
+        regions = list()
+        # UpdateCursor requires that the queryColumn must be passed as a list or tuple
+        with arcpy.da.UpdateCursor(arc_lyr.dataSource, [queryColumn]) as cursor:
+            for row in cursor:
+                regions.append(row[0])
 
-        #######################################################################################################
-        # TODO: asmith 2020/03/03
-        # Seperate this section into a method nameded something like
-        # _process_query_column_name(...)
-    def _export_atlas(self):
-        if self.recipe.atlas:
+        # This loop simulates the behaviour of Data Driven Pages. This is becuase of the 
+        # limitations in the arcpy API for maniplulating DDPs.
+        for region in regions:
             # TODO: asmith 2020/03/03
-            #
-            # 1) Please do not hard code layer file names! If a particular layer needs to have a special
-            # meaning then this should be explict in the structure of the mapCookBook.json and/or
-            # layerProperties.json files.
-            #
-            # 2) It looks like this is a workaround for the fact that this isn't an easy way to programatically
-            # identify specific mapFrames without hardcoding the name of the mapFrame. Is there anywhere a
-            # datamodel or class which encapsulates all of the elemnts which must be present within an mxd
-            # in order for the automation tools to work? (eg:
-            #     * title Text Element
-            #     * description Text Element
-            #     * datasources Text Element
-            #     * map_map Map Frame
-            #     * location_map Map Frame
-            #     * legend Legend Element
-            #     * etc.....
-            #
-            # It ought to be possible to have a method somewhere within the module like this:
-            # ```
-            #     is_suitable_for_automation(mxd)  # Returns Boolean
-            # ```
+            # Please do not hardcode mapFrame names. If a particular mapframe as a special
+            # meaning then this should be explicit in the structure of the mapCookBook.json
+            # and/or layerProperties.json files.arc_mxd, dataFrameName)[0]
 
-            # Disable view of Affected Country
-            locationMapLayerName = "locationmap-admn-ad0-py-s0-locationmaps"  # Hard-coded
-            layerDefinition = self.layerDefinition.properties.get(locationMapLayerName)
-            locationMapDataFrameName = layerDefinition.mapFrame
-            locationMapDataFrame = arcpy.mapping.ListDataFrames(mxd, locationMapDataFrameName)[0]
-            locationMapLyr = arcpy.mapping.ListLayers(mxd, locationMapLayerName, locationMapDataFrame)[0]
-            locationMapDataFrame.extent = locationMapLyr.getExtent()
-            locationMapLyr.visible = False
+            # Select the next region
+            query = "\"" + queryColumn + "\" = \'" + region + "\'"
+            arcpy.SelectLayerByAttribute_management(arc_lyr, "NEW_SELECTION", query)
 
-            # TODO: asmith 2020/03/03
-            # Why is it necessary to have two loops through the layers in a recipe? eg
-            # ```
-            #     for layer in self.recipe.layers:
-            # ```
-            # There is this one here and a seperate one within the `cook` method of the MapChef class.
-            # In the MapChef.cook() method the mxd is altered and then saved afterwards. It looks like
-            # the mxd can be altered in ArcMapRunner.export() [specificly the zoom extent altered] but
-            # then not saved afterwards. Is this intentional?
-            for layer in self.recipe.layers:
-                # TODO: asmith 2020/03/03
-                #
-                # 1) The snip-it `if (layer.get('columnName', None) is not None):` occurs in a couple of
-                # locations (here and in MapRecipe.containsQueryColumn()). As a double negitive it is not
-                # clear what is meant (I cannot find a `columnName` entry in the example mapCookbook.json).
-                # Would it help to expand the object model for the `layer` class to encapsulate this?
-                if (layer.get('columnName', None) is not None):
-                    layerName = layer.get('name')
-                    queryColumn = layer.get('columnName')
-                    fieldNames = [queryColumn]
-                    # For each layer and column name, export a regional map
-                    layerDefinition = self.layerDefinition.properties.get(layerName)
-                    df = arcpy.mapping.ListDataFrames(mxd, layerDefinition.mapFrame)[0]
-                    lyr = arcpy.mapping.ListLayers(mxd, layerName, df)[0]
+            # Set the extent mapframe to the selected area
+            arc_df.extent = arc_lyr.getSelectedExtent()
 
-                    # TODO: asmith 2020/03/03
-                    #
-                    # Presumably `regions` here means admin1 boundaries or some other internal
-                    # administrative devision?
-                    regions = list()
-                    with arcpy.da.UpdateCursor(lyr.dataSource, fieldNames) as cursor:
-                        for row in cursor:
-                            regions.append(row[0])
+            # # Create a polygon using the bounding box
+            # bounds = arcpy.Array()
+            # bounds.add(arc_df.extent.lowerLeft)
+            # bounds.add(arc_df.extent.lowerRight)
+            # bounds.add(arc_df.extent.upperRight)
+            # bounds.add(arc_df.extent.upperLeft)
+            # # ensure the polygon is closed
+            # bounds.add(arc_df.extent.lowerLeft)
+            # # Create the polygon object
+            # polygon = arcpy.Polygon(bounds, arc_df.extent.spatialReference)
 
-                    # TODO: asmith 2020/03/03
-                    # This loop appear to simulate the behaviour of Data Driven Pages - is that right?
-                    # Simulating Data Driven Pages to fine given the limitations in the arcpy API for
-                    # controlling them.
-                    #
-                    # 1) If this is DDP, then I presume that this is triggered by the
-                    # `if (layer.get('columnName', None) is not None):` line above? If so then please
-                    # could we change the format of the mapCookBook.json so that this is more apparent
-                    # to the reader of the mapCookBook.json file?
-                    #
-                    # 2) There appear to be a lot of hardcoded elements (eg the title and the map number)
-                    # Is it possible to eliminate (or at least minimse these)?
-                    for region in regions:
-                        # TODO: asmith 2020/03/03
-                        # Please do not hardcode mapFrame names. If a particular mapframe as a special
-                        # meaning then this should be explicit in the structure of the mapCookBook.json
-                        # and/or layerProperties.json files.
-                        dataFrameName = "Main map"
-                        df = arcpy.mapping.ListDataFrames(mxd, dataFrameName)[0]
+            # bounds.removeAll()
 
-                        # Select the next region
-                        query = "\"" + queryColumn + "\" = \'" + region + "\'"
-                        arcpy.SelectLayerByAttribute_management(lyr, "NEW_SELECTION", query)
+            # # Export the extent to a shapefile
+            # shapeFileName = "extent_" + slugify(unicode(region)).replace('-', '')
+            # shpFile = shapeFileName + ".shp"
 
-                        # Get the extent of the selected area
-                        df.extent = lyr.getSelectedExtent()
+            # if arcpy.Exists(os.path.join(export_dir, shpFile)):
+            #     arcpy.Delete_management(os.path.join(export_dir, shpFile))
+            # arcpy.CopyFeatures_management(polygon, os.path.join(export_dir, shpFile))
 
-                        # Create a polygon using the bounding box
-                        array = arcpy.Array()
-                        array.add(df.extent.lowerLeft)
-                        array.add(df.extent.lowerRight)
-                        array.add(df.extent.upperRight)
-                        array.add(df.extent.upperLeft)
-                        # ensure the polygon is closed
-                        array.add(df.extent.lowerLeft)
-                        # Create the polygon object
-                        polygon = arcpy.Polygon(array, df.extent.spatialReference)
+            # # For the 'extent' layer...
+            # locationMapDataFrameName = "Location map"
+            # locationMapDataFrame = arcpy.mapping.ListDataFrames(arc_mxd, locationMapDataFrameName)[0]
+            # extentLayerName = "locationmap-s0-py-extent"
+            # extentLayer = arcpy.mapping.ListLayers(arc_mxd, extentLayerName, locationMapDataFrame)[0]
 
-                        array.removeAll()
+            # # Update the layer
+            # extentLayer.replaceDataSource(export_dir, 'SHAPEFILE_WORKSPACE', shapeFileName)
+            # arcpy.RefreshActiveView()
 
-                        # Export the extent to a shapefile
-                        shapeFileName = "extent_" + slugify(unicode(region)).replace('-', '')
-                        shpFile = shapeFileName + ".shp"
+            # # In Main map, zoom to the selected region
+            # dataFrameName = "Main map"
+            # df = arcpy.mapping.ListDataFrames(arc_mxd, dataFrameName)[0]
+            # arcpy.SelectLayerByAttribute_management(arc_lyr, "NEW_SELECTION", query)
+            # df.extent = arc_lyr.getSelectedExtent()
 
-                        if arcpy.Exists(os.path.join(exportDirectory, shpFile)):
-                            arcpy.Delete_management(os.path.join(exportDirectory, shpFile))
-                        arcpy.CopyFeatures_management(polygon, os.path.join(exportDirectory, shpFile))
+            for elm in arcpy.mapping.ListLayoutElements(arc_mxd, "TEXT_ELEMENT"):
+                if elm.name == "title":
+                    elm.text = recipe_with_atlas.category + " map of " + self.event.country_name +\
+                        '\n' +\
+                        "<CLR red = '255'>Sheet - " + region + "</CLR>"
+                if elm.name == "map_no":
+                    elm.text = recipe_with_atlas.mapnumber + "_Sheet_" + region.replace(' ', '_')
 
-                        # For the 'extent' layer...
-                        locationMapDataFrameName = "Location map"
-                        locationMapDataFrame = arcpy.mapping.ListDataFrames(mxd, locationMapDataFrameName)[0]
-                        extentLayerName = "locationmap-s0-py-extent"
-                        extentLayer = arcpy.mapping.ListLayers(mxd, extentLayerName, locationMapDataFrame)[0]
+            # Clear selection, otherwise the selected feature is highlighted in the exported map
+            arcpy.SelectLayerByAttribute_management(arc_lyr, "CLEAR_SELECTION")
+            # Export to PDF
+            pdfFileName = core_file_name + "-" + \
+                slugify(unicode(region)) + "-" + str(self.event.default_pdf_res_dpi) + "dpi.pdf"
+            pdfFileLocation = os.path.join(export_dir, pdfFileName)
 
-                        # Update the layer
-                        extentLayer.replaceDataSource(exportDirectory, 'SHAPEFILE_WORKSPACE', shapeFileName)
-                        arcpy.RefreshActiveView()
-
-                        # In Main map, zoom to the selected region
-                        dataFrameName = "Main map"
-                        df = arcpy.mapping.ListDataFrames(mxd, dataFrameName)[0]
-                        arcpy.SelectLayerByAttribute_management(lyr, "NEW_SELECTION", query)
-                        df.extent = lyr.getSelectedExtent()
-
-                        for elm in arcpy.mapping.ListLayoutElements(mxd, "TEXT_ELEMENT"):
-                            if elm.name == "title":
-                                elm.text = self.recipe.category + " map of " + self.event.country_name +\
-                                    '\n' +\
-                                    "<CLR red = '255'>Sheet - " + region + "</CLR>"
-                            if elm.name == "map_no":
-                                elm.text = self.recipe.mapnumber + "_Sheet_" + region.replace(' ', '_')
-
-                        # Clear selection, otherwise the selected feature is highlighted in the exported map
-                        arcpy.SelectLayerByAttribute_management(lyr, "CLEAR_SELECTION")
-                        # Export to PDF
-                        pdfFileName = coreFileName + "-" + \
-                            slugify(unicode(region)) + "-" + str(self.event.default_pdf_res_dpi) + "dpi.pdf"
-                        pdfFileLocation = os.path.join(exportDirectory, pdfFileName)
-
-                        arcpy.mapping.ExportToPDF(mxd, pdfFileLocation, resolution=int(self.event.default_pdf_res_dpi))
-                        if arcpy.Exists(os.path.join(exportDirectory, shpFile)):
-                            arcpy.Delete_management(os.path.join(exportDirectory, shpFile))
-
-        # TODO: asmith 2020/03/03
-        # End of method nameded something like
-        # _process_query_column_name(...)
+            arcpy.mapping.ExportToPDF(arc_mxd, pdfFileLocation, resolution=int(self.event.default_pdf_res_dpi))
+            # if arcpy.Exists(os.path.join(export_dir, shpFile)):
+            #     arcpy.Delete_management(os.path.join(export_dir, shpFile))
 
 
-        # TODO: asmith 2020/03/03
-        # Seperate this section into a method named something like
-        # _zip_exported_files(....)
-
-    def _zip_exported_files(self):
+    def _zip_exported_files(self, export_params):
+        # Get key params as local variables
+        core_file_name = export_params['coreFileName']
+        export_dir = export_params['exportDirectory']
+        mdr_xml_file_path = export_params['exportXmlFileLocation']
+        jpg_path = export_params['jpgFileLocation']
+        png_thumbnail_path = export_params['pngThumbNailFileLocation']
         # And now Zip
-        zipFileName = coreFileName+".zip"
-        zipFileLocation = os.path.join(exportDirectory, zipFileName)
+        zipFileName = core_file_name+".zip"
+        zipFileLocation = os.path.join(export_dir, zipFileName)
 
         with ZipFile(zipFileLocation, 'w') as zipObj:
-            zipObj.write(exportXmlFileLocation, os.path.basename(exportXmlFileLocation))
-            zipObj.write(jpgFileLocation, os.path.basename(jpgFileLocation))
-            zipObj.write(pngThumbNailFileLocation, os.path.basename(pngThumbNailFileLocation))
+            zipObj.write(mdr_xml_file_path, os.path.basename(mdr_xml_file_path))
+            zipObj.write(jpg_path, os.path.basename(jpg_path))
+            zipObj.write(png_thumbnail_path, os.path.basename(png_thumbnail_path))
 
             # TODO: asmith 2020/03/03
             # Given we are explictly setting the pdfFileName for each page within the DDPs
@@ -539,15 +487,12 @@ class ArcMapRunner:
             # can we use this list to include in the zip file. There are edge cases where just
             # adding all of the pdfs in a particular directory might not behave correctly (eg if
             # the previous run had crashed midway for some reason)
-            for pdf in os.listdir(exportDirectory):
+            for pdf in os.listdir(export_dir):
                 if pdf.endswith(".pdf"):
-                    zipObj.write(os.path.join(exportDirectory, pdf),
-                                 os.path.basename(os.path.join(exportDirectory, pdf)))
-        print("Export complete to " + exportDirectory)
+                    zipObj.write(os.path.join(export_dir, pdf),
+                                 os.path.basename(os.path.join(export_dir, pdf)))
+        print("Export complete to " + export_dir)
 
-        # TODO: asmith 2020/03/03
-        # End of method named something like
-        # _zip_exported_files(....)
 
     def exportJpeg(self, coreFileName, exportDirectory, mxd, exportParams):
         # JPEG
