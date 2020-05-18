@@ -275,21 +275,25 @@ class MapChef:
         """
         return(jsonpickle.encode(self.mapReport, unpicklable=False))
 
-    def process_layer(self, recipe_lyr, map_frame):
+    def process_layer(self, recipe_lyr, recipe_frame):
         """
         Updates or Adds a layer of data.  Maintains the Map Report.
         """
         mapResult = MapResult(recipe_lyr.name)
-        self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, map_frame.name)[0]
+        arc_data_frame = arcpy.mapping.ListDataFrames(self.mxd, recipe_frame.name)[0]
         try:
             # BUG
             # The layer name in the TOC is not necessarily == recipe_lyr.name
-            arc_lyr_to_update = arcpy.mapping.ListLayers(self.mxd, recipe_lyr.name, self.dataFrame)[0]
+            # arc_lyr_to_update = arcpy.mapping.ListLayers(self.mxd, recipe_lyr.name, self.dataFrame)[0]
+            # Try this instead
+            lyr_index = recipe_frame.layers.index(recipe_lyr)
+            arc_lyr_to_update = arcpy.mapping.ListLayers(self.mxd, None, arc_data_frame)[lyr_index]
+
             # Replace existing layer
-            mapResult = self.updateLayer(arc_lyr_to_update, recipe_lyr)
+            mapResult = self.updateLayer(arc_lyr_to_update, recipe_lyr, recipe_frame)
         except IndexError:
             # Layer doesn't exist, add new layer
-            mapResult = self.addLayer(recipe_lyr)
+            mapResult = self.addLayer(recipe_lyr, arc_data_frame)
 
         if mapResult.added:
             try:
@@ -297,9 +301,12 @@ class MapChef:
                 # appartent from the stack trace.
                 # BUG
                 # The layer name in the TOC is not necessarily == recipe_lyr.name
-                lyr_list = arcpy.mapping.ListLayers(self.mxd, recipe_lyr.name, self.dataFrame)
-                newLayer = lyr_list[0]
-                self.applyZoom(self.dataFrame, newLayer, recipe_lyr.get('zoomMultiplier', 0))
+                # lyr_list = arcpy.mapping.ListLayers(self.mxd, recipe_lyr.name, self.dataFrame)
+                # new_layer = lyr_list[0]
+                # Try this instead
+                lyr_index = recipe_frame.layers.index(recipe_lyr)
+                new_layer = arcpy.mapping.ListLayers(self.mxd, None, arc_data_frame)[lyr_index]
+                self.applyZoom(arc_data_frame, new_layer, 0)
             except IndexError:
                 pass
 
@@ -475,26 +482,27 @@ class MapChef:
     # TODO: asmith 2020/03/06
     # `updateLayer()` and `addLayer()` seem very similar. Is it possible to refactor to reduce
     # duplication?
-    def updateLayer(self, arc_lyr_to_update, recipe_lyr):
+    def updateLayer(self, arc_lyr_to_update, recipe_lyr, recipe_frame):
         mapResult = None
 
         if (".gdb/" not in recipe_lyr.reg_exp):
-            mapResult = self.updateLayerWithFile(recipe_lyr, arc_lyr_to_update, recipe_lyr.layer_file_path)
+            mapResult = self.updateLayerWithFile(recipe_lyr, arc_lyr_to_update,
+                                                 recipe_lyr.layer_file_path, recipe_frame)
         else:
-            mapResult = self.updateLayerWithGdb(recipe_lyr)
+            mapResult = self.updateLayerWithGdb(recipe_lyr, recipe_frame)
         return mapResult
 
     # TODO: asmith 2020/03/06
     # `updateLayer()` and `addLayer()` seem very similar. Is it possible to refactor to reduce
     # duplication?
-    def addLayer(self, recipe_lyr):
+    def addLayer(self, recipe_lyr, recipe_frame):
         # addLayer(recipe_lyr, recipe_lyr.layer_file_path, recipe_lyr.name)
         mapResult = MapResult(recipe_lyr.name)
         arc_lyr_to_add = arcpy.mapping.Layer(recipe_lyr.layer_file_path)
         if (".gdb/" not in recipe_lyr.reg_exp):
-            mapResult = self.addLayerWithFile(recipe_lyr, arc_lyr_to_add, recipe_lyr.name)
+            mapResult = self.addLayerWithFile(recipe_lyr, arc_lyr_to_add, recipe_lyr.name, recipe_frame)
         else:
-            mapResult = self.addLayerWithGdb(recipe_lyr, arc_lyr_to_add, recipe_lyr.name)
+            mapResult = self.addLayerWithGdb(recipe_lyr, arc_lyr_to_add, recipe_lyr.name, recipe_frame)
         return mapResult
 
     # TODO: asmith 2020/03/06
@@ -503,7 +511,7 @@ class MapChef:
     #   * `addLayerWithGdb()`
     #   * `updateLayerWithFile()`
     # Is it possible to refactor to reduce duplication?
-    def updateLayerWithFile(self, layerProperties, updateLayer, layerFilePath):
+    def updateLayerWithFile(self, layerProperties, updateLayer, layerFilePath, recipe_frame):
         mapResult = MapResult(layerProperties.name)
 
         dataFiles = self.find(self.crashMoveFolder.active_data, layerProperties.reg_exp)
@@ -513,11 +521,16 @@ class MapChef:
             dataDirectory = os.path.dirname(os.path.realpath(dataFile))
 
             sourceLayer = arcpy.mapping.Layer(layerFilePath)
-            arcpy.mapping.UpdateLayer(self.dataFrame, updateLayer, sourceLayer, False)
+            arc_data_frame = arcpy.mapping.ListDataFrames(self.mxd, recipe_frame.name)[0]
+            arcpy.mapping.UpdateLayer(arc_data_frame, updateLayer, sourceLayer, False)
 
             # BUG
             # The layer name in the TOC is not necessarily == recipe_lyr.name
-            newLayer = arcpy.mapping.ListLayers(self.mxd, updateLayer.name, self.dataFrame)[0]
+            # newLayer = arcpy.mapping.ListLayers(self.mxd, updateLayer.name, self.dataFrame)[0]
+            # Try this instead
+            lyr_index = recipe_frame.layers.index(updateLayer)
+            newLayer = arcpy.mapping.ListLayers(self.mxd, None, arc_data_frame)[lyr_index]
+
             if newLayer.supports("DATASOURCE"):
                 for datasetType in self.datasetTypes:
                     try:
@@ -539,7 +552,7 @@ class MapChef:
                 break
         return mapResult
 
-    def updateLayerWithGdb(self, layerProperties):
+    def updateLayerWithGdb(self, layerProperties, recipe_frame):
         mapResult = MapResult(layerProperties.name)
         mapResult.message = "Update layer for a GeoDatabase not yet implemented"
         return mapResult
@@ -550,7 +563,7 @@ class MapChef:
     #   * `addLayerWithGdb()`
     #   * `updateLayerWithFile()`
     # Is it possible to refactor to reduce duplication?
-    def addLayerWithFile(self, layerProperties, layerToAdd, cookBookLayer):
+    def addLayerWithFile(self, layerProperties, layerToAdd, cookBookLayer, recipe_frame):
         mapResult = MapResult(layerProperties.name)
         dataFiles = self.find(self.crashMoveFolder.active_data, layerProperties.reg_exp)
 
@@ -595,15 +608,16 @@ class MapChef:
                     self.mxd.save()
 
             if (mapResult.added is True):
+                arc_data_frame = arcpy.mapping.ListDataFrames(self.mxd, recipe_frame.name)[0]
                 # TODO add proper fix for applyZoom in line with these two cards
                 # https: // trello.com/c/Bs70ru1s/145-design-criteria-for-selecting-zoom-extent
                 # https://trello.com/c/piE3tKRp/146-implenment-rules-for-selection-zoom-extent
                 # self.applyZoom(self.dataFrame, layerToAdd, cookBookLayer.get('zoomMultiplier', 0))
-                self.applyZoom(self.dataFrame, layerToAdd, 0)
+                self.applyZoom(arc_data_frame, layerToAdd, 0)
 
                 if layerProperties.add_to_legend is False:
                     self.legendEntriesToRemove.append(layerToAdd.name)
-                arcpy.mapping.AddLayer(self.dataFrame, layerToAdd, "BOTTOM")
+                arcpy.mapping.AddLayer(arc_data_frame, layerToAdd, "BOTTOM")
                 self.mxd.save()
                 break
 
@@ -615,7 +629,7 @@ class MapChef:
     #   * `addLayerWithGdb()`
     #   * `updateLayerWithFile()`
     # Is it possible to refactor to reduce duplication?
-    def addLayerWithGdb(self, layerProperties, layerToAdd, cookBookLayer):
+    def addLayerWithGdb(self, layerProperties, layerToAdd, cookBookLayer, recipe_frame):
         mapResult = MapResult(layerProperties.name)
 
         # It's a File Geodatabase
@@ -627,8 +641,8 @@ class MapChef:
             rasters = arcpy.ListRasters("*")
             for raster in rasters:
                 if re.match(parts[1], raster):
-                    self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, layerProperties.mapFrame)[0]
-                    mapResult.added = self.addDataToLayer(self.dataFrame,
+                    arc_data_frame = arcpy.mapping.ListDataFrames(self.mxd, recipe_frame.name)[0]
+                    mapResult.added = self.addDataToLayer(arc_data_frame,
                                                           geoDatabase,
                                                           layerToAdd,
                                                           layerProperties.definition_query,
@@ -645,8 +659,8 @@ class MapChef:
             for featureClass in featureClasses:
                 if re.match(parts[1], featureClass):
                     # Found Geodatabase.  Stop iterating.
-                    self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, layerProperties.mapFrame)[0]
-                    mapResult.added = self.addDataToLayer(self.dataFrame,
+                    arc_data_frame = arcpy.mapping.ListDataFrames(self.mxd, recipe_frame.name)[0]
+                    mapResult.added = self.addDataToLayer(arc_data_frame,
                                                           geoDatabase,
                                                           layerToAdd,
                                                           layerProperties.definition_query,
