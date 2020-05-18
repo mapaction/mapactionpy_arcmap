@@ -258,38 +258,11 @@ class ArcMapRunner:
     """
     Generates all file for export
     """
-    # TODO: asmith 2020/03/03
-    # This method is very long. Separate into multiple method. Some fo these will can be entirely
-    # functional with no side-effects (eg wrangling parameters) whilst other will be highly proceedural
-    # where the actual files writen to the filesystem.
-    #
-    # As a suggestion; it could be broken up something like this:
-    #
-    # export(self)
-    #   """
-    #   Accumulate parameters for export XML, then calls _do_export(....)
-    #   """
-    #
-    #
-    # _do_export(self, lots, of, specific, args)
-    #   """
-    #   Does the exporting of the PDF, Jpeg and thumbnail files.
-    #   """
-    #
-    #
-    # _process_query_column_name(...)
-    #   """
-    #   Accumulate parameters for export XML, then calls _do_export(....)
-    #   """
-    #
-    # _zip_exported_files(....)
-    #   """
-    #   Accumulate parameters for export XML, then calls _do_export(....)
-    #   """
-    #
-    # Other comments have been added thoughout the method.
-
     def export(self):
+        """
+        Accumulate some of the parameters for export XML, then calls 
+        _do_export(....) to do that actual work
+        """
         export_params = {}
         export_params = self._create_export_dir(export_params)
         export_params = self._do_export(export_params)
@@ -326,6 +299,9 @@ class ArcMapRunner:
         # _do_export(self, lots, of, specific, args)
 
     def _do_export(self, export_params):
+        """
+        Does the actual work of exporting of the PDF, Jpeg and thumbnail files.
+        """
         export_dir = export_params["exportDirectory"]
         arc_mxd = arcpy.mapping.MapDocument(self.mxdTemplate)
 
@@ -356,6 +332,9 @@ class ArcMapRunner:
         return export_params
 
     def _export_atlas(self, recipe_with_atlas, arc_mxd, export_dir, core_file_name):
+        """
+        Exports each individual page for recipes which contain an atlas definition
+        """
         if not recipe_with_atlas.atlas:
             raise ValueError('Cannot export atlas. The specified recipe does not contain an atlas definition')
 

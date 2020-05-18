@@ -275,12 +275,12 @@ class MapChef:
         """
         return(jsonpickle.encode(self.mapReport, unpicklable=False))
 
-    def process_layer(self, recipe_lyr, map_frame):
+    def process_layer(self, recipe_lyr, recipe_frame):
         """
         Updates or Adds a layer of data.  Maintains the Map Report.
         """
         mapResult = MapResult(recipe_lyr.name)
-        self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, map_frame.name)[0]
+        self.dataFrame = arcpy.mapping.ListDataFrames(self.mxd, recipe_frame.name)[0]
         try:
             # BUG
             # The layer name in the TOC is not necessarily == recipe_lyr.name
