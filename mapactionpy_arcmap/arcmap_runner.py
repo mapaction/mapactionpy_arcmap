@@ -261,7 +261,7 @@ class ArcMapRunner:
 
     def export(self):
         """
-        Accumulate some of the parameters for export XML, then calls 
+        Accumulate some of the parameters for export XML, then calls
         _do_export(....) to do that actual work
         """
         export_params = {}
