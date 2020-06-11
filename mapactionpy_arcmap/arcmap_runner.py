@@ -2,7 +2,9 @@ import arcpy
 import argparse
 import errno
 import glob
+import logging
 import os
+import re
 from shutil import copyfile
 from slugify import slugify
 from PIL import Image
@@ -14,9 +16,25 @@ from mapactionpy_controller.layer_properties import LayerProperties
 from mapactionpy_controller.crash_move_folder import CrashMoveFolder
 from mapactionpy_controller.event import Event
 from mapactionpy_controller.xml_exporter import XmlExporter
+from mapactionpy_controller.runner import BaseRunnerPlugin
 
 
-class ArcMapRunner:
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s %(module)s %(name)s.%(funcName)s +%(lineno)s: %(levelname)-8s %(message)s',
+                    )
+
+# logger = logging.getLogger(__name__)
+# ch = logging.StreamHandler()
+# ch.setLevel(logging.DEBUG)
+# # create formatter and add it to the handlers
+# formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s (%(module)s +ln%(lineno)s) ;- %(message)s')
+# # formatter = logging.Formatter('%(asctime)s %(module)s %(name)s.%(funcName)s +%(lineno)s: %(levelname)-8s [%(process)d] %(message)s')
+# ch.setFormatter(formatter)
+# # add the handlers to the logger
+# logger.addHandler(ch)
+
+
+class ArcMapRunner(BaseRunnerPlugin):
     """
     ArcMapRunner - Executes the ArcMap automation methods
     """
@@ -45,7 +63,7 @@ class ArcMapRunner:
         self.mxdTemplate = templateFile
         self.cookbookFile = None
         self.layerPropertiesFile = None
-        self.productName = productName
+        # self.productName = productName
         self.event = eventConfig
         self.replaceOnly = False
 
@@ -54,14 +72,14 @@ class ArcMapRunner:
         # ensures that if the versionNumber or mapNumber are not set correctly later in the
         # code, these default values do not accidently result in real outputs being overwritten
         self.versionNumber = 1
-        self.mapNumber = "MA001"
+        # self.mapNumber = "MA001"
         self.exportMap = False
         self.minx = 0
         self.miny = 0
         self.maxx = 0
         self.maxy = 0
         self.chef = None
-        self.crashMoveFolder = CrashMoveFolder(self.event.cmf_descriptor_path)
+        self.cmf = CrashMoveFolder(self.event.cmf_descriptor_path)
 
         # TODO: asmith 2020/03/03
         # The name `self.layerDefinition` is unclear and should be changed.
@@ -69,7 +87,7 @@ class ArcMapRunner:
         #     (not merely multiple properties of a single layer).
         #   * Also `layerDefinition` is easily confussed with the DefinitionQuery of a layer (which
         #     it's not).
-        self.layerDefinition = LayerProperties(self.crashMoveFolder, '.lyr')
+        self.layerDefinition = LayerProperties(self.cmf, '.lyr')
 
         # TODO: asmith 2020/03/03
         # Much of here to line 132 is unrequired, as the CrashMoveFolder class already has a method
@@ -82,22 +100,22 @@ class ArcMapRunner:
 
         # The following checks are used if the CMF description is over-ridden by the command line parameters
         if self.cookbookFile is None:
-            if self.crashMoveFolder is not None:
-                self.cookbookFile = self.crashMoveFolder.map_definitions
+            if self.cmf is not None:
+                self.cookbookFile = self.cmf.map_definitions
             else:
                 raise Exception("Error: Could not derive cookbook file from " + self.event.cmf_descriptor_path)
 
-        self.cookbook = MapCookbook(self.crashMoveFolder, self.layerDefinition)
+        self.cookbook = MapCookbook(self.cmf, self.layerDefinition)
         # self.cookbook = MapCookbook(self.cookbookFile)
 
-        try:
-            self.recipe = self.cookbook.products[productName]
-        except KeyError:
-            raise Exception("Error: Could not find recipe for product: \"" + productName + "\" in " + self.cookbookFile)
+        # try:
+        #     self.recipe = self.cookbook.products[productName]
+        # except KeyError:
+        #     raise Exception("Error: Could not find recipe for product: \"" + productName + "\" in " + self.cookbookFile)
 
         if self.layerPropertiesFile is None:
-            if self.crashMoveFolder is not None:
-                self.layerPropertiesFile = self.crashMoveFolder.layer_properties
+            if self.cmf is not None:
+                self.layerPropertiesFile = self.cmf.layer_properties
             else:
                 raise Exception("Error: Could not derive layer config file from " + self.event.cmf_descriptor_path)
         # OLD 132
@@ -107,37 +125,42 @@ class ArcMapRunner:
         #     (not merely multiple properties of a single layer).
         #   * Also `layerDefinition` is easily confused with the DefinitionQuery of a layer (which
         #     it's not).
-        self.layerDefinition = LayerProperties(self.crashMoveFolder, '.lyr')
+        self.layerDefinition = LayerProperties(self.cmf, '.lyr')
 
     # TODO: asmith 2020/03/03
     # method name is unclear. Generate what? How does this relate to
     # the `generateXml` method?
 
-    def generate(self):
+    def build_project_files(self, **kwargs):
         # Construct a Crash Move Folder object if the cmf_description.json exists
-        generationRequired = False
-        if self.mxdTemplate is None:
-            self.mxdTemplate, self.mapNumber, self.versionNumber, generationRequired = self.get_template(
-                self.cookbookFile, self.crashMoveFolder, self.productName)
-        else:
-            generationRequired = True
-        if (generationRequired):
-            mxd = arcpy.mapping.MapDocument(self.mxdTemplate)
+        recipe = kwargs['recipe']
 
-            self.chef = MapChef(mxd,
-                                self.cookbook,
-                                self.layerDefinition,
-                                self.crashMoveFolder,
-                                self.event,
-                                self.versionNumber)
-            self.chef.cook(self.recipe, self.replaceOnly)
-            self.chef.alignLegend(self.event.orientation)
+        # if self.mxdTemplate is None:
+        #     self.mxdTemplate, self.mapNumber, self.versionNumber, generationRequired = self.get_templates(
+        #         self.cookbookFile, self.cmf, self.productName)
+        # else:
+        #     generationRequired = True
+        mxd = arcpy.mapping.MapDocument(recipe.map_project_path)
 
-            # Output the Map Generation report alongside the MXD
-            reportJsonFile = self.mxdTemplate.replace(".mxd", ".json")
-            with open(reportJsonFile, 'w') as outfile:
-                outfile.write(self.chef.report_as_json())
-        return generationRequired
+        self.chef = MapChef(mxd, # OK
+                            self.cmf, #OK
+                            self.event, # OK
+                            recipe.version_num) #OK
+        self.chef.cook(recipe, self.replaceOnly)
+        self.chef.alignLegend(self.event.orientation)
+
+        # Output the Map Generation report alongside the MXD
+        reportJsonFile = recipe.map_project_path.replace(".mxd", ".json")
+        with open(reportJsonFile, 'w') as outfile:
+            outfile.write(self.chef.report_as_json())
+
+        return recipe
+
+    def get_projectfile_extension(self):
+        return '.mxd'
+
+    def get_lyr_render_extension(self):
+        return '.lyr'
 
     # TODO: asmith 2020/03/03
     # There is a lot going on in this method and I'm not sure I understand all of it. However here
@@ -162,62 +185,97 @@ class ArcMapRunner:
     # String.Template be specified within the Cookbook?
     # https://docs.python.org/2/library/string.html#formatspec
     # https://www.python.org/dev/peps/pep-3101/
-    def get_template(self, cookbookFile, crashMoveFolder, productName):
-        arcGisVersion = crashMoveFolder.arcgis_version
 
-        # Need to get the theme from the recipe to get the path to the MXD
-
-        mapNumberTemplateFileName = self.recipe.mapnumber + "_" + self.event.orientation + ".mxd"
-        mapNumberTemplateFilePath = os.path.join(crashMoveFolder.map_templates, mapNumberTemplateFileName)
-        if os.path.exists(mapNumberTemplateFilePath):
-            srcTemplateFile = mapNumberTemplateFilePath
-            # In this instance, we only want to replace the datasource, everything else should say as is
-            self.replaceOnly = True
-        else:
-            self.exportMap = self.recipe.export
-            # TODO: asmith 2020/03/03
-            # This will fail is the category is specified in the recipe in a different case to the
-            # the case used in for the template filename.
-            if (self.recipe.category.lower() == "reference"):
-                templateFileName = arcGisVersion + "_" + \
-                    self.recipe.category + \
-                    "_" + \
-                    self.event.orientation + \
-                    "_bottom.mxd"
-            elif (self.recipe.category.lower() == "ddp reference"):
-                templateFileName = arcGisVersion + "_ddp_reference_" + self.event.orientation + ".mxd"
-            elif (self.recipe.category.lower() == "thematic"):
-                templateFileName = arcGisVersion + "_" + self.recipe.category + "_" + self.event.orientation + ".mxd"
+    def _get_all_templates_by_regex(self, recipe):
+        """
+        Returns:
+            - A list of all of the templates, stored in `cmf.map_templates` whose
+              filename matches the regex `recipe.template` and that have the extention
+              `self.get_projectfile_extension()`
+        """
+        def _is_relevant_file(f):
+            extension = os.path.splitext(f)[1]
+            logging.debug('checking file "{}", with extension "{}", against pattern "{}" and "{}"'.format(
+                f, extension, recipe.template, self.get_projectfile_extension()
+            ))
+            if re.search(recipe.template, f):
+                logging.debug('file {} matched regex'.format(f))
+                f_path = os.path.join(self.cmf.map_templates, f)
+                return (os.path.isfile(f_path)) and (extension == self.get_projectfile_extension())
             else:
-                raise Exception("Error: Could not get source MXD from: " + crashMoveFolder.map_templates)
+                return False
 
-            srcTemplateFile = os.path.join(crashMoveFolder.map_templates, templateFileName)
+        # TODO: This results in calling `os.path.join` twice for certain files
+        logging.debug('searching for map templates in; {}'.format(self.cmf.map_templates))
+        filenames = os.listdir(self.cmf.map_templates)
+        logging.debug('all available template files:\n\t{}'.format('\n\t'.join(filenames)))
+        filenames = filter(_is_relevant_file, filenames)
+        logging.debug('possible template files:\n\t{}'.format('\n\t'.join(filenames)))
+        return [os.path.join(self.cmf.map_templates, fi) for fi in filenames]
 
-        mapNumberDirectory = os.path.join(crashMoveFolder.map_projects, self.recipe.mapnumber)
 
-        if not(os.path.isdir(mapNumberDirectory)):
-            os.mkdir(mapNumberDirectory)
+    def _get_aspect_ratios_of_templates(self, possible_templates):
+        # TODO: pending https://trello.com/c/AQrn4InI/150-implement-selection-of-template
+        selected_template = possible_templates.pop()
+        logging.debug('selected template files; {}'.format(selected_template))
+        return selected_template
 
-        # Construct MXD name
-        mapFileName = slugify(unicode(productName))
-        versionNumber = self.get_next_map_version_number(mapNumberDirectory, self.recipe.mapnumber, mapFileName)
-        previousReportFile = self.recipe.mapnumber + "-v" + str((versionNumber-1)).zfill(2) + "_" + mapFileName + ".json"  # noqa
-        copiedFile = "NOT SET"
-        generationRequired = True
-        if (os.path.exists(os.path.join(mapNumberDirectory, previousReportFile))):
-            generationRequired = self.haveDataSourcesChanged(os.path.join(mapNumberDirectory, previousReportFile))
+    def get_templates(self, **kwargs):
+        recipe = kwargs['recipe']
+        # If there already already is a valid `recipe.map_project_path` just skip with method
+        if recipe.map_project_path:
+            if os.path.exists(recipe.map_project_path):
+                return recipe
+            else:
+                raise ValueError('Unable to locate map project file: {}'.format(recipe.map_project_path))
 
-        if (generationRequired is True):
-            mapFileName = self.recipe.mapnumber + "-v" + str(versionNumber).zfill(2) + "_" + mapFileName + ".mxd"
-            copiedFile = os.path.join(mapNumberDirectory, mapFileName)
-            copyfile(srcTemplateFile, copiedFile)
+        # use `recipe.template` as regex to locate one or more templates
+        possible_templates = self._get_all_templates_by_regex(recipe)
 
-        return copiedFile, self.recipe.mapnumber, versionNumber, generationRequired
+        # Select the template with the most appropriate asspect ratio
+        recipe.template_path = self._get_aspect_ratios_of_templates(possible_templates)
+        # use logic to workout which template has best aspect ratio
+
+        # TODO
+        # Have the input shapefiles changed?
+        return recipe
+
+    def create_ouput_map_project(self, **kwargs):
+        recipe = kwargs['recipe']
+        # Create `mapNumberDirectory` for output
+        output_dir = os.path.join(self.cmf.map_projects, recipe.mapnumber)
+
+        if not(os.path.isdir(output_dir)):
+            os.mkdir(output_dir)
+
+        # Construct output MXD name
+        output_map_base = slugify(unicode(recipe.product))
+        recipe.version_num = self.get_next_map_version_number(output_dir, recipe.mapnumber, output_map_base)
+        output_map_name = '{}-v{}_{}{}'.format(
+            recipe.mapnumber, str(recipe.version_num).zfill(2), output_map_base, self.get_projectfile_extension())
+        recipe.map_project_path = os.path.abspath(os.path.join(output_dir, output_map_name))
+        logging.debug('MXD path for new map; {}'.format(recipe.map_project_path))
+        logging.debug('Map Version number; {}'.format(recipe.version_num))
+
+        # Copy `src_template` to `recipe.map_project_path`
+        copyfile(recipe.template_path, recipe.map_project_path)
+
+        return recipe
 
     # TODO: asmith 2020/03/03
     # Instinctively I would like to see this moved to the MapReport class with an __eq__ method which
     # would look very much like this one.
     def haveDataSourcesChanged(self, previousReportFile):
+        # previousReportFile = '{}-v{}_{}.json'.format(
+        #     recipe.mapnumber,
+        #     str((version_num-1)).zfill(2),
+        #     output_mxd_base
+        # )
+        # generationRequired = True
+        # if (os.path.exists(os.path.join(output_dir, previousReportFile))):
+        #     generationRequired = self.haveDataSourcesChanged(os.path.join(output_dir, previousReportFile))
+
+
         # returnValue = False
         # with open(previousReportFile, 'r') as myfile:
         #     data = myfile.read()
@@ -259,27 +317,28 @@ class ArcMapRunner:
     Generates all file for export
     """
 
-    def export(self):
+    def export_maps(self, **kwargs):
         """
         Accumulate some of the parameters for export XML, then calls
         _do_export(....) to do that actual work
         """
+        recipe = kwargs['recipe']
         export_params = {}
-        export_params = self._create_export_dir(export_params)
-        export_params = self._do_export(export_params)
+        export_params = self._create_export_dir(export_params, recipe)
+        export_params = self._do_export(export_params, recipe)
         self._zip_exported_files(export_params)
 
         # TODO: asmith 2020/03/03
         # 1) Separate the section "Accumulate parameters for export XML" into it's own method
         # 2) Please avoid hardcoding the naming convention for the output mxds.
 
-    def _create_export_dir(self, export_params):
+    def _create_export_dir(self, export_params, recipe):
         # Accumulate parameters for export XML
-        versionString = "v" + str(self.versionNumber).zfill(2)
-        export_directory = os.path.join(self.crashMoveFolder.export_dir,
-                                        self.mapNumber,
-                                        versionString).replace('/', '\\')
+        version_str = "v" + str(recipe.version_num).zfill(2)
+        export_directory = os.path.abspath(
+            os.path.join(self.cmf.export_dir, recipe.mapnumber, version_str))
         export_params["exportDirectory"] = export_directory
+
         try:
             os.makedirs(export_directory)
         except OSError as exc:  # Python >2.5
@@ -299,14 +358,14 @@ class ArcMapRunner:
         # Separate this section into a method named something like
         # _do_export(self, lots, of, specific, args)
 
-    def _do_export(self, export_params):
+    def _do_export(self, export_params, recipe):
         """
         Does the actual work of exporting of the PDF, Jpeg and thumbnail files.
         """
         export_dir = export_params["exportDirectory"]
-        arc_mxd = arcpy.mapping.MapDocument(self.mxdTemplate)
+        arc_mxd = arcpy.mapping.MapDocument(recipe.map_project_path)
 
-        core_file_name = os.path.splitext(os.path.basename(self.mxdTemplate))[0]
+        core_file_name = os.path.splitext(os.path.basename(recipe.map_project_path))[0]
         export_params["coreFileName"] = core_file_name
         productType = "mapsheet"
         export_params["productType"] = productType
@@ -316,14 +375,14 @@ class ArcMapRunner:
         export_params['pngThumbNailFileLocation'] = self.exportPngThumbNail(
             core_file_name, export_dir, arc_mxd, export_params)
 
-        if self.recipe.atlas:
-            self._export_atlas(self.recipe, arc_mxd, export_dir, core_file_name)
+        if recipe.atlas:
+            self._export_atlas(recipe, arc_mxd, export_dir, core_file_name)
 
         xmlExporter = XmlExporter(self.event, self.chef)
         export_params['versionNumber'] = self.versionNumber
-        export_params['mapNumber'] = self.mapNumber
-        export_params['productName'] = self.productName
-        export_params['versionNumber'] = self.versionNumber
+        export_params['mapNumber'] = recipe.mapnumber
+        export_params['productName'] = recipe.product
+        export_params['versionNumber'] = recipe.version_num
         export_params["xmin"] = self.minx
         export_params["ymin"] = self.miny
         export_params["xmax"] = self.maxx
@@ -533,27 +592,27 @@ class ArcMapRunner:
     """
 
 
-def is_valid_file(parser, arg):
-    if not os.path.exists(arg):
-        parser.error("The file %s does not exist!" % arg)
-        return False
-    else:
-        return arg
+# def is_valid_file(parser, arg):
+#     if not os.path.exists(arg):
+#         parser.error("The file %s does not exist!" % arg)
+#         return False
+#     else:
+#         return arg
 
 
-def is_valid_directory(parser, arg):
-    if os.path.isdir(arg):
-        return arg
-    else:
-        parser.error("The directory %s does not exist!" % arg)
-        return False
+# def is_valid_directory(parser, arg):
+#     if os.path.isdir(arg):
+#         return arg
+#     else:
+#         parser.error("The directory %s does not exist!" % arg)
+#         return False
 
 
-def add_bool_arg(parser, name, default=False):
-    group = parser.add_mutually_exclusive_group(required=False)
-    group.add_argument('--' + name, dest=name, action='store_true')
-    group.add_argument('--no-' + name, dest=name, action='store_false')
-    parser.set_defaults(**{name: default})
+# def add_bool_arg(parser, name, default=False):
+#     group = parser.add_mutually_exclusive_group(required=False)
+#     group.add_argument('--' + name, dest=name, action='store_true')
+#     group.add_argument('--no-' + name, dest=name, action='store_false')
+#     parser.set_defaults(**{name: default})
 
 
 # TODO: asmith 2020/03/03
@@ -572,55 +631,55 @@ def add_bool_arg(parser, name, default=False):
 # Default behaviour: My prefered behaviour if no productName is specified, would be that that
 # tool should attempt to create *all* of the products listed in the mapCookbook.json. Let's
 # automate everything!
-def main():
-    parser = argparse.ArgumentParser(
-        description='This component accepts a template MXD file, a list of the'
-        'relevant datasets along with other information required to create an'
-        'event specific instance of a map.',
-    )
-    parser.add_argument("-b", "--cookbook", dest="cookbookFile", required=False,
-                        help="path to cookbook json file", metavar="FILE",
-                        type=lambda x: is_valid_file(parser, x))
-    parser.add_argument("-l", "--layerConfig", dest="layerConfig", required=False,
-                        help="path to layer config json file", metavar="FILE",
-                        type=lambda x: is_valid_file(parser, x))
-    parser.add_argument("-t", "--template", dest="templateFile", required=False,
-                        help="path to MXD file", metavar="FILE",
-                        type=lambda x: is_valid_file(parser, x))
-    parser.add_argument("-e", "--eventConfigFile", dest="eventConfigFile", required=True,
-                        help="path the Event Config File", metavar="FILE",
-                        type=lambda x: is_valid_file(parser, x))
-    parser.add_argument("-ld", "--layerDirectory", dest="layerDirectory", required=False,
-                        help="path to layer directory", metavar="FILE",
-                        type=lambda x: is_valid_directory(parser, x))
-    parser.add_argument("-p", "--product", dest="productName", required=True,
-                        help="Name of product")
-    parser.add_argument("-o", "--orientation", dest="orientation", default=None, required=False,
-                        help="landscape|portrait")
+# def main():
+    # parser = argparse.ArgumentParser(
+    #     description='This component accepts a template MXD file, a list of the'
+    #     'relevant datasets along with other information required to create an'
+    #     'event specific instance of a map.',
+    # )
+    # parser.add_argument("-b", "--cookbook", dest="cookbookFile", required=False,
+    #                     help="path to cookbook json file", metavar="FILE",
+    #                     type=lambda x: is_valid_file(parser, x))
+    # parser.add_argument("-l", "--layerConfig", dest="layerConfig", required=False,
+    #                     help="path to layer config json file", metavar="FILE",
+    #                     type=lambda x: is_valid_file(parser, x))
+    # parser.add_argument("-t", "--template", dest="templateFile", required=False,
+    #                     help="path to MXD file", metavar="FILE",
+    #                     type=lambda x: is_valid_file(parser, x))
+    # parser.add_argument("-e", "--eventConfigFile", dest="eventConfigFile", required=True,
+    #                     help="path the Event Config File", metavar="FILE",
+    #                     type=lambda x: is_valid_file(parser, x))
+    # parser.add_argument("-ld", "--layerDirectory", dest="layerDirectory", required=False,
+    #                     help="path to layer directory", metavar="FILE",
+    #                     type=lambda x: is_valid_directory(parser, x))
+    # parser.add_argument("-p", "--product", dest="productName", required=True,
+    #                     help="Name of product")
+    # parser.add_argument("-o", "--orientation", dest="orientation", default=None, required=False,
+    #                     help="landscape|portrait")
 
-    add_bool_arg(parser, 'export')
+    # add_bool_arg(parser, 'export')
 
-    args = parser.parse_args()
-    orientation = None
-    if (args.orientation is not None):
-        if args.orientation.lower() == "landscape":
-            orientation = args.orientation
-        else:
-            orientation = "portrait"
+    # args = parser.parse_args()
+    # orientation = None
+    # if (args.orientation is not None):
+    #     if args.orientation.lower() == "landscape":
+    #         orientation = args.orientation
+    #     else:
+    #         orientation = "portrait"
 
-    eventConfig = Event(args.eventConfigFile, orientation)
-    runner = ArcMapRunner(args.templateFile,
-                          eventConfig,
-                          args.productName)
+    # eventConfig = Event(args.eventConfigFile, orientation)
+    # runner = ArcMapRunner(args.templateFile,
+    #                       eventConfig,
+    #                       args.productName)
 
-    templateUpdated = runner.generate()
-    if (templateUpdated):
-        if (args.export):
-            runner.export()
-        else:
-            print("Template updated.  No product export requested.")
-    else:
-        print("No product generated.  No changes since last execution.")
+    # templateUpdated = runner.build_project_files()
+    # if (templateUpdated):
+    #     if (args.export):
+    #         runner.export_maps()
+    #     else:
+    #         print("Template updated.  No product export requested.")
+    # else:
+    #     print("No product generated.  No changes since last execution.")
 
 
 if __name__ == '__main__':

@@ -1,6 +1,7 @@
 import os
 import arcpy
 import jsonpickle
+import logging
 import re
 from mapactionpy_controller.map_report import MapReport
 from mapactionpy_controller.map_result import MapResult
@@ -36,17 +37,15 @@ class MapChef:
 
     def __init__(self,
                  mxd,
-                 cookbook,
-                 layerDefinition,
                  crashMoveFolder,
                  eventConfiguration,
                  versionNumber=1):
         """
         Arguments:
            mxd {MXD file} -- MXD file.
-           cookbook {MapCookbook} -- Path to Map Cookbook json file
-           layerPropertiesJsonFile {str} -- Path to Layer Properties json file
-           crashMoveFolder {CrashMoveFolder} -- Path to Crash Move Folder json file
+           # cookbook {MapCookbook} -- Path to Map Cookbook json file
+           # layerPropertiesJsonFile {str} -- Path to Layer Properties json file
+           crashMoveFolder {CrashMoveFolder} -- CrashMoveFolder Object
            eventConfiguration {Event} -- Event Object
            versionNumber {int} -- version number of map
         """
@@ -57,7 +56,7 @@ class MapChef:
         self.crashMoveFolder = crashMoveFolder
 
         self.eventConfiguration = eventConfiguration
-        self.cookbook = cookbook
+        # self.cookbook = cookbook
         self.legendEntriesToRemove = list()
 
         self.datasetTypes = ["SHAPEFILE_WORKSPACE",
@@ -380,7 +379,7 @@ class MapChef:
             if elm.name == "spatial_reference":
                 elm.text = self.spatialReference()
             if elm.name == "glide_no":
-                if (self.eventConfiguration is not None):
+                if self.eventConfiguration and self.eventConfiguration.glide_number:
                     elm.text = self.eventConfiguration.glide_number
             if elm.name == "donor_credit":
                 if (self.eventConfiguration is not None):
@@ -498,6 +497,7 @@ class MapChef:
     def addLayer(self, recipe_lyr, recipe_frame):
         # addLayer(recipe_lyr, recipe_lyr.layer_file_path, recipe_lyr.name)
         mapResult = MapResult(recipe_lyr.name)
+        logging.debug('Attempting to add layer; {}'.format(recipe_lyr.layer_file_path))
         arc_lyr_to_add = arcpy.mapping.Layer(recipe_lyr.layer_file_path)
         if (".gdb/" not in recipe_lyr.reg_exp):
             mapResult = self.addLayerWithFile(recipe_lyr, arc_lyr_to_add, recipe_lyr.name, recipe_frame)
