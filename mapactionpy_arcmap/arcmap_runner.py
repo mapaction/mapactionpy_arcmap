@@ -15,7 +15,7 @@ from mapactionpy_controller.xml_exporter import XmlExporter
 from mapactionpy_controller.runner import BaseRunnerPlugin
 
 
-logging.basicConfig(level=logging.DEBUG,
+logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(module)s %(name)s.%(funcName)s +%(lineno)s: %(levelname)-8s %(message)s',
                     )
 
@@ -38,23 +38,19 @@ class ArcMapRunner(BaseRunnerPlugin):
     """
 
     def __init__(self,
-                 templateFile,
-                 eventConfig,
-                 productName):
-        self.mxdTemplate = templateFile
+                 eventConfig):
         self.event = eventConfig
-        self.replaceOnly = False
+        super(ArcMapRunner, self).__init__(self.event.cmf_descriptor_path)
 
+        self.replaceOnly = False
         self.exportMap = False
         self.minx = 0
         self.miny = 0
         self.maxx = 0
         self.maxy = 0
         self.chef = None
-        self.cmf = CrashMoveFolder(self.event.cmf_descriptor_path)
+        # self.cmf = CrashMoveFolder(self.event.cmf_descriptor_path)
 
-        if not self.cmf.verify_paths():
-            raise ValueError("Cannot find paths and directories referenced by cmf {}".format(self.cmf.path))
 
     def build_project_files(self, **kwargs):
         # Construct a Crash Move Folder object if the cmf_description.json exists
@@ -82,16 +78,7 @@ class ArcMapRunner(BaseRunnerPlugin):
     # There is a lot going on in this method and I'm not sure I understand all of it. However here
     # are some thoughts:
     #
-    # 1) If the MapCookbook class had a method that validated the existance of all of the
-    # templates it refers to then this method could be simplied somewhat. eg `self.recipe.template_mxd`
-    # This would also make it simpler for the Cookbook to be tested/validated earlier and without
-    # requiring any data; See https://wiki.mapaction.org/display/orgdev/Automatable+tests+of+CMF+contents
-    #
-    # 2) Why is the arcGisVersion required? Is this just to navigate the naming convention for mxd templates?
-    # Would it be appropriate and/or simpler to ammend the name of the template files? They are already in a
-    # dir called 'arcgis_10_6'. Or is there another arcpy related reason why it is required? Without it, it
-    # would be possible to move this whole method over to the controller where it could be re-used for the
-    # QGIS implementation.
+
     #
     # 3) I think it would be more consistent to use the naming convention classes for the mxd template; eg
     # https://github.com/mapaction/mapactionpy_controller/pull/38 This helps avoid the need to hardcode the
@@ -102,58 +89,12 @@ class ArcMapRunner(BaseRunnerPlugin):
     # https://docs.python.org/2/library/string.html#formatspec
     # https://www.python.org/dev/peps/pep-3101/
 
-    def _get_all_templates_by_regex(self, recipe):
-        """
-        Returns:
-            - A list of all of the templates, stored in `cmf.map_templates` whose
-              filename matches the regex `recipe.template` and that have the extention
-              `self.get_projectfile_extension()`
-        """
-        def _is_relevant_file(f):
-            extension = os.path.splitext(f)[1]
-            logging.debug('checking file "{}", with extension "{}", against pattern "{}" and "{}"'.format(
-                f, extension, recipe.template, self.get_projectfile_extension()
-            ))
-            if re.search(recipe.template, f):
-                logging.debug('file {} matched regex'.format(f))
-                f_path = os.path.join(self.cmf.map_templates, f)
-                return (os.path.isfile(f_path)) and (extension == self.get_projectfile_extension())
-            else:
-                return False
-
-        # TODO: This results in calling `os.path.join` twice for certain files
-        logging.debug('searching for map templates in; {}'.format(self.cmf.map_templates))
-        filenames = os.listdir(self.cmf.map_templates)
-        logging.debug('all available template files:\n\t{}'.format('\n\t'.join(filenames)))
-        filenames = filter(_is_relevant_file, filenames)
-        logging.debug('possible template files:\n\t{}'.format('\n\t'.join(filenames)))
-        return [os.path.join(self.cmf.map_templates, fi) for fi in filenames]
-
-    def _get_aspect_ratios_of_templates(self, possible_templates):
+    def get_aspect_ratios_of_templates(self, possible_templates):
         # TODO: pending https://trello.com/c/AQrn4InI/150-implement-selection-of-template
         selected_template = possible_templates.pop()
         logging.debug('selected template files; {}'.format(selected_template))
         return selected_template
 
-    def get_templates(self, **kwargs):
-        recipe = kwargs['recipe']
-        # If there already already is a valid `recipe.map_project_path` just skip with method
-        if recipe.map_project_path:
-            if os.path.exists(recipe.map_project_path):
-                return recipe
-            else:
-                raise ValueError('Unable to locate map project file: {}'.format(recipe.map_project_path))
-
-        # use `recipe.template` as regex to locate one or more templates
-        possible_templates = self._get_all_templates_by_regex(recipe)
-
-        # Select the template with the most appropriate asspect ratio
-        recipe.template_path = self._get_aspect_ratios_of_templates(possible_templates)
-        # use logic to workout which template has best aspect ratio
-
-        # TODO re-enable "Have the input files changed?"
-        # Have the input shapefiles changed?
-        return recipe
 
     def create_ouput_map_project(self, **kwargs):
         recipe = kwargs['recipe']
@@ -166,7 +107,7 @@ class ArcMapRunner(BaseRunnerPlugin):
         # Construct output MXD name
         output_map_base = slugify(unicode(recipe.product))
         recipe.version_num = self.get_next_map_version_number(output_dir, recipe.mapnumber, output_map_base)
-        output_map_name = '{}-v{}_{}{}'.format(
+        output_map_name = '{}-v{}-{}{}'.format(
             recipe.mapnumber, str(recipe.version_num).zfill(2), output_map_base, self.get_projectfile_extension())
         recipe.map_project_path = os.path.abspath(os.path.join(output_dir, output_map_name))
         logging.debug('MXD path for new map; {}'.format(recipe.map_project_path))
@@ -219,9 +160,9 @@ class ArcMapRunner(BaseRunnerPlugin):
     # the map layout view (and hence the output metadata).
     def get_next_map_version_number(self, mapNumberDirectory, mapNumber, mapFileName):
         versionNumber = 0
-        files = glob.glob(mapNumberDirectory + os.sep + mapNumber+'-v[0-9][0-9]_' + mapFileName + '.mxd')
+        files = glob.glob(mapNumberDirectory + os.sep + mapNumber+'-v[0-9][0-9]-' + mapFileName + '.mxd')
         for file in files:
-            versionNumber = int(os.path.basename(file).replace(mapNumber + '-v', '').replace(('_' + mapFileName+'.mxd'), ''))  # noqa
+            versionNumber = int(os.path.basename(file).replace(mapNumber + '-v', '').replace(('-' + mapFileName+'.mxd'), ''))  # noqa
         versionNumber = versionNumber + 1
         if (versionNumber > 99):
             versionNumber = 1
@@ -241,7 +182,6 @@ class ArcMapRunner(BaseRunnerPlugin):
         export_params = self._create_export_dir(export_params, recipe)
         export_params = self._do_export(export_params, recipe)
         self._zip_exported_files(export_params)
-
 
     def _create_export_dir(self, export_params, recipe):
         # Accumulate parameters for export XML
