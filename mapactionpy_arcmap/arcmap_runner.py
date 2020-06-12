@@ -51,7 +51,7 @@ class ArcMapRunner(BaseRunnerPlugin):
 
     def build_project_files(self, **kwargs):
         # Construct a Crash Move Folder object if the cmf_description.json exists
-        recipe = kwargs['recipe']
+        recipe = kwargs['state']
         mxd = arcpy.mapping.MapDocument(recipe.map_project_path)
 
         self.chef = MapChef(mxd, self.cmf, self.event)
@@ -93,7 +93,7 @@ class ArcMapRunner(BaseRunnerPlugin):
         return selected_template
 
     def create_ouput_map_project(self, **kwargs):
-        recipe = kwargs['recipe']
+        recipe = kwargs['state']
         # Create `mapNumberDirectory` for output
         output_dir = os.path.join(self.cmf.map_projects, recipe.mapnumber)
 
@@ -173,7 +173,7 @@ class ArcMapRunner(BaseRunnerPlugin):
         Accumulate some of the parameters for export XML, then calls
         _do_export(....) to do that actual work
         """
-        recipe = kwargs['recipe']
+        recipe = kwargs['state']
         export_params = {}
         export_params = self._create_export_dir(export_params, recipe)
         export_params = self._do_export(export_params, recipe)
