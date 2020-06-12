@@ -28,11 +28,8 @@ class TestMapChef(TestCase):
 
         mc = MapChef(
             my_mxd,
-            self.cookBook,
-            self.layer_props,
             self.cmf,
-            self.event,
-            versionNumber=1
+            self.event
         )
         self.assertIsInstance(mc, MapChef)
 
@@ -42,11 +39,8 @@ class TestMapChef(TestCase):
 
         mc = MapChef(
             my_mxd,
-            self.cookBook,
-            self.layer_props,
             self.cmf,
-            self.event,
-            versionNumber=1
+            self.event
         )
 
         mc.cook(self.cookBook.products[productName])
