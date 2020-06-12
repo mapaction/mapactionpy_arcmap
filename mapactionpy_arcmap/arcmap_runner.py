@@ -13,21 +13,10 @@ from mapactionpy_controller.xml_exporter import XmlExporter
 from mapactionpy_controller.runner import BaseRunnerPlugin
 
 
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s %(module)s %(name)s.%(funcName)s +%(lineno)s: %(levelname)-8s %(message)s',
-                    )
-
-# logger = logging.getLogger(__name__)
-# ch = logging.StreamHandler()
-# ch.setLevel(logging.DEBUG)
-# # create formatter and add it to the handlers
-# formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s
-#  (%(module)s +ln%(lineno)s) ;- %(message)s')
-# formatter = logging.Formatter('%(asctime)s %(module)s %(name)s.%(funcName)s
-#  +%(lineno)s: %(levelname)-8s [%(process)d] %(message)s')
-# ch.setFormatter(formatter)
-# # add the handlers to the logger
-# logger.addHandler(ch)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s %(module)s %(name)s.%(funcName)s +%(lineno)s: %(levelname)-8s %(message)s'
+)
 
 
 class ArcMapRunner(BaseRunnerPlugin):
@@ -47,7 +36,7 @@ class ArcMapRunner(BaseRunnerPlugin):
         self.maxx = 0
         self.maxy = 0
         self.chef = None
-        # self.cmf = CrashMoveFolder(self.event.cmf_descriptor_path)
+
 
     def build_project_files(self, **kwargs):
         # Construct a Crash Move Folder object if the cmf_description.json exists
@@ -71,20 +60,7 @@ class ArcMapRunner(BaseRunnerPlugin):
     def get_lyr_render_extension(self):
         return '.lyr'
 
-    # TODO: asmith 2020/03/03
-    # There is a lot going on in this method and I'm not sure I understand all of it. However here
-    # are some thoughts:
-    #
 
-    #
-    # 3) I think it would be more consistent to use the naming convention classes for the mxd template; eg
-    # https://github.com/mapaction/mapactionpy_controller/pull/38 This helps avoid the need to hardcode the
-    # naming convention for input mxd templates.
-    #
-    # 4) Is it possible to aviod the need to hardcode the naming convention for the output mxds? Eg could a
-    # String.Template be specified within the Cookbook?
-    # https://docs.python.org/2/library/string.html#formatspec
-    # https://www.python.org/dev/peps/pep-3101/
 
     def get_aspect_ratios_of_templates(self, possible_templates):
         # TODO: pending https://trello.com/c/AQrn4InI/150-implement-selection-of-template
@@ -92,6 +68,13 @@ class ArcMapRunner(BaseRunnerPlugin):
         logging.debug('selected template files; {}'.format(selected_template))
         return selected_template
 
+    # TODO 
+    # 1) Can this method be moved to `BaseRunnerPlugin`?
+    #
+    # 2) Is it possible to aviod the need to hardcode the naming convention for the output mxds? Eg could a
+    # String.Template be specified within the Cookbook?
+    # https://docs.python.org/2/library/string.html#formatspec
+    # https://www.python.org/dev/peps/pep-3101/
     def create_ouput_map_project(self, **kwargs):
         recipe = kwargs['state']
         # Create `mapNumberDirectory` for output
@@ -106,7 +89,7 @@ class ArcMapRunner(BaseRunnerPlugin):
         output_map_name = '{}-v{}-{}{}'.format(
             recipe.mapnumber, str(recipe.version_num).zfill(2), output_map_base, self.get_projectfile_extension())
         recipe.map_project_path = os.path.abspath(os.path.join(output_dir, output_map_name))
-        logging.debug('MXD path for new map; {}'.format(recipe.map_project_path))
+        logging.debug('Path for new map project file; {}'.format(recipe.map_project_path))
         logging.debug('Map Version number; {}'.format(recipe.version_num))
 
         # Copy `src_template` to `recipe.map_project_path`
@@ -164,12 +147,11 @@ class ArcMapRunner(BaseRunnerPlugin):
             versionNumber = 1
         return versionNumber
 
-    """
-    Generates all file for export
-    """
-
+    # TODO move to BaseRunnerPlugin
     def export_maps(self, **kwargs):
         """
+        Generates all file for export.
+
         Accumulate some of the parameters for export XML, then calls
         _do_export(....) to do that actual work
         """
@@ -179,6 +161,7 @@ class ArcMapRunner(BaseRunnerPlugin):
         export_params = self._do_export(export_params, recipe)
         self._zip_exported_files(export_params)
 
+    # TODO move to BaseRunnerPlugin
     def _create_export_dir(self, export_params, recipe):
         # Accumulate parameters for export XML
         version_str = "v" + str(recipe.version_num).zfill(2)
@@ -344,6 +327,7 @@ class ArcMapRunner(BaseRunnerPlugin):
             # if arcpy.Exists(os.path.join(export_dir, shpFile)):
             #     arcpy.Delete_management(os.path.join(export_dir, shpFile))
 
+    # TODO move to BaseRunnerPlugin
     def _zip_exported_files(self, export_params):
         # Get key params as local variables
         core_file_name = export_params['coreFileName']
@@ -412,114 +396,3 @@ class ArcMapRunner(BaseRunnerPlugin):
         # Remove the temporary larger thumbnail
         os.remove(pngTmpThumbNailFileLocation)
         return pngThumbNailFileLocation
-
-    """
-    Generates Export XML file
-
-    Arguments:
-        params {dict} -- Must contain the following parameters:
-            * pdfFileName
-            * pdfFileSize
-            * jpgFileName
-            * jpgFileSize
-            * coreFileName
-            * productType
-            * exportDirectory
-
-    Returns:
-        Path to export XML file
-    """
-
-
-# def is_valid_file(parser, arg):
-#     if not os.path.exists(arg):
-#         parser.error("The file %s does not exist!" % arg)
-#         return False
-#     else:
-#         return arg
-
-
-# def is_valid_directory(parser, arg):
-#     if os.path.isdir(arg):
-#         return arg
-#     else:
-#         parser.error("The directory %s does not exist!" % arg)
-#         return False
-
-
-# def add_bool_arg(parser, name, default=False):
-#     group = parser.add_mutually_exclusive_group(required=False)
-#     group.add_argument('--' + name, dest=name, action='store_true')
-#     group.add_argument('--no-' + name, dest=name, action='store_false')
-#     parser.set_defaults(**{name: default})
-
-
-# TODO: asmith 2020/03/03
-# 1) Personally I am not convinced by the need to allow the user to manually specify or override
-# all of the values that are typically included in the cmf_description.json file and/or the
-# event_description.json (unless it is necessary for the ArcMap esriAddin).
-#
-# If this is desirable/required, then the wrangling and validation of those commandline args
-# should be done outside of this class and in the mapactionpy_controller module.
-#
-# 2) I believe that there is a bug in the handling of the `--product` parameter. Also I take a
-# different view as to what the default behaviour should be.
-# BUG: At present the `--product` parameter is marked as optional, though I'm pretty sure that
-# that a value of None would cause problems later on. I can't seen if a a string which ISN'T a
-# product name in the mapCookbook.json is handled gracefully or not.
-# Default behaviour: My prefered behaviour if no productName is specified, would be that that
-# tool should attempt to create *all* of the products listed in the mapCookbook.json. Let's
-# automate everything!
-# def main():
-    # parser = argparse.ArgumentParser(
-    #     description='This component accepts a template MXD file, a list of the'
-    #     'relevant datasets along with other information required to create an'
-    #     'event specific instance of a map.',
-    # )
-    # parser.add_argument("-b", "--cookbook", dest="cookbookFile", required=False,
-    #                     help="path to cookbook json file", metavar="FILE",
-    #                     type=lambda x: is_valid_file(parser, x))
-    # parser.add_argument("-l", "--layerConfig", dest="layerConfig", required=False,
-    #                     help="path to layer config json file", metavar="FILE",
-    #                     type=lambda x: is_valid_file(parser, x))
-    # parser.add_argument("-t", "--template", dest="templateFile", required=False,
-    #                     help="path to MXD file", metavar="FILE",
-    #                     type=lambda x: is_valid_file(parser, x))
-    # parser.add_argument("-e", "--eventConfigFile", dest="eventConfigFile", required=True,
-    #                     help="path the Event Config File", metavar="FILE",
-    #                     type=lambda x: is_valid_file(parser, x))
-    # parser.add_argument("-ld", "--layerDirectory", dest="layerDirectory", required=False,
-    #                     help="path to layer directory", metavar="FILE",
-    #                     type=lambda x: is_valid_directory(parser, x))
-    # parser.add_argument("-p", "--product", dest="productName", required=True,
-    #                     help="Name of product")
-    # parser.add_argument("-o", "--orientation", dest="orientation", default=None, required=False,
-    #                     help="landscape|portrait")
-
-    # add_bool_arg(parser, 'export')
-
-    # args = parser.parse_args()
-    # orientation = None
-    # if (args.orientation is not None):
-    #     if args.orientation.lower() == "landscape":
-    #         orientation = args.orientation
-    #     else:
-    #         orientation = "portrait"
-
-    # eventConfig = Event(args.eventConfigFile, orientation)
-    # runner = ArcMapRunner(args.templateFile,
-    #                       eventConfig,
-    #                       args.productName)
-
-    # templateUpdated = runner.build_project_files()
-    # if (templateUpdated):
-    #     if (args.export):
-    #         runner.export_maps()
-    #     else:
-    #         print("Template updated.  No product export requested.")
-    # else:
-    #     print("No product generated.  No changes since last execution.")
-
-
-# if __name__ == '__main__':
-#     main()
