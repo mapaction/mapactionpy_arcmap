@@ -10,8 +10,6 @@ from PIL import Image
 from zipfile import ZipFile
 from resizeimage import resizeimage
 from map_chef import MapChef
-from mapactionpy_controller.map_cookbook import MapCookbook
-from mapactionpy_controller.layer_properties import LayerProperties
 from mapactionpy_controller.crash_move_folder import CrashMoveFolder
 from mapactionpy_controller.xml_exporter import XmlExporter
 from mapactionpy_controller.runner import BaseRunnerPlugin
@@ -244,9 +242,6 @@ class ArcMapRunner(BaseRunnerPlugin):
         export_params = self._do_export(export_params, recipe)
         self._zip_exported_files(export_params)
 
-        # TODO: asmith 2020/03/03
-        # 1) Separate the section "Accumulate parameters for export XML" into it's own method
-        # 2) Please avoid hardcoding the naming convention for the output mxds.
 
     def _create_export_dir(self, export_params, recipe):
         # Accumulate parameters for export XML
@@ -266,13 +261,6 @@ class ArcMapRunner(BaseRunnerPlugin):
                 raise
 
         return export_params
-
-        # TODO: asmith 2020/03/03
-        # End of method for the section "Accumulate parameters for export XML"
-
-        # TODO: asmith 2020/03/03
-        # Separate this section into a method named something like
-        # _do_export(self, lots, of, specific, args)
 
     def _do_export(self, export_params, recipe):
         """
