@@ -1,13 +1,9 @@
 import arcpy
-import errno
-import glob
 import logging
 import os
-from shutil import copyfile
-from slugify import slugify
 from PIL import Image
-from zipfile import ZipFile
 from resizeimage import resizeimage
+from slugify import slugify
 from map_chef import MapChef
 from mapactionpy_controller.xml_exporter import XmlExporter
 from mapactionpy_controller.runner import BaseRunnerPlugin
@@ -37,7 +33,6 @@ class ArcMapRunner(BaseRunnerPlugin):
         self.maxy = 0
         self.chef = None
 
-
     def build_project_files(self, **kwargs):
         # Construct a Crash Move Folder object if the cmf_description.json exists
         recipe = kwargs['state']
@@ -60,46 +55,16 @@ class ArcMapRunner(BaseRunnerPlugin):
     def get_lyr_render_extension(self):
         return '.lyr'
 
-
-
     def get_aspect_ratios_of_templates(self, possible_templates):
         # TODO: pending https://trello.com/c/AQrn4InI/150-implement-selection-of-template
         selected_template = possible_templates.pop()
         logging.debug('selected template files; {}'.format(selected_template))
         return selected_template
 
-    # TODO 
-    # 1) Can this method be moved to `BaseRunnerPlugin`?
-    #
-    # 2) Is it possible to aviod the need to hardcode the naming convention for the output mxds? Eg could a
-    # String.Template be specified within the Cookbook?
-    # https://docs.python.org/2/library/string.html#formatspec
-    # https://www.python.org/dev/peps/pep-3101/
-    def create_ouput_map_project(self, **kwargs):
-        recipe = kwargs['state']
-        # Create `mapNumberDirectory` for output
-        output_dir = os.path.join(self.cmf.map_projects, recipe.mapnumber)
-
-        if not(os.path.isdir(output_dir)):
-            os.mkdir(output_dir)
-
-        # Construct output MXD name
-        output_map_base = slugify(unicode(recipe.product))
-        recipe.version_num = self.get_next_map_version_number(output_dir, recipe.mapnumber, output_map_base)
-        output_map_name = '{}-v{}-{}{}'.format(
-            recipe.mapnumber, str(recipe.version_num).zfill(2), output_map_base, self.get_projectfile_extension())
-        recipe.map_project_path = os.path.abspath(os.path.join(output_dir, output_map_name))
-        logging.debug('Path for new map project file; {}'.format(recipe.map_project_path))
-        logging.debug('Map Version number; {}'.format(recipe.version_num))
-
-        # Copy `src_template` to `recipe.map_project_path`
-        copyfile(recipe.template_path, recipe.map_project_path)
-
-        return recipe
-
     # TODO: asmith 2020/03/03
     # Instinctively I would like to see this moved to the MapReport class with an __eq__ method which
     # would look very much like this one.
+
     def haveDataSourcesChanged(self, previousReportFile):
         # previousReportFile = '{}-v{}_{}.json'.format(
         #     recipe.mapnumber,
@@ -125,61 +90,6 @@ class ArcMapRunner(BaseRunnerPlugin):
         #             break
         # return returnValue
         return True
-
-    # TODO: asmith 2020/03/03
-    #
-    # 1) Please avoid hardcoding the naming convention for the mxds wherever possible. The Naming Convention
-    # classes can avoid the need to hardcode the naming convention for the input mxd templates. It might be
-    # possible to avoid the need to hardcode the naming convention for the output mxds using a
-    # String.Template be specified within the Cookbook?
-    # https://docs.python.org/2/library/string.html#formatspec
-    # https://www.python.org/dev/peps/pep-3101/
-    #
-    # 2) This only checks the filename for the mxd - it doesn't check the values within the text element of
-    # the map layout view (and hence the output metadata).
-    def get_next_map_version_number(self, mapNumberDirectory, mapNumber, mapFileName):
-        versionNumber = 0
-        files = glob.glob(mapNumberDirectory + os.sep + mapNumber+'-v[0-9][0-9]-' + mapFileName + '.mxd')
-        for file in files:
-            versionNumber = int(os.path.basename(file).replace(mapNumber + '-v', '').replace(('-' + mapFileName+'.mxd'), ''))  # noqa
-        versionNumber = versionNumber + 1
-        if (versionNumber > 99):
-            versionNumber = 1
-        return versionNumber
-
-    # TODO move to BaseRunnerPlugin
-    def export_maps(self, **kwargs):
-        """
-        Generates all file for export.
-
-        Accumulate some of the parameters for export XML, then calls
-        _do_export(....) to do that actual work
-        """
-        recipe = kwargs['state']
-        export_params = {}
-        export_params = self._create_export_dir(export_params, recipe)
-        export_params = self._do_export(export_params, recipe)
-        self._zip_exported_files(export_params)
-
-    # TODO move to BaseRunnerPlugin
-    def _create_export_dir(self, export_params, recipe):
-        # Accumulate parameters for export XML
-        version_str = "v" + str(recipe.version_num).zfill(2)
-        export_directory = os.path.abspath(
-            os.path.join(self.cmf.export_dir, recipe.mapnumber, version_str))
-        export_params["exportDirectory"] = export_directory
-
-        try:
-            os.makedirs(export_directory)
-        except OSError as exc:  # Python >2.5
-            # Note 'errno.EEXIST' is not a typo. There should be two 'E's.
-            # https://docs.python.org/2/library/errno.html#errno.EEXIST
-            if exc.errno == errno.EEXIST and os.path.isdir(export_directory):
-                pass
-            else:
-                raise
-
-        return export_params
 
     def _do_export(self, export_params, recipe):
         """
@@ -326,35 +236,6 @@ class ArcMapRunner(BaseRunnerPlugin):
             arcpy.mapping.ExportToPDF(arc_mxd, pdfFileLocation, resolution=int(self.event.default_pdf_res_dpi))
             # if arcpy.Exists(os.path.join(export_dir, shpFile)):
             #     arcpy.Delete_management(os.path.join(export_dir, shpFile))
-
-    # TODO move to BaseRunnerPlugin
-    def _zip_exported_files(self, export_params):
-        # Get key params as local variables
-        core_file_name = export_params['coreFileName']
-        export_dir = export_params['exportDirectory']
-        mdr_xml_file_path = export_params['exportXmlFileLocation']
-        jpg_path = export_params['jpgFileLocation']
-        png_thumbnail_path = export_params['pngThumbNailFileLocation']
-        # And now Zip
-        zipFileName = core_file_name+".zip"
-        zipFileLocation = os.path.join(export_dir, zipFileName)
-
-        with ZipFile(zipFileLocation, 'w') as zipObj:
-            zipObj.write(mdr_xml_file_path, os.path.basename(mdr_xml_file_path))
-            zipObj.write(jpg_path, os.path.basename(jpg_path))
-            zipObj.write(png_thumbnail_path, os.path.basename(png_thumbnail_path))
-
-            # TODO: asmith 2020/03/03
-            # Given we are explictly setting the pdfFileName for each page within the DDPs
-            # it is possible return a list of all of the filenames for all of the PDFs. Please
-            # can we use this list to include in the zip file. There are edge cases where just
-            # adding all of the pdfs in a particular directory might not behave correctly (eg if
-            # the previous run had crashed midway for some reason)
-            for pdf in os.listdir(export_dir):
-                if pdf.endswith(".pdf"):
-                    zipObj.write(os.path.join(export_dir, pdf),
-                                 os.path.basename(os.path.join(export_dir, pdf)))
-        print("Export complete to " + export_dir)
 
     def exportJpeg(self, coreFileName, exportDirectory, mxd, exportParams):
         # JPEG
