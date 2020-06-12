@@ -3,14 +3,12 @@ import errno
 import glob
 import logging
 import os
-import re
 from shutil import copyfile
 from slugify import slugify
 from PIL import Image
 from zipfile import ZipFile
 from resizeimage import resizeimage
 from map_chef import MapChef
-from mapactionpy_controller.crash_move_folder import CrashMoveFolder
 from mapactionpy_controller.xml_exporter import XmlExporter
 from mapactionpy_controller.runner import BaseRunnerPlugin
 
@@ -50,7 +48,6 @@ class ArcMapRunner(BaseRunnerPlugin):
         self.maxy = 0
         self.chef = None
         # self.cmf = CrashMoveFolder(self.event.cmf_descriptor_path)
-
 
     def build_project_files(self, **kwargs):
         # Construct a Crash Move Folder object if the cmf_description.json exists
@@ -94,7 +91,6 @@ class ArcMapRunner(BaseRunnerPlugin):
         selected_template = possible_templates.pop()
         logging.debug('selected template files; {}'.format(selected_template))
         return selected_template
-
 
     def create_ouput_map_project(self, **kwargs):
         recipe = kwargs['recipe']
