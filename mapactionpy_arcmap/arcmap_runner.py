@@ -1,5 +1,4 @@
 import arcpy
-import argparse
 import errno
 import glob
 import logging
@@ -14,7 +13,6 @@ from map_chef import MapChef
 from mapactionpy_controller.map_cookbook import MapCookbook
 from mapactionpy_controller.layer_properties import LayerProperties
 from mapactionpy_controller.crash_move_folder import CrashMoveFolder
-from mapactionpy_controller.event import Event
 from mapactionpy_controller.xml_exporter import XmlExporter
 from mapactionpy_controller.runner import BaseRunnerPlugin
 
@@ -27,8 +25,10 @@ logging.basicConfig(level=logging.DEBUG,
 # ch = logging.StreamHandler()
 # ch.setLevel(logging.DEBUG)
 # # create formatter and add it to the handlers
-# formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s (%(module)s +ln%(lineno)s) ;- %(message)s')
-# # formatter = logging.Formatter('%(asctime)s %(module)s %(name)s.%(funcName)s +%(lineno)s: %(levelname)-8s [%(process)d] %(message)s')
+# formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s
+#  (%(module)s +ln%(lineno)s) ;- %(message)s')
+# formatter = logging.Formatter('%(asctime)s %(module)s %(name)s.%(funcName)s
+#  +%(lineno)s: %(levelname)-8s [%(process)d] %(message)s')
 # ch.setFormatter(formatter)
 # # add the handlers to the logger
 # logger.addHandler(ch)
@@ -39,40 +39,14 @@ class ArcMapRunner(BaseRunnerPlugin):
     ArcMapRunner - Executes the ArcMap automation methods
     """
 
-    # TODO: asmith 2020/03/03
-    #
-    # 1) I think that this constructor could be made much simpler by only requiring either
-    # an Event object or an event_description.json file. Nearly all of the other parameters
-    # could be detrived from oue of those.
-    #
-    # 2) If the path to the event_description.json file is used, make it the path to the file
-    # itself and not the containing directory. That would avoid the need to hardcode the filename
-    # of the event_description.json file.
-    #
-    # 4) I do not see the need for the ArcMapRunner to have it's own members which duplicate those
-    # of the Event object or the CMF object. Eg. `myrunner.cmf.layer_properties` is fine.
-    #
-    # 5) If there is a case for allowing the user to manaually specify or override all of the values
-    # that are typically included in the cmf_description.json file and/or the event_description.json
-    # file than the wrangling and validation of those commandline args should be done outside of this
-    # class and in the mapactionpy_controller module.
     def __init__(self,
                  templateFile,
                  eventConfig,
                  productName):
         self.mxdTemplate = templateFile
-        self.cookbookFile = None
-        self.layerPropertiesFile = None
-        # self.productName = productName
         self.event = eventConfig
         self.replaceOnly = False
 
-        # TODO: asmith 2020/03/03
-        # Do not hard code "real" values. Setting to `None` would seem safer here as that
-        # ensures that if the versionNumber or mapNumber are not set correctly later in the
-        # code, these default values do not accidently result in real outputs being overwritten
-        self.versionNumber = 1
-        # self.mapNumber = "MA001"
         self.exportMap = False
         self.minx = 0
         self.miny = 0
@@ -81,71 +55,15 @@ class ArcMapRunner(BaseRunnerPlugin):
         self.chef = None
         self.cmf = CrashMoveFolder(self.event.cmf_descriptor_path)
 
-        # TODO: asmith 2020/03/03
-        # The name `self.layerDefinition` is unclear and should be changed.
-        #   * As far as I can see this object encapsulates the properties of multiple layers
-        #     (not merely multiple properties of a single layer).
-        #   * Also `layerDefinition` is easily confussed with the DefinitionQuery of a layer (which
-        #     it's not).
-        self.layerDefinition = LayerProperties(self.cmf, '.lyr')
-
-        # TODO: asmith 2020/03/03
-        # Much of here to line 132 is unrequired, as the CrashMoveFolder class already has a method
-        # for verifying the existence of all of the relevant files and directories. By default this
-        # happens when a CrashMoveFolder object is created. For the paranoid these two lines:
-        # ```
-        # if not self.cmf.verify_paths():
-        #    raise ValueError("Cannot find paths and directories referenced by cmf {}".format(self.cmf.path))
-        # ```
-
-        # The following checks are used if the CMF description is over-ridden by the command line parameters
-        if self.cookbookFile is None:
-            if self.cmf is not None:
-                self.cookbookFile = self.cmf.map_definitions
-            else:
-                raise Exception("Error: Could not derive cookbook file from " + self.event.cmf_descriptor_path)
-
-        self.cookbook = MapCookbook(self.cmf, self.layerDefinition)
-        # self.cookbook = MapCookbook(self.cookbookFile)
-
-        # try:
-        #     self.recipe = self.cookbook.products[productName]
-        # except KeyError:
-        #     raise Exception("Error: Could not find recipe for product: \"" + productName + "\" in " + self.cookbookFile)
-
-        if self.layerPropertiesFile is None:
-            if self.cmf is not None:
-                self.layerPropertiesFile = self.cmf.layer_properties
-            else:
-                raise Exception("Error: Could not derive layer config file from " + self.event.cmf_descriptor_path)
-        # OLD 132
-        # TODO: asmith 2020/03/03
-        # The name `self.layerDefinition` is unclear and should be changed.
-        #   * As far as I can see this object encapsulates the properties of multiple layers
-        #     (not merely multiple properties of a single layer).
-        #   * Also `layerDefinition` is easily confused with the DefinitionQuery of a layer (which
-        #     it's not).
-        self.layerDefinition = LayerProperties(self.cmf, '.lyr')
-
-    # TODO: asmith 2020/03/03
-    # method name is unclear. Generate what? How does this relate to
-    # the `generateXml` method?
+        if not self.cmf.verify_paths():
+            raise ValueError("Cannot find paths and directories referenced by cmf {}".format(self.cmf.path))
 
     def build_project_files(self, **kwargs):
         # Construct a Crash Move Folder object if the cmf_description.json exists
         recipe = kwargs['recipe']
-
-        # if self.mxdTemplate is None:
-        #     self.mxdTemplate, self.mapNumber, self.versionNumber, generationRequired = self.get_templates(
-        #         self.cookbookFile, self.cmf, self.productName)
-        # else:
-        #     generationRequired = True
         mxd = arcpy.mapping.MapDocument(recipe.map_project_path)
 
-        self.chef = MapChef(mxd, # OK
-                            self.cmf, #OK
-                            self.event, # OK
-                            recipe.version_num) #OK
+        self.chef = MapChef(mxd, self.cmf, self.event)
         self.chef.cook(recipe, self.replaceOnly)
         self.chef.alignLegend(self.event.orientation)
 
@@ -213,7 +131,6 @@ class ArcMapRunner(BaseRunnerPlugin):
         logging.debug('possible template files:\n\t{}'.format('\n\t'.join(filenames)))
         return [os.path.join(self.cmf.map_templates, fi) for fi in filenames]
 
-
     def _get_aspect_ratios_of_templates(self, possible_templates):
         # TODO: pending https://trello.com/c/AQrn4InI/150-implement-selection-of-template
         selected_template = possible_templates.pop()
@@ -236,7 +153,7 @@ class ArcMapRunner(BaseRunnerPlugin):
         recipe.template_path = self._get_aspect_ratios_of_templates(possible_templates)
         # use logic to workout which template has best aspect ratio
 
-        # TODO
+        # TODO re-enable "Have the input files changed?"
         # Have the input shapefiles changed?
         return recipe
 
@@ -274,7 +191,6 @@ class ArcMapRunner(BaseRunnerPlugin):
         # generationRequired = True
         # if (os.path.exists(os.path.join(output_dir, previousReportFile))):
         #     generationRequired = self.haveDataSourcesChanged(os.path.join(output_dir, previousReportFile))
-
 
         # returnValue = False
         # with open(previousReportFile, 'r') as myfile:
@@ -379,7 +295,6 @@ class ArcMapRunner(BaseRunnerPlugin):
             self._export_atlas(recipe, arc_mxd, export_dir, core_file_name)
 
         xmlExporter = XmlExporter(self.event, self.chef)
-        export_params['versionNumber'] = self.versionNumber
         export_params['mapNumber'] = recipe.mapnumber
         export_params['productName'] = recipe.product
         export_params['versionNumber'] = recipe.version_num
@@ -682,5 +597,5 @@ class ArcMapRunner(BaseRunnerPlugin):
     #     print("No product generated.  No changes since last execution.")
 
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()

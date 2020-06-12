@@ -38,16 +38,12 @@ class MapChef:
     def __init__(self,
                  mxd,
                  crashMoveFolder,
-                 eventConfiguration,
-                 versionNumber=1):
+                 eventConfiguration):
         """
         Arguments:
            mxd {MXD file} -- MXD file.
-           # cookbook {MapCookbook} -- Path to Map Cookbook json file
-           # layerPropertiesJsonFile {str} -- Path to Layer Properties json file
            crashMoveFolder {CrashMoveFolder} -- CrashMoveFolder Object
            eventConfiguration {Event} -- Event Object
-           versionNumber {int} -- version number of map
         """
         # TODO asmith 2020/03/06
         # See comment on the `cook()` method about where and when the `mxd` parameter should be
@@ -84,7 +80,6 @@ class MapChef:
         # self.summary = None
         self.summary = "Insert summary here"
         self.dataSources = set()
-        self.versionNumber = versionNumber
         self.createDate = datetime.utcnow().strftime("%d-%b-%Y")
         self.createTime = datetime.utcnow().strftime("%H:%M")
         self.export = False
@@ -374,7 +369,7 @@ class MapChef:
                     iter = iter + 1
                 elm.text = dataSourcesString
             if elm.name == "map_version":
-                versionNumberString = "v" + str(self.versionNumber).zfill(2)
+                versionNumberString = "v" + str(self.recipe.version_num).zfill(2)
                 elm.text = versionNumberString
             if elm.name == "spatial_reference":
                 elm.text = self.spatialReference()

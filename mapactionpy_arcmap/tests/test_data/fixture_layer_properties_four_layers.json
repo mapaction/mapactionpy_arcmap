@@ -6,7 +6,7 @@
 			"reg_exp": "^[a-z]{3}_stle_ste_pt_(.*?)_(.*?)_([phm][phm])(.*?).shp$",
 			"definition_query": "fclass IN ('national_capital', 'city', 'capital', 'town')",
 			"display": true,
-			"schema_definition": "null.schema",
+			"schema_definition": "null-schema.yml",
 			"add_to_legend": true,
 			"label_classes": [{
 					"class_name": "National Capital",
@@ -28,7 +28,7 @@
 			"reg_exp": "^[a-z]{3}_stle_ste_pt_(.*?)_(.*?)_([phm][phm])(.*?).shp$",
 			"definition_query": "fclass IN ('national_capital', 'capital')",
 			"display": true,
-			"schema_definition": "null.schema",
+			"schema_definition": "null-schema.yml",
 			"add_to_legend": true,
 			"label_classes": [{
 					"class_name": "National Capital",
@@ -44,7 +44,7 @@
 			"reg_exp": "^[a-z]{3}_tran_sea_pt_(.*?)_(.*?)_([phm][phm])_(.*?).shp$",
 			"definition_query": "",
 			"display": true,
-			"schema_definition": "null.schema",
+			"schema_definition": "null-schema.yml",
 			"add_to_legend": true,
 			"label_classes": [
 
@@ -56,7 +56,7 @@
 			"reg_exp": "aoi_admn_ad0_py_(.*?)_(.*?)_([phm][phm])(.*?).shp$",
 			"definition_query": "",
 			"display": true,
-			"schema_definition": "null.schema",
+			"schema_definition": "null-schema.yml",
 			"add_to_legend": false,
 			"label_classes": [{
 					"class_name": "This",
