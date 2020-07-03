@@ -6,7 +6,7 @@ from resizeimage import resizeimage
 from slugify import slugify
 from map_chef import MapChef
 from mapactionpy_controller.xml_exporter import XmlExporter
-from mapactionpy_controller.runner import BaseRunnerPlugin
+from mapactionpy_controller.plugin_base import BaseRunnerPlugin
 
 
 logging.basicConfig(
