@@ -8,7 +8,6 @@ from map_chef import MapChef
 from mapactionpy_controller.xml_exporter import XmlExporter
 from mapactionpy_controller.plugin_base import BaseRunnerPlugin
 
-
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s %(module)s %(name)s.%(funcName)s +%(lineno)s: %(levelname)-8s %(message)s'
@@ -55,11 +54,58 @@ class ArcMapRunner(BaseRunnerPlugin):
     def get_lyr_render_extension(self):
         return '.lyr'
 
+    def _get_largest_map_frame(self, data_frames):
+        """
+        This returns the dataframe occupying the largest area on the page.
+        * If two data frames have identical areas then the widest is returned.
+        * If two data frames have identical heights and widths returned then the alphabetically last (by `.name`)
+          is returned.
+
+        @param data_frames: a list of DataFrame objects, typically returned by `arcpy.mapping.ListDataFrames(mxd, "*")`
+        @return: a single DataFrame object from the list.
+        @raises ValueError: if there are two DataFrames in the list, which have identical `width`, `height` and `name`.
+        """
+        # df, area, width, name
+        full_details = [{
+            'df': df,
+            'area': df.elementHeight*df.elementWidth,
+            'width': df.elementWidth,
+            'name': df.name} for df in data_frames]
+
+        # select just the largest if there is a single largest
+        # keep drilling down using different metrics until a single aspect ratio is discovered
+        for metric_key in ['area', 'width', 'name']:
+            max_size = max([df_detail[metric_key] for df_detail in full_details])
+            sub_list = [df_detail for df_detail in full_details if df_detail[metric_key] == max_size]
+            if len(sub_list) == 1:
+                return sub_list[0]['df']
+
+            # reduce the list of possible data frames for the next iteration
+            full_details = sub_list
+
+        # This means that there are two or more data frames with the same name and this is an error condition
+        raise ValueError('There are two or more data frames with the same name')
+
     def get_aspect_ratios_of_templates(self, possible_templates):
-        # TODO: pending https://trello.com/c/AQrn4InI/150-implement-selection-of-template
-        selected_template = possible_templates.pop()
-        logging.debug('selected template files; {}'.format(selected_template))
-        return selected_template
+        """
+        Calculates the aspect ratio of the largest* map frame within the list of templates.
+
+        @param possible_templates: A list of paths to possible templates
+        @returns: A list of tuples. For each tuple the first element is the path to the template. The second 
+                  element is the aspect ratio of the largest* map frame within that template.
+                  See `_get_largest_map_frame` for the description of hour largest is determined.
+        """
+        logging.debug('Calculating the aspect ratio of the largest map frame within the list of templates.')
+        results = []
+        for template in possible_templates:
+            mxd = arcpy.mapping.MapDocument(template)
+            map_frame = self._get_largest_map_frame(arcpy.mapping.ListDataFrames(mxd, "*"))
+
+            aspect_ratio = float(map_frame.elementWidth)/map_frame.elementHeight
+            results.append((template, aspect_ratio))
+            logging.debug('Calculated aspect ratio= {} for template={}'.format(aspect_ratio, template))
+
+        return results
 
     # TODO: asmith 2020/03/03
     # Instinctively I would like to see this moved to the MapReport class with an __eq__ method which
