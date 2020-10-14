@@ -86,12 +86,15 @@ class ArcMapRunner(BaseRunnerPlugin):
         # This means that there are two or more data frames with the same name and this is an error condition
         raise ValueError('There are two or more data frames with the same name')
 
+    def get_aspect_ratio_of_target_area(self, recipe):
+        pass
+
     def get_aspect_ratios_of_templates(self, possible_templates):
         """
         Calculates the aspect ratio of the largest* map frame within the list of templates.
 
         @param possible_templates: A list of paths to possible templates
-        @returns: A list of tuples. For each tuple the first element is the path to the template. The second 
+        @returns: A list of tuples. For each tuple the first element is the path to the template. The second
                   element is the aspect ratio of the largest* map frame within that template.
                   See `_get_largest_map_frame` for the description of hour largest is determined.
         """
