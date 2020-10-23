@@ -2,7 +2,7 @@ import os
 import arcpy
 import jsonpickle
 import logging
-import re
+# import re
 from mapactionpy_controller.map_report import MapReport
 from mapactionpy_controller.map_result import MapResult
 from mapactionpy_controller.data_source import DataSource
@@ -16,6 +16,23 @@ from datetime import datetime
 # Is it intended that the `cook()` method might be called multiple times in the life of a MapChef
 # object? At present it looks to me like `cook()` can only be called once. In which case why have
 # `cook()` as a public method and why not call it directly from the constructor.
+
+
+ESRI_DATASET_TYPES = [
+    "SHAPEFILE_WORKSPACE",
+    "RASTER_WORKSPACE",
+    "FILEGDB_WORKSPACE",
+    "ACCESS_WORKSPACE",
+    "ARCINFO_WORKSPACE",
+    "CAD_WORKSPACE",
+    "EXCEL_WORKSPACE",
+    "OLEDB_WORKSPACE",
+    "PCCOVERAGE_WORKSPACE",
+    "SDE_WORKSPACE",
+    "TEXT_WORKSPACE",
+    "TIN_WORKSPACE",
+    "VPF_WORKSPACE"
+]
 
 
 class MapChef:
@@ -55,30 +72,13 @@ class MapChef:
         # self.cookbook = cookbook
         self.legendEntriesToRemove = list()
 
-        self.datasetTypes = ["SHAPEFILE_WORKSPACE",
-                             "RASTER_WORKSPACE",
-                             "FILEGDB_WORKSPACE",
-                             "ACCESS_WORKSPACE",
-                             "ARCINFO_WORKSPACE",
-                             "CAD_WORKSPACE",
-                             "EXCEL_WORKSPACE",
-                             "OLEDB_WORKSPACE",
-                             "PCCOVERAGE_WORKSPACE",
-                             "SDE_WORKSPACE",
-                             "TEXT_WORKSPACE",
-                             "TIN_WORKSPACE",
-                             "VPF_WORKSPACE"]
-
         self.replaceDataSourceOnly = False
         # It appears that this is not used - therefore should be removed. If it is used, then it
         # TODO asmith 2020/03/06
         # needs a more specific name. There exist Data, Layerfile, MXD and Template Naming
         # Conventions (and possibly more)
         self.namingConvention = None
-        # TODO asmith 2020/03/06
-        # I suspect it would be more robust to set
-        # self.summary = None
-        self.summary = "Insert summary here"
+
         self.dataSources = set()
         self.createDate = datetime.utcnow().strftime("%d-%b-%Y")
         self.createTime = datetime.utcnow().strftime("%H:%M")
@@ -152,7 +152,7 @@ class MapChef:
 
     # TODO asmith 2020/03/06
     # I would suggest that:
-    #   * If `cook() only gets called once in the life of a MapChef object, then it should be
+    #   * If `cook()` only gets called once in the life of a MapChef object, then it should be
     #     entire procedural, with no parameters (everything set via the constructor) and
     #     subsequent attempt to call `cook()` should result in an exception
     #   * If `cook()` can be called multiple times, then the `mxd` and the `map_version_number`
@@ -161,21 +161,17 @@ class MapChef:
     # Not with standing the above, the relevant Recipe object has already be identified and
     # validated in the ArcMapRunner object. Why not just pass that instead of the productName?
 
-    def cook(self, recipe, replaceDataSourceOnly=False):
-        self.recipe = recipe
-        self.replaceDataSourceOnly = replaceDataSourceOnly
+    def cook(self, recipe):
         arcpy.env.addOutputsToMap = False
-        if not replaceDataSourceOnly:
-            self.disableLayers()
-            self.removeLayers()
 
-        self.mapReport = MapReport(self.recipe.product)
-        if (self.recipe is not None):
-            if len(self.recipe.summary):
-                self.summary = self.recipe.summary
-            for mf in self.recipe.map_frames:
-                for layer in mf.layers:
-                    self.process_layer(layer, mf)
+        self.disableLayers()
+        self.removeLayers()
+
+        self.mapReport = MapReport(recipe.product)
+        if recipe:
+            for mf in recipe.map_frames:
+                for recipe_lyr in mf.layers:
+                    self.process_layer(recipe_lyr, mf)
 
         self.enableLayers()
         arcpy.RefreshTOC()
@@ -184,8 +180,8 @@ class MapChef:
         self.showLegendEntries()
         self.mxd.save()
 
-        if (recipe is not None):
-            self.updateTextElements()
+        if recipe:
+            self.updateTextElements(recipe)
             self.mxd.save()
 
     """
@@ -207,6 +203,9 @@ class MapChef:
         boolean -- added (true if successful)
     """
 
+    """
+    asmith 2020/10/22
+    Temp commenting out the gdb related parts.
     def addDataToLayer(self,
                        dataFrame,
                        dataFile,
@@ -227,7 +226,7 @@ class MapChef:
                             lblClass.expression = labelClass.expression
                             lblClass.showClassLabels = labelClass.show_class_labels
             if lyr.supports("DATASOURCE"):  # An annotation layer does not support DATASOURCE
-                for datasetType in self.datasetTypes:
+                for datasetType in ESRI_DATASET_TYPES:
                     try:
                         lyr.replaceDataSource(dataFile, datasetType, datasetName)
                         added = True
@@ -262,6 +261,7 @@ class MapChef:
                 self.applyZoom(dataFrame, lyr, zoomMultiplier)
 
         return added
+    """
 
     def report_as_json(self):
         """
@@ -275,19 +275,22 @@ class MapChef:
         """
         mapResult = MapResult(recipe_lyr.name)
         arc_data_frame = arcpy.mapping.ListDataFrames(self.mxd, recipe_frame.name)[0]
-        try:
-            # BUG
-            # The layer name in the TOC is not necessarily == recipe_lyr.name
-            # arc_lyr_to_update = arcpy.mapping.ListLayers(self.mxd, recipe_lyr.name, self.dataFrame)[0]
-            # Try this instead
-            lyr_index = recipe_frame.layers.index(recipe_lyr)
-            arc_lyr_to_update = arcpy.mapping.ListLayers(self.mxd, None, arc_data_frame)[lyr_index]
+        # try:
+        #     # BUG
+        #     # The layer name in the TOC is not necessarily == recipe_lyr.name
+        #     # arc_lyr_to_update = arcpy.mapping.ListLayers(self.mxd, recipe_lyr.name, self.dataFrame)[0]
+        #     # Try this instead
+        #     lyr_index = recipe_frame.layers.index(recipe_lyr)
+        #     arc_lyr_to_update = arcpy.mapping.ListLayers(self.mxd, None, arc_data_frame)[lyr_index]
 
-            # Replace existing layer
-            mapResult = self.updateLayer(arc_lyr_to_update, recipe_lyr, recipe_frame)
-        except IndexError:
-            # Layer doesn't exist, add new layer
-            mapResult = self.addLayer(recipe_lyr, arc_data_frame)
+        #     # Replace existing layer
+        #     mapResult = self.updateLayer(arc_lyr_to_update, recipe_lyr, recipe_frame)
+        # except IndexError:
+        #     # Layer doesn't exist, add new layer
+        #     mapResult = self.addLayer(recipe_lyr, arc_data_frame)
+
+        # Try just using add Layer (no update layer option)
+        mapResult = self.addLayer(recipe_lyr, arc_data_frame)
 
         if mapResult.added:
             try:
@@ -306,6 +309,9 @@ class MapChef:
 
         self.mapReport.add(mapResult)
 
+    """
+    asmith 2020/10/22
+    Temp commenting out the gdb related parts.
     def find(self, rootdir, regexp, gdb=False):
         returnPaths = list()
         # TODO asmith 2020/03/06
@@ -337,24 +343,25 @@ class MapChef:
                     if (z):
                         returnPaths.append(dirPath)
         return returnPaths
+    """
 
     """
     Updates Text Elements in Marginalia
 
     """
 
-    def updateTextElements(self):
+    def updateTextElements(self, recipe):
         for elm in arcpy.mapping.ListLayoutElements(self.mxd, "TEXT_ELEMENT"):
             if elm.name == "country":
                 elm.text = self.eventConfiguration.country_name
             if elm.name == "title":
-                elm.text = self.recipe.product
+                elm.text = recipe.product
             if elm.name == "create_date_time":
                 elm.text = self.createDate + " " + self.createTime
             if elm.name == "summary":
-                elm.text = self.summary
+                elm.text = recipe.summary
             if elm.name == "map_no":
-                elm.text = self.recipe.mapnumber
+                elm.text = recipe.mapnumber
             if elm.name == "mxd_name":
                 elm.text = os.path.basename(self.mxd.filePath)
             if elm.name == "scale":
@@ -369,7 +376,7 @@ class MapChef:
                     iter = iter + 1
                 elm.text = dataSourcesString
             if elm.name == "map_version":
-                versionNumberString = "v" + str(self.recipe.version_num).zfill(2)
+                versionNumberString = "v" + str(recipe.version_num).zfill(2)
                 elm.text = versionNumberString
             if elm.name == "spatial_reference":
                 elm.text = self.spatialReference()
@@ -377,13 +384,13 @@ class MapChef:
                 if self.eventConfiguration and self.eventConfiguration.glide_number:
                     elm.text = self.eventConfiguration.glide_number
             if elm.name == "donor_credit":
-                if (self.eventConfiguration is not None):
+                if self.eventConfiguration:
                     elm.text = self.eventConfiguration.default_donor_credits
             if elm.name == "disclaimer":
-                if (self.eventConfiguration is not None):
+                if self.eventConfiguration:
                     elm.text = self.eventConfiguration.default_disclaimer_text
             if elm.name == "map_producer":
-                if (self.eventConfiguration is not None):
+                if self.eventConfiguration:
                     elm.text = "Produced by " + \
                         self.eventConfiguration.default_source_organisation + \
                         os.linesep + \
@@ -473,18 +480,18 @@ class MapChef:
             dataFrame.extent = polygonTmp2
             self.mxd.save()
 
-    # TODO: asmith 2020/03/06
-    # `updateLayer()` and `addLayer()` seem very similar. Is it possible to refactor to reduce
-    # duplication?
-    def updateLayer(self, arc_lyr_to_update, recipe_lyr, recipe_frame):
-        mapResult = None
+    # # TODO: asmith 2020/03/06
+    # # `updateLayer()` and `addLayer()` seem very similar. Is it possible to refactor to reduce
+    # # duplication?
+    # def updateLayer(self, arc_lyr_to_update, recipe_lyr, recipe_frame):
+    #     mapResult = None
 
-        if (".gdb/" not in recipe_lyr.reg_exp):
-            mapResult = self.updateLayerWithFile(recipe_lyr, arc_lyr_to_update,
-                                                 recipe_lyr.layer_file_path, recipe_frame)
-        else:
-            mapResult = self.updateLayerWithGdb(recipe_lyr, recipe_frame)
-        return mapResult
+    #     if (".gdb/" not in recipe_lyr.reg_exp):
+    #         mapResult = self.updateLayerWithFile(recipe_lyr, arc_lyr_to_update,
+    #                                              recipe_lyr.layer_file_path, recipe_frame)
+    #     else:
+    #         mapResult = self.updateLayerWithGdb(recipe_lyr, recipe_frame)
+    #     return mapResult
 
     # TODO: asmith 2020/03/06
     # `updateLayer()` and `addLayer()` seem very similar. Is it possible to refactor to reduce
@@ -494,11 +501,65 @@ class MapChef:
         mapResult = MapResult(recipe_lyr.name)
         logging.debug('Attempting to add layer; {}'.format(recipe_lyr.layer_file_path))
         arc_lyr_to_add = arcpy.mapping.Layer(recipe_lyr.layer_file_path)
-        if (".gdb/" not in recipe_lyr.reg_exp):
-            mapResult = self.addLayerWithFile(recipe_lyr, arc_lyr_to_add, recipe_lyr.name, recipe_frame)
-        else:
-            mapResult = self.addLayerWithGdb(recipe_lyr, arc_lyr_to_add, recipe_lyr.name, recipe_frame)
+        # if (".gdb/" not in recipe_lyr.reg_exp):
+        #     mapResult = self.addLayerWithFile(recipe_lyr, arc_lyr_to_add,  recipe_frame)
+        # else:
+        #     mapResult = self.addLayerWithGdb(recipe_lyr, arc_lyr_to_add,  recipe_frame)
+        mapResult = self.addLayerWithFile(recipe_lyr, arc_lyr_to_add,  recipe_frame)
+
         return mapResult
+
+    # # TODO: asmith 2020/03/06
+    # # These three methods appear very similar:
+    # #   * `addLayerWithFile()`
+    # #   * `addLayerWithGdb()`
+    # #   * `updateLayerWithFile()`
+    # # Is it possible to refactor to reduce duplication?
+    # def updateLayerWithFile(self, layerProperties, updateLayer, layerFilePath, recipe_frame):
+    #     mapResult = MapResult(layerProperties.name)
+
+    #     dataFiles = self.find(self.crashMoveFolder.active_data, layerProperties.reg_exp)
+    #     for dataFile in (dataFiles):
+    #         base = os.path.basename(dataFile)
+    #         datasetName = os.path.splitext(base)[0]
+    #         dataDirectory = os.path.dirname(os.path.realpath(dataFile))
+
+    #         sourceLayer = arcpy.mapping.Layer(layerFilePath)
+    #         arc_data_frame = arcpy.mapping.ListDataFrames(self.mxd, recipe_frame.name)[0]
+    #         arcpy.mapping.UpdateLayer(arc_data_frame, updateLayer, sourceLayer, False)
+
+    #         # BUG
+    #         # The layer name in the TOC is not necessarily == recipe_lyr.name
+    #         # newLayer = arcpy.mapping.ListLayers(self.mxd, updateLayer.name, self.dataFrame)[0]
+    #         # Try this instead
+    #         lyr_index = recipe_frame.layers.index(updateLayer)
+    #         newLayer = arcpy.mapping.ListLayers(self.mxd, None, arc_data_frame)[lyr_index]
+
+    #         if newLayer.supports("DATASOURCE"):
+    #             for datasetType in self.datasetTypes:
+    #                 try:
+    #                     if (newLayer.supports("DEFINITIONQUERY") and (layerProperties.definition_query)):
+    #                         newLayer.definition_query = layerProperties.definition_query.replace(
+    #                             '{COUNTRY_NAME}', self.eventConfiguration.country_name)
+    #                     newLayer.replaceDataSource(dataDirectory, datasetType, datasetName)
+    #                     mapResult.message = "Layer updated successfully"
+    #                     mapResult.added = True
+    #                     ds = DataSource(dataFile)
+    #                     mapResult.dataSource = dataFile.replace("\\", "/").replace(self.crashMoveFolder.path.replace("\\", "/"), "")   # noqa
+    #                     mapResult.hash = ds.calculate_checksum()
+    #                     break
+    #                 except Exception:
+    #                     pass
+
+    #         if (mapResult.added is True):
+    #             self.mxd.save()
+    #             break
+    #     return mapResult
+
+    # def updateLayerWithGdb(self, layerProperties, recipe_frame):
+    #     mapResult = MapResult(layerProperties.name)
+    #     mapResult.message = "Update layer for a GeoDatabase not yet implemented"
+    #     return mapResult
 
     # TODO: asmith 2020/03/06
     # These three methods appear very similar:
@@ -506,118 +567,72 @@ class MapChef:
     #   * `addLayerWithGdb()`
     #   * `updateLayerWithFile()`
     # Is it possible to refactor to reduce duplication?
-    def updateLayerWithFile(self, layerProperties, updateLayer, layerFilePath, recipe_frame):
-        mapResult = MapResult(layerProperties.name)
+    def addLayerWithFile(self, recipe_lyr, arc_lyr_to_add, recipe_frame):
+        mapResult = MapResult(recipe_lyr.name)
 
-        dataFiles = self.find(self.crashMoveFolder.active_data, layerProperties.reg_exp)
-        for dataFile in (dataFiles):
-            base = os.path.basename(dataFile)
-            datasetName = os.path.splitext(base)[0]
-            dataDirectory = os.path.dirname(os.path.realpath(dataFile))
+        # Skip past any layer which didn't already have a source file located
+        try:
+            recipe_lyr.data_source_path
+        except AttributeError:
+            return mapResult
 
-            sourceLayer = arcpy.mapping.Layer(layerFilePath)
-            arc_data_frame = arcpy.mapping.ListDataFrames(self.mxd, recipe_frame.name)[0]
-            arcpy.mapping.UpdateLayer(arc_data_frame, updateLayer, sourceLayer, False)
+        data_src_dir = os.path.dirname(os.path.realpath(recipe_lyr.data_source_path))
 
-            # BUG
-            # The layer name in the TOC is not necessarily == recipe_lyr.name
-            # newLayer = arcpy.mapping.ListLayers(self.mxd, updateLayer.name, self.dataFrame)[0]
-            # Try this instead
-            lyr_index = recipe_frame.layers.index(updateLayer)
-            newLayer = arcpy.mapping.ListLayers(self.mxd, None, arc_data_frame)[lyr_index]
+        # Apply Label Classes
+        if arc_lyr_to_add.supports("LABELCLASSES"):
+            for labelClass in recipe_lyr.label_classes:
+                for lblClass in arc_lyr_to_add.labelClasses:
+                    if (lblClass.className == labelClass.class_name):
+                        lblClass.SQLQuery = labelClass.sql_query
+                        lblClass.expression = labelClass.expression
+                        lblClass.showClassLabels = labelClass.show_class_labels
 
-            if newLayer.supports("DATASOURCE"):
-                for datasetType in self.datasetTypes:
-                    try:
-                        if (newLayer.supports("DEFINITIONQUERY") and (layerProperties.definition_query)):
-                            newLayer.definition_query = layerProperties.definition_query.replace(
-                                '{COUNTRY_NAME}', self.eventConfiguration.country_name)
-                        newLayer.replaceDataSource(dataDirectory, datasetType, datasetName)
-                        mapResult.message = "Layer updated successfully"
-                        mapResult.added = True
-                        ds = DataSource(dataFile)
-                        mapResult.dataSource = dataFile.replace("\\", "/").replace(self.crashMoveFolder.path.replace("\\", "/"), "")   # noqa
-                        mapResult.hash = ds.calculate_checksum()
-                        break
-                    except Exception:
-                        pass
-
-            if (mapResult.added is True):
-                self.mxd.save()
-                break
-        return mapResult
-
-    def updateLayerWithGdb(self, layerProperties, recipe_frame):
-        mapResult = MapResult(layerProperties.name)
-        mapResult.message = "Update layer for a GeoDatabase not yet implemented"
-        return mapResult
-
-    # TODO: asmith 2020/03/06
-    # These three methods appear very similar:
-    #   * `addLayerWithFile()`
-    #   * `addLayerWithGdb()`
-    #   * `updateLayerWithFile()`
-    # Is it possible to refactor to reduce duplication?
-    def addLayerWithFile(self, layerProperties, layerToAdd, cookBookLayer, recipe_frame):
-        mapResult = MapResult(layerProperties.name)
-        dataFiles = self.find(self.crashMoveFolder.active_data, layerProperties.reg_exp)
-
-        for dataFile in (dataFiles):
-            base = os.path.basename(dataFile)
-            datasetName = os.path.splitext(base)[0]
-            dataDirectory = os.path.dirname(os.path.realpath(dataFile))
-
-            if layerToAdd.supports("LABELCLASSES"):
-                for labelClass in layerProperties.label_classes:
-                    for lblClass in layerToAdd.labelClasses:
-                        if (lblClass.className == labelClass.class_name):
-                            lblClass.SQLQuery = labelClass.sql_query.replace('{COUNTRY_NAME}',
-                                                                             self.eventConfiguration.country_name)
-                            lblClass.expression = labelClass.expression
-                            lblClass.showClassLabels = labelClass.show_class_labels
-
-            if layerToAdd.supports("DATASOURCE"):
-                for datasetType in self.datasetTypes:
-                    try:
-                        layerToAdd.replaceDataSource(dataDirectory, datasetType, datasetName)
-                        mapResult.message = "Layer added successfully"
-                        mapResult.added = True
-                        ds = DataSource(dataFile)
-                        mapResult.dataSource = dataFile.replace("\\", "/").replace(self.crashMoveFolder.path.replace("\\", "/"), "")   # noqa
-                        mapResult.hash = ds.calculate_checksum()
-                        break
-                    except Exception:
-                        pass
-
-            if ((mapResult.added is True) and (layerProperties.definition_query)):
-                definitionQuery = layerProperties.definition_query.replace('{COUNTRY_NAME}',
-                                                                           self.eventConfiguration.country_name)
-                layerToAdd.definition_query = definitionQuery
+        # Apply Data Source
+        if arc_lyr_to_add.supports("DATASOURCE"):
+            for datasetType in ESRI_DATASET_TYPES:
                 try:
-                    arcpy.SelectLayerByAttribute_management(layerToAdd,
-                                                            "SUBSET_SELECTION",
-                                                            layerProperties.definition_query)
+                    arc_lyr_to_add.replaceDataSource(data_src_dir, datasetType, recipe_lyr.data_name)
+                    mapResult.message = "Layer added successfully"
+                    mapResult.added = True
+                    ds = DataSource(recipe_lyr.data_name)
+                    mapResult.dataSource = recipe_lyr.data_source_path
+                    mapResult.hash = ds.calculate_checksum()
+                    break
                 except Exception:
-                    mapResult.added = False
-                    mapResult.message = "Selection query failed: " + layerProperties.definition_query
-                    self.mxd.save()
+                    pass
 
-            if (mapResult.added is True):
-                arc_data_frame = arcpy.mapping.ListDataFrames(self.mxd, recipe_frame.name)[0]
-                # TODO add proper fix for applyZoom in line with these two cards
-                # https: // trello.com/c/Bs70ru1s/145-design-criteria-for-selecting-zoom-extent
-                # https://trello.com/c/piE3tKRp/146-implenment-rules-for-selection-zoom-extent
-                # self.applyZoom(self.dataFrame, layerToAdd, cookBookLayer.get('zoomMultiplier', 0))
-                self.applyZoom(arc_data_frame, layerToAdd, 0)
-
-                if layerProperties.add_to_legend is False:
-                    self.legendEntriesToRemove.append(layerToAdd.name)
-                arcpy.mapping.AddLayer(arc_data_frame, layerToAdd, "BOTTOM")
+        # Apply Definition Query
+        if mapResult.added and (recipe_lyr.definition_query):
+            definitionQuery = recipe_lyr.definition_query
+            arc_lyr_to_add.definition_query = definitionQuery
+            try:
+                arcpy.SelectLayerByAttribute_management(arc_lyr_to_add,
+                                                        "SUBSET_SELECTION",
+                                                        recipe_lyr.definition_query)
+            except Exception:
+                mapResult.added = False
+                mapResult.message = "Selection query failed: " + recipe_lyr.definition_query
                 self.mxd.save()
-                break
+
+        if mapResult.added:
+            arc_data_frame = arcpy.mapping.ListDataFrames(self.mxd, recipe_frame.name)[0]
+            # TODO add proper fix for applyZoom in line with these two cards
+            # https: // trello.com/c/Bs70ru1s/145-design-criteria-for-selecting-zoom-extent
+            # https://trello.com/c/piE3tKRp/146-implenment-rules-for-selection-zoom-extent
+            # self.applyZoom(self.dataFrame, arc_lyr_to_add, cookBookLayer.get('zoomMultiplier', 0))
+            self.applyZoom(arc_data_frame, arc_lyr_to_add, 0)
+
+            if recipe_lyr.add_to_legend is False:
+                self.legendEntriesToRemove.append(arc_lyr_to_add.name)
+            arcpy.mapping.AddLayer(arc_data_frame, arc_lyr_to_add, "BOTTOM")
+            self.mxd.save()
+            # break
 
         return mapResult
 
+    """
+    asmith 2020/10/22
+    Temp commenting out the gdb related parts.
     # TODO: asmith 2020/03/06
     # These three methods appear very similar:
     #   * `addLayerWithFile()`
@@ -669,3 +684,4 @@ class MapChef:
                     break
 
         return mapResult
+    """

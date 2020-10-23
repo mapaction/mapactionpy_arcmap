@@ -20,11 +20,9 @@ class ArcMapRunner(BaseRunnerPlugin):
     """
 
     def __init__(self,
-                 eventConfig):
-        self.event = eventConfig
-        super(ArcMapRunner, self).__init__(self.event.cmf_descriptor_path)
+                 hum_event):
+        super(ArcMapRunner, self).__init__(hum_event)
 
-        self.replaceOnly = False
         self.exportMap = False
         self.minx = 0
         self.miny = 0
@@ -37,9 +35,9 @@ class ArcMapRunner(BaseRunnerPlugin):
         recipe = kwargs['state']
         mxd = arcpy.mapping.MapDocument(recipe.map_project_path)
 
-        self.chef = MapChef(mxd, self.cmf, self.event)
-        self.chef.cook(recipe, self.replaceOnly)
-        self.chef.alignLegend(self.event.orientation)
+        self.chef = MapChef(mxd, self.cmf, self.hum_event)
+        self.chef.cook(recipe)
+        self.chef.alignLegend(self.hum_event.orientation)
 
         # Output the Map Generation report alongside the MXD
         reportJsonFile = recipe.map_project_path.replace(".mxd", ".json")
@@ -160,10 +158,11 @@ class ArcMapRunner(BaseRunnerPlugin):
         if recipe.atlas:
             self._export_atlas(recipe, arc_mxd, export_dir, core_file_name)
 
-        xmlExporter = XmlExporter(self.event, self.chef)
+        xmlExporter = XmlExporter(self.hum_event, self.chef)
         export_params['mapNumber'] = recipe.mapnumber
         export_params['productName'] = recipe.product
         export_params['versionNumber'] = recipe.version_num
+        export_params['summary'] = recipe.summary
         export_params["xmin"] = self.minx
         export_params["ymin"] = self.miny
         export_params["xmax"] = self.maxx
@@ -269,7 +268,7 @@ class ArcMapRunner(BaseRunnerPlugin):
 
             for elm in arcpy.mapping.ListLayoutElements(arc_mxd, "TEXT_ELEMENT"):
                 if elm.name == "title":
-                    elm.text = recipe_with_atlas.category + " map of " + self.event.country_name +\
+                    elm.text = recipe_with_atlas.category + " map of " + self.hum_event.country_name +\
                         '\n' +\
                         "<CLR red = '255'>Sheet - " + region + "</CLR>"
                 if elm.name == "map_no":
@@ -279,16 +278,16 @@ class ArcMapRunner(BaseRunnerPlugin):
             arcpy.SelectLayerByAttribute_management(arc_lyr, "CLEAR_SELECTION")
             # Export to PDF
             pdfFileName = core_file_name + "-" + \
-                slugify(unicode(region)) + "-" + str(self.event.default_pdf_res_dpi) + "dpi.pdf"
+                slugify(unicode(region)) + "-" + str(self.hum_event.default_pdf_res_dpi) + "dpi.pdf"
             pdfFileLocation = os.path.join(export_dir, pdfFileName)
 
-            arcpy.mapping.ExportToPDF(arc_mxd, pdfFileLocation, resolution=int(self.event.default_pdf_res_dpi))
+            arcpy.mapping.ExportToPDF(arc_mxd, pdfFileLocation, resolution=int(self.hum_event.default_pdf_res_dpi))
             # if arcpy.Exists(os.path.join(export_dir, shpFile)):
             #     arcpy.Delete_management(os.path.join(export_dir, shpFile))
 
     def exportJpeg(self, coreFileName, exportDirectory, mxd, exportParams):
         # JPEG
-        jpgFileName = coreFileName+"-"+str(self.event.default_jpeg_res_dpi) + "dpi.jpg"
+        jpgFileName = coreFileName+"-"+str(self.hum_event.default_jpeg_res_dpi) + "dpi.jpg"
         jpgFileLocation = os.path.join(exportDirectory, jpgFileName)
         exportParams["jpgFileName"] = jpgFileName
         arcpy.mapping.ExportToJPEG(mxd, jpgFileLocation)
@@ -298,10 +297,10 @@ class ArcMapRunner(BaseRunnerPlugin):
 
     def exportPdf(self, coreFileName, exportDirectory, mxd, exportParams):
         # PDF
-        pdfFileName = coreFileName+"-"+str(self.event.default_pdf_res_dpi) + "dpi.pdf"
+        pdfFileName = coreFileName+"-"+str(self.hum_event.default_pdf_res_dpi) + "dpi.pdf"
         pdfFileLocation = os.path.join(exportDirectory, pdfFileName)
         exportParams["pdfFileName"] = pdfFileName
-        arcpy.mapping.ExportToPDF(mxd, pdfFileLocation, resolution=int(self.event.default_pdf_res_dpi))
+        arcpy.mapping.ExportToPDF(mxd, pdfFileLocation, resolution=int(self.hum_event.default_pdf_res_dpi))
         pdfFileSize = os.path.getsize(pdfFileLocation)
         exportParams["pdfFileSize"] = pdfFileSize
         return pdfFileLocation
