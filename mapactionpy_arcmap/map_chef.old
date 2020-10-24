@@ -1,3 +1,15 @@
+"""
+##########################################################################################
+
+This file is being kept as it has useful implenmentation details about bringing in
+feature classes from a file-geodatabase. Until FDBs are implenmented throughout the stack
+(eg including the mapactionpy_controller package) this code has been excluded. 
+
+##########################################################################################
+
+"""
+THIS IS A DELIBERATE SYNTAX ERROR. 
+
 import os
 import arcpy
 import jsonpickle
@@ -92,53 +104,43 @@ class MapChef:
             for lyr in arcpy.mapping.ListLayers(self.mxd, "", df):
                 lyr.visible = False
 
-    def get_map_scale(self, mxd, recipe):
-        """
-        Returns a human-readable string representing the map scale of the
-        princial map frame of the mxd.
+    # asmith 2020/10/24 Appears to be unused
+    # def returnScale(self, dfscale):
+    #     # https://community.esri.com/thread/163596
+    #     scalebar = [2, 3, 4, 5, 6, 10]
+    #     dfscale = dfscale/12
+    #     dfscale = str(int(dfscale))
+    #     dfscaleLen = len(dfscale)
+    #     numcheck = int(dfscale[0])
+    #     for each in scalebar:
+    #         if numcheck < each:
+    #             multi = '1'
+    #             while dfscaleLen > 1:
+    #                 multi = multi + '0'
+    #                 dfscaleLen = dfscaleLen - 1
+    #             scalebar = each * int(multi)
+    #             dataframescale = scalebar * 12
+    #             return scalebar, dataframescale
 
-        @param mxd: The MapDocument object of the map being produced.
-        @param recipe: The MapRecipe object being used to produced it.
-        @returns: The string representing the map scale.
-        """
-        scale_str = ""
-        for df in arcpy.mapping.ListDataFrames(mxd, recipe.principal_map_frame):
-            if df.name == recipe.principal_map_frame:
-                scale_str = '1: {:,} (At A3)'.format(int(df.scale))
+    def scale(self):
+        newScale = ""
+        for df in arcpy.mapping.ListDataFrames(self.mxd):
+            if df.name.lower() == "main map":
+                intValue = '{:,}'.format(int(df.scale))
+                newScale = "1: " + intValue + " (At A3)"
                 break
-        return scale_str
+        return newScale
 
-    def get_map_spatial_ref(self, mxd, recipe):
-        """
-        Returns a human-readable string representing the spatial reference used to display the
-        princial map frame of the mxd.
-
-        @param mxd: The MapDocument object of the map being produced.
-        @param recipe: The MapRecipe object being used to produced it.
-        @returns: The string representing the spatial reference. If the spatial reference cannot be determined
-                  then the value "Unknown" is returned.
-        """
-        data_frames = [df for df in arcpy.mapping.ListDataFrames(mxd) if df.name == recipe.principal_map_frame]
-
-        if not data_frames:
-            err_msg = 'MXD does not have a MapFrame (aka DataFrame) with the name "{}"'.format(
-                recipe.principal_map_frame)
-            raise ValueError(err_msg)
-
-        if len(data_frames) > 1:
-            err_msg = 'MXD has more than one MapFrames (aka DataFrames) with the name "{}"'.format(
-                recipe.principal_map_frame)
-            raise ValueError(err_msg)
-
-        df = data_frames.pop()
-        spatial_ref_str = "Unknown"
-
-        if (len(df.spatialReference.datumName) > 0):
-            spatial_ref_str = df.spatialReference.datumName
-            spatial_ref_str = spatial_ref_str[2:]
-            spatial_ref_str = spatial_ref_str.replace('_', ' ')
-
-        return spatial_ref_str
+    def spatialReference(self):
+        spatialReferenceString = "Unknown"
+        for df in arcpy.mapping.ListDataFrames(self.mxd):
+            if df.name.lower() == "main map":
+                if (len(df.spatialReference.datumName) > 0):
+                    spatialReferenceString = df.spatialReference.datumName
+                    spatialReferenceString = spatialReferenceString[2:]
+                    spatialReferenceString = spatialReferenceString.replace('_', ' ')
+                break
+        return spatialReferenceString
 
     # TODO asmith 2020/0306
     # Do we need to accommodate a use case where we would want to add layers but not make them
@@ -195,6 +197,85 @@ class MapChef:
             self.updateTextElements(recipe)
             self.mxd.save()
 
+    """
+    Adds data file to map layer
+
+    Can handle the following file types:
+        * Shapefiles
+        * IMG files
+        * TIF files
+
+    Arguments:
+        dataFrame {str} -- Name of data frame to add data source file to
+        dataFile {str}  -- Full path to data file
+        layer {arcpy._mapping.Layer} -- Layer to which data is added
+        definitionQuery {str} -- Some layers have a definition query which select specific features from a SQL query
+        labelClasses {list} -- List of LabelClass objects
+
+    Returns:
+        boolean -- added (true if successful)
+    """
+
+    """
+    asmith 2020/10/22
+    Temp commenting out the gdb related parts.
+    def addDataToLayer(self,
+                       dataFrame,
+                       dataFile,
+                       layer,
+                       definitionQuery,
+                       datasetName,
+                       labelClasses,
+                       addToLegend,
+                       zoomMultiplier=0):
+        added = False
+        for lyr in arcpy.mapping.ListLayers(layer):
+            if lyr.supports("LABELCLASSES"):
+                for labelClass in labelClasses:
+                    for lblClass in lyr.label_classes:
+                        if (lblClass.className == labelClass.className):
+                            lblClass.SQLQuery = labelClass.sql_query.replace('{COUNTRY_NAME}',
+                                                                             self.eventConfiguration.country_name)
+                            lblClass.expression = labelClass.expression
+                            lblClass.showClassLabels = labelClass.show_class_labels
+            if lyr.supports("DATASOURCE"):  # An annotation layer does not support DATASOURCE
+                for datasetType in ESRI_DATASET_TYPES:
+                    try:
+                        lyr.replaceDataSource(dataFile, datasetType, datasetName)
+                        added = True
+                    except Exception:
+                        pass
+
+                    if ((added is True) and (definitionQuery)):
+                        definitionQuery = definitionQuery.replace('{COUNTRY_NAME}',
+                                                                  self.eventConfiguration.country_name)
+                        lyr.definition_query = definitionQuery
+                        try:
+                            arcpy.SelectLayerByAttribute_management(lyr, "SUBSET_SELECTION", definitionQuery)
+                        except Exception:
+                            added = False
+
+                    if (added is True):
+                        if addToLegend is False:
+                            self.legendEntriesToRemove.append(lyr.name)
+                            if (self.namingConvention is not None):
+                                dnr = self.namingConvention.validate(datasetName)
+                                # We want to capture Description:
+                                if 'Description' in dnr.source._fields:
+                                    if (dnr.source.Description.lower() not in ('unknown', 'undefined', 'mapaction')):
+                                        self.dataSources.add(dnr.source.Description)
+
+                        if (self.replaceDataSourceOnly):
+                            self.mxd.save()
+                        else:
+                            arcpy.mapping.AddLayer(dataFrame, lyr, "BOTTOM")
+                        break
+                lyr.visible = False
+                self.applyZoom(dataFrame, lyr, zoomMultiplier)
+
+        return added
+    """
+
     def report_as_json(self):
         """
         Returns map report in json format
@@ -207,6 +288,20 @@ class MapChef:
         """
         mapResult = MapResult(recipe_lyr.name)
         arc_data_frame = arcpy.mapping.ListDataFrames(self.mxd, recipe_frame.name)[0]
+        # try:
+        #     # BUG
+        #     # The layer name in the TOC is not necessarily == recipe_lyr.name
+        #     # arc_lyr_to_update = arcpy.mapping.ListLayers(self.mxd, recipe_lyr.name, self.dataFrame)[0]
+        #     # Try this instead
+        #     lyr_index = recipe_frame.layers.index(recipe_lyr)
+        #     arc_lyr_to_update = arcpy.mapping.ListLayers(self.mxd, None, arc_data_frame)[lyr_index]
+
+        #     # Replace existing layer
+        #     mapResult = self.updateLayer(arc_lyr_to_update, recipe_lyr, recipe_frame)
+        # except IndexError:
+        #     # Layer doesn't exist, add new layer
+        #     mapResult = self.addLayer(recipe_lyr, arc_data_frame)
+
         # Try just using add Layer (no update layer option)
         mapResult = self.addLayer(recipe_lyr, arc_data_frame)
 
@@ -228,6 +323,42 @@ class MapChef:
         self.mapReport.add(mapResult)
 
     """
+    asmith 2020/10/22
+    Temp commenting out the gdb related parts.
+    def find(self, rootdir, regexp, gdb=False):
+        returnPaths = list()
+        # TODO asmith 2020/03/06
+        # What is the purpose of wrangling the regexps here?
+        # The regexs in the layerProperties.json just match the filenames. The purpose of this
+        # seems to be to change the regexs to work on the full path, and then later join the full
+        # filename with the directory path before attempting to match the regexs.
+        # I suspect there are some edge cases where incorrectly named files could inadvertantly
+        # matched here.
+        regexp = regexp.replace("^", "\\\\")
+        regexp = regexp.replace("/", "\\\\")
+        regexp = ".*" + regexp
+        re.compile(regexp)
+        for root, dirs, files in os.walk(os.path.abspath(rootdir)):
+            if (gdb is False):
+                for file in files:
+                    filePath = os.path.join(root, file)
+                    z = re.match(regexp, filePath)
+                    if (z):
+                        # TODO asmith 2020/03/06
+                        # Is this necessary? Having a `$` at the end of the regex would have the
+                        # effect of as excluding the lock files.
+                        if not(filePath.endswith("lock")):
+                            returnPaths.append(filePath)
+            else:
+                for dir in dirs:
+                    dirPath = os.path.join(root, dir)
+                    z = re.match(regexp, dirPath)
+                    if (z):
+                        returnPaths.append(dirPath)
+        return returnPaths
+    """
+
+    """
     Updates Text Elements in Marginalia
 
     """
@@ -247,7 +378,7 @@ class MapChef:
             if elm.name == "mxd_name":
                 elm.text = os.path.basename(self.mxd.filePath)
             if elm.name == "scale":
-                elm.text = self.get_map_scale(self.mxd, recipe)
+                elm.text = self.scale()
             if elm.name == "data_sources":
                 iter = 0
                 dataSourcesString = "<BOL>Data Sources:</BOL>" + os.linesep + os.linesep
@@ -261,7 +392,7 @@ class MapChef:
                 versionNumberString = "v" + str(recipe.version_num).zfill(2)
                 elm.text = versionNumberString
             if elm.name == "spatial_reference":
-                elm.text = self.get_map_spatial_ref(self.mxd, recipe)
+                elm.text = self.spatialReference()
             if elm.name == "glide_no":
                 if self.eventConfiguration and self.eventConfiguration.glide_number:
                     elm.text = self.eventConfiguration.glide_number
@@ -362,6 +493,22 @@ class MapChef:
             dataFrame.extent = polygonTmp2
             self.mxd.save()
 
+    # # TODO: asmith 2020/03/06
+    # # `updateLayer()` and `addLayer()` seem very similar. Is it possible to refactor to reduce
+    # # duplication?
+    # def updateLayer(self, arc_lyr_to_update, recipe_lyr, recipe_frame):
+    #     mapResult = None
+
+    #     if (".gdb/" not in recipe_lyr.reg_exp):
+    #         mapResult = self.updateLayerWithFile(recipe_lyr, arc_lyr_to_update,
+    #                                              recipe_lyr.layer_file_path, recipe_frame)
+    #     else:
+    #         mapResult = self.updateLayerWithGdb(recipe_lyr, recipe_frame)
+    #     return mapResult
+
+    # TODO: asmith 2020/03/06
+    # `updateLayer()` and `addLayer()` seem very similar. Is it possible to refactor to reduce
+    # duplication?
     def addLayer(self, recipe_lyr, recipe_frame):
         # addLayer(recipe_lyr, recipe_lyr.layer_file_path, recipe_lyr.name)
         mapResult = MapResult(recipe_lyr.name)
@@ -375,6 +522,64 @@ class MapChef:
 
         return mapResult
 
+    # # TODO: asmith 2020/03/06
+    # # These three methods appear very similar:
+    # #   * `addLayerWithFile()`
+    # #   * `addLayerWithGdb()`
+    # #   * `updateLayerWithFile()`
+    # # Is it possible to refactor to reduce duplication?
+    # def updateLayerWithFile(self, layerProperties, updateLayer, layerFilePath, recipe_frame):
+    #     mapResult = MapResult(layerProperties.name)
+
+    #     dataFiles = self.find(self.crashMoveFolder.active_data, layerProperties.reg_exp)
+    #     for dataFile in (dataFiles):
+    #         base = os.path.basename(dataFile)
+    #         datasetName = os.path.splitext(base)[0]
+    #         dataDirectory = os.path.dirname(os.path.realpath(dataFile))
+
+    #         sourceLayer = arcpy.mapping.Layer(layerFilePath)
+    #         arc_data_frame = arcpy.mapping.ListDataFrames(self.mxd, recipe_frame.name)[0]
+    #         arcpy.mapping.UpdateLayer(arc_data_frame, updateLayer, sourceLayer, False)
+
+    #         # BUG
+    #         # The layer name in the TOC is not necessarily == recipe_lyr.name
+    #         # newLayer = arcpy.mapping.ListLayers(self.mxd, updateLayer.name, self.dataFrame)[0]
+    #         # Try this instead
+    #         lyr_index = recipe_frame.layers.index(updateLayer)
+    #         newLayer = arcpy.mapping.ListLayers(self.mxd, None, arc_data_frame)[lyr_index]
+
+    #         if newLayer.supports("DATASOURCE"):
+    #             for datasetType in self.datasetTypes:
+    #                 try:
+    #                     if (newLayer.supports("DEFINITIONQUERY") and (layerProperties.definition_query)):
+    #                         newLayer.definition_query = layerProperties.definition_query.replace(
+    #                             '{COUNTRY_NAME}', self.eventConfiguration.country_name)
+    #                     newLayer.replaceDataSource(dataDirectory, datasetType, datasetName)
+    #                     mapResult.message = "Layer updated successfully"
+    #                     mapResult.added = True
+    #                     ds = DataSource(dataFile)
+    #                     mapResult.dataSource = dataFile.replace("\\", "/").replace(self.crashMoveFolder.path.replace("\\", "/"), "")   # noqa
+    #                     mapResult.hash = ds.calculate_checksum()
+    #                     break
+    #                 except Exception:
+    #                     pass
+
+    #         if (mapResult.added is True):
+    #             self.mxd.save()
+    #             break
+    #     return mapResult
+
+    # def updateLayerWithGdb(self, layerProperties, recipe_frame):
+    #     mapResult = MapResult(layerProperties.name)
+    #     mapResult.message = "Update layer for a GeoDatabase not yet implemented"
+    #     return mapResult
+
+    # TODO: asmith 2020/03/06
+    # These three methods appear very similar:
+    #   * `addLayerWithFile()`
+    #   * `addLayerWithGdb()`
+    #   * `updateLayerWithFile()`
+    # Is it possible to refactor to reduce duplication?
     def addLayerWithFile(self, recipe_lyr, arc_lyr_to_add, recipe_frame):
         mapResult = MapResult(recipe_lyr.name)
 
@@ -437,3 +642,59 @@ class MapChef:
             # break
 
         return mapResult
+
+    """
+    asmith 2020/10/22
+    Temp commenting out the gdb related parts.
+    # TODO: asmith 2020/03/06
+    # These three methods appear very similar:
+    #   * `addLayerWithFile()`
+    #   * `addLayerWithGdb()`
+    #   * `updateLayerWithFile()`
+    # Is it possible to refactor to reduce duplication?
+    def addLayerWithGdb(self, layerProperties, layerToAdd, cookBookLayer, recipe_frame):
+        mapResult = MapResult(layerProperties.name)
+
+        # It's a File Geodatabase
+        parts = layerProperties.reg_exp.split("/")
+        gdbPath = parts[0]
+        geoDatabases = self.find(self.crashMoveFolder.active_data, gdbPath, True)
+        for geoDatabase in geoDatabases:
+            arcpy.env.workspace = geoDatabase
+            rasters = arcpy.ListRasters("*")
+            for raster in rasters:
+                if re.match(parts[1], raster):
+                    arc_data_frame = arcpy.mapping.ListDataFrames(self.mxd, recipe_frame.name)[0]
+                    mapResult.added = self.addDataToLayer(arc_data_frame,
+                                                          geoDatabase,
+                                                          layerToAdd,
+                                                          layerProperties.definition_query,
+                                                          raster,
+                                                          layerProperties.label_classes,
+                                                          layerProperties.add_to_legend)
+
+                    dataFile = geoDatabase + os.sep + raster
+                    ds = DataSource(dataFile)
+                    mapResult.dataSource = dataFile.replace("\\", "/").replace(self.crashMoveFolder.path.replace("\\", "/"), "")  # noqa
+                    mapResult.hash = ds.calculate_checksum()
+                    break
+            featureClasses = arcpy.ListFeatureClasses()
+            for featureClass in featureClasses:
+                if re.match(parts[1], featureClass):
+                    # Found Geodatabase.  Stop iterating.
+                    arc_data_frame = arcpy.mapping.ListDataFrames(self.mxd, recipe_frame.name)[0]
+                    mapResult.added = self.addDataToLayer(arc_data_frame,
+                                                          geoDatabase,
+                                                          layerToAdd,
+                                                          layerProperties.definition_query,
+                                                          featureClass,
+                                                          layerProperties.label_classes,
+                                                          layerProperties.add_to_legend)
+                    dataFile = geoDatabase + os.sep + featureClass
+                    ds = DataSource(dataFile)
+                    mapResult.dataSource = dataFile.replace("\\", "/").replace(self.crashMoveFolder.path.replace("\\", "/"), "")  # noqa
+                    mapResult.hash = ds.calculate_checksum()
+                    break
+
+        return mapResult
+    """
