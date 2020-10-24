@@ -111,7 +111,7 @@ class MapChef:
     def get_map_spatial_ref(self, mxd, recipe):
         """
         Returns a human-readable string representing the spatial reference used to display the
-        princial map frame of the mxd. 
+        princial map frame of the mxd.
 
         @param mxd: The MapDocument object of the map being produced.
         @param recipe: The MapRecipe object being used to produced it.
