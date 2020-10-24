@@ -118,14 +118,26 @@ class MapChef:
         @returns: The string representing the spatial reference. If the spatial reference cannot be determined
                   then the value "Unknown" is returned.
         """
+        data_frames = [df for df in arcpy.mapping.ListDataFrames(mxd) if df.name == recipe.principal_map_frame]
+
+        if not data_frames:
+            err_msg = 'MXD does not have a MapFrame (aka DataFrame) with the name "{}"'.format(
+                recipe.principal_map_frame)
+            raise ValueError(err_msg)
+
+        if len(data_frames) > 1:
+            err_msg = 'MXD has more than one MapFrames (aka DataFrames) with the name "{}"'.format(
+                recipe.principal_map_frame)
+            raise ValueError(err_msg)
+
+        df = data_frames.pop()
         spatial_ref_str = "Unknown"
-        for df in arcpy.mapping.ListDataFrames(mxd, recipe.principal_map_frame):
-            if df.name == recipe.principal_map_frame:
-                if (len(df.spatialReference.datumName) > 0):
-                    spatial_ref_str = df.spatialReference.datumName
-                    spatial_ref_str = spatial_ref_str[2:]
-                    spatial_ref_str = spatial_ref_str.replace('_', ' ')
-                break
+
+        if (len(df.spatialReference.datumName) > 0):
+            spatial_ref_str = df.spatialReference.datumName
+            spatial_ref_str = spatial_ref_str[2:]
+            spatial_ref_str = spatial_ref_str.replace('_', ' ')
+
         return spatial_ref_str
 
     # TODO asmith 2020/0306
