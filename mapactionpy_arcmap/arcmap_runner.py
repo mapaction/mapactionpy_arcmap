@@ -149,7 +149,7 @@ class ArcMapRunner(BaseRunnerPlugin):
         export_params["coreFileName"] = core_file_name
         productType = "mapsheet"
         export_params["productType"] = productType
-
+        export_params['themes'] = export_params.get('themes', set())
         export_params['pdfFileLocation'] = self.exportPdf(core_file_name, export_dir, arc_mxd, export_params)
         export_params['jpgFileLocation'] = self.exportJpeg(core_file_name, export_dir, arc_mxd, export_params)
         export_params['pngThumbNailFileLocation'] = self.exportPngThumbNail(
