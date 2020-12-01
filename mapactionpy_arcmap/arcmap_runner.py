@@ -1,6 +1,7 @@
 import arcpy
 import logging
 import os
+import json
 from PIL import Image
 from resizeimage import resizeimage
 from slugify import slugify
@@ -37,7 +38,8 @@ class ArcMapRunner(BaseRunnerPlugin):
 
         self.chef = MapChef(mxd, self.cmf, self.hum_event)
         self.chef.cook(recipe)
-        self.chef.alignLegend(self.hum_event.orientation)
+        # TODO: Fix this so that it doesn't require a `orientation` member
+        # self.chef.alignLegend(self.hum_event.orientation)
 
         # Output the Map Generation report alongside the MXD
         reportJsonFile = recipe.map_project_path.replace(".mxd", ".json")
@@ -51,45 +53,10 @@ class ArcMapRunner(BaseRunnerPlugin):
 
     def get_lyr_render_extension(self):
         return '.lyr'
-
-    def _get_largest_map_frame(self, data_frames):
+    
+    def get_aspect_ratios_of_templates(self, possible_templates, recipe):
         """
-        This returns the dataframe occupying the largest area on the page.
-        * If two data frames have identical areas then the widest is returned.
-        * If two data frames have identical heights and widths returned then the alphabetically last (by `.name`)
-          is returned.
-
-        @param data_frames: a list of DataFrame objects, typically returned by `arcpy.mapping.ListDataFrames(mxd, "*")`
-        @return: a single DataFrame object from the list.
-        @raises ValueError: if there are two DataFrames in the list, which have identical `width`, `height` and `name`.
-        """
-        # df, area, width, name
-        full_details = [{
-            'df': df,
-            'area': df.elementHeight*df.elementWidth,
-            'width': df.elementWidth,
-            'name': df.name} for df in data_frames]
-
-        # select just the largest if there is a single largest
-        # keep drilling down using different metrics until a single aspect ratio is discovered
-        for metric_key in ['area', 'width', 'name']:
-            max_size = max([df_detail[metric_key] for df_detail in full_details])
-            sub_list = [df_detail for df_detail in full_details if df_detail[metric_key] == max_size]
-            if len(sub_list) == 1:
-                return sub_list[0]['df']
-
-            # reduce the list of possible data frames for the next iteration
-            full_details = sub_list
-
-        # This means that there are two or more data frames with the same name and this is an error condition
-        raise ValueError('There are two or more data frames with the same name')
-
-    def get_aspect_ratio_of_target_area(self, recipe):
-        pass
-
-    def get_aspect_ratios_of_templates(self, possible_templates):
-        """
-        Calculates the aspect ratio of the largest* map frame within the list of templates.
+        Calculates the aspect ratio of the pincipal map frame within the list of templates.
 
         @param possible_templates: A list of paths to possible templates
         @returns: A list of tuples. For each tuple the first element is the path to the template. The second
@@ -98,20 +65,29 @@ class ArcMapRunner(BaseRunnerPlugin):
         """
         logging.debug('Calculating the aspect ratio of the largest map frame within the list of templates.')
         results = []
+        print('possible_templates={}'.format(possible_templates))
         for template in possible_templates:
             mxd = arcpy.mapping.MapDocument(template)
-            map_frame = self._get_largest_map_frame(arcpy.mapping.ListDataFrames(mxd, "*"))
+            arc_frame = arcpy.mapping.ListDataFrames(mxd, recipe.principal_map_frame).pop()
 
-            aspect_ratio = float(map_frame.elementWidth)/map_frame.elementHeight
+            aspect_ratio = float(arc_frame.elementWidth)/float(arc_frame.elementHeight)
             results.append((template, aspect_ratio))
             logging.debug('Calculated aspect ratio= {} for template={}'.format(aspect_ratio, template))
+            print(float(arc_frame.elementWidth),float(arc_frame.elementHeight))
+            print('Calculated aspect ratio= {} for mf="{}" template={}'.format(aspect_ratio, arc_frame.name, template))
+
+        print('selected_template={}'.format(results))
 
         return results
+
+    def get_lyr_extents(self, recipe_lyr):
+        print('arcmap_runner.get_lyr_extents')
+        desc = arcpy.Describe(recipe_lyr.data_source_path)
+        recipe_lyr.extent = json.loads(desc.extent.JSON)
 
     # TODO: asmith 2020/03/03
     # Instinctively I would like to see this moved to the MapReport class with an __eq__ method which
     # would look very much like this one.
-
     def haveDataSourcesChanged(self, previousReportFile):
         # previousReportFile = '{}-v{}_{}.json'.format(
         #     recipe.mapnumber,

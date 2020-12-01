@@ -58,28 +58,6 @@ class TestArcMapRunner(unittest.TestCase):
         self.df6.elementHeight = 19
         self.df6.elementWidth = 17
 
-    @unittest.skip('Not ready yet')
-    def test_arcmap_runner_main(self):
-        sys.argv[1:] = ['--eventConfigFile', os.path.join(self.cmf.path, 'event_description.json'),
-                        '--template', os.path.join(self.cmf.map_templates,
-                                                   'arcgis_10_6_reference_landscape_bottom.mxd'),
-                        "--product", "Example Map"]
-
-        arcmap_runner.main()
-        self.assertTrue(True)
-
-    @unittest.skip('Not ready yet')
-    def test_arcmap_runner_main_unknown_product(self):
-        sys.argv[1:] = ['--eventConfigFile', os.path.join(self.cmf.path, 'event_description.json'),
-                        '--template', os.path.join(self.cmf.map_templates,
-                                                   'arcgis_10_6_reference_landscape_bottom.mxd'),
-                        "--product", "This product does not exist"]
-        try:
-            arcmap_runner.main()
-        except Exception as e:
-            self.assertTrue("Could not find recipe for product: \"" +
-                            sys.argv[6] + "\"" in str(e.message))
-
     def test_get_largest_map_frame(self):
 
         # Case 1)
@@ -131,3 +109,27 @@ class TestArcMapRunner(unittest.TestCase):
         actual_result = self.arcmap_runner.get_aspect_ratios_of_templates(tmpl_paths)
 
         self.assertEqual(actual_result, expected_result)
+
+
+    @unittest.skip('Not ready yet')
+    def test_arcmap_runner_main(self):
+        sys.argv[1:] = ['--eventConfigFile', os.path.join(self.cmf.path, 'event_description.json'),
+                        '--template', os.path.join(self.cmf.map_templates,
+                                                   'arcgis_10_6_reference_landscape_bottom.mxd'),
+                        "--product", "Example Map"]
+
+        arcmap_runner.main()
+        self.assertTrue(True)
+
+    @unittest.skip('Not ready yet')
+    def test_arcmap_runner_main_unknown_product(self):
+        sys.argv[1:] = ['--eventConfigFile', os.path.join(self.cmf.path, 'event_description.json'),
+                        '--template', os.path.join(self.cmf.map_templates,
+                                                   'arcgis_10_6_reference_landscape_bottom.mxd'),
+                        "--product", "This product does not exist"]
+        try:
+            arcmap_runner.main()
+        except Exception as e:
+            self.assertTrue("Could not find recipe for product: \"" +
+                            sys.argv[6] + "\"" in str(e.message))
+
