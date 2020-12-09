@@ -95,7 +95,7 @@ class MapChef:
     def get_map_scale(self, mxd, recipe):
         """
         Returns a human-readable string representing the map scale of the
-        princial map frame of the mxd.
+        principal map frame of the mxd.
 
         @param mxd: The MapDocument object of the map being produced.
         @param recipe: The MapRecipe object being used to produced it.
@@ -111,7 +111,7 @@ class MapChef:
     def get_map_spatial_ref(self, mxd, recipe):
         """
         Returns a human-readable string representing the spatial reference used to display the
-        princial map frame of the mxd.
+        principal map frame of the mxd.
 
         @param mxd: The MapDocument object of the map being produced.
         @param recipe: The MapRecipe object being used to produced it.
@@ -180,10 +180,17 @@ class MapChef:
 
         self.mapReport = MapReport(recipe.product)
         if recipe:
-            for mf in recipe.map_frames:
-                for recipe_lyr in mf.layers:
-                    self.process_layer(recipe_lyr, mf)
+            for recipe_frame in recipe.map_frames:
+                arc_data_frame = arcpy.mapping.ListDataFrames(self.mxd, recipe_frame.name).pop()
 
+                for recipe_lyr in recipe_frame.layers:
+                    # Do things at an individual layer level
+                    self.process_layer(recipe_lyr, arc_data_frame)
+
+                # Do things at an map/data frame level
+                self.apply_frame_crs_and_extent(arc_data_frame, recipe_frame)
+
+        # Do things at a map layout level
         self.enableLayers()
         arcpy.RefreshTOC()
         arcpy.RefreshActiveView()
@@ -201,29 +208,29 @@ class MapChef:
         """
         return(jsonpickle.encode(self.mapReport, unpicklable=False))
 
-    def process_layer(self, recipe_lyr, recipe_frame):
+    def process_layer(self, recipe_lyr, arc_data_frame):
         """
         Updates or Adds a layer of data.  Maintains the Map Report.
         """
         mapResult = MapResult(recipe_lyr.name)
-        arc_data_frame = arcpy.mapping.ListDataFrames(self.mxd, recipe_frame.name)[0]
+        # arc_data_frame = arcpy.mapping.ListDataFrames(self.mxd, recipe_frame.name)[0]
         # Try just using add Layer (no update layer option)
         mapResult = self.addLayer(recipe_lyr, arc_data_frame)
 
-        if mapResult.added:
-            try:
-                # Seperate the next two lines so that the cause of any exceptions is more easily
-                # appartent from the stack trace.
-                # BUG
-                # The layer name in the TOC is not necessarily == recipe_lyr.name
-                # lyr_list = arcpy.mapping.ListLayers(self.mxd, recipe_lyr.name, self.dataFrame)
-                # new_layer = lyr_list[0]
-                # Try this instead
-                lyr_index = recipe_frame.layers.index(recipe_lyr)
-                new_layer = arcpy.mapping.ListLayers(self.mxd, None, arc_data_frame)[lyr_index]
-                self.applyZoom(arc_data_frame, new_layer, 0)
-            except IndexError:
-                pass
+        # if mapResult.added:
+        #     try:
+        #         # Seperate the next two lines so that the cause of any exceptions is more easily
+        #         # appartent from the stack trace.
+        #         # BUG
+        #         # The layer name in the TOC is not necessarily == recipe_lyr.name
+        #         # lyr_list = arcpy.mapping.ListLayers(self.mxd, recipe_lyr.name, self.dataFrame)
+        #         # new_layer = lyr_list[0]
+        #         # Try this instead
+        #         lyr_index = recipe_frame.layers.index(recipe_lyr)
+        #         arc_layer = arcpy.mapping.ListLayers(self.mxd, None, arc_data_frame)[lyr_index]
+        #         self.apply_frame_extent(arc_data_frame, arc_layer, 0)
+        #     except IndexError:
+        #         pass
 
         self.mapReport.add(mapResult)
 
@@ -309,58 +316,75 @@ class MapChef:
         elm.elementWidth = 51.1585
         self.mxd.save()
 
-    def applyZoom(self, dataFrame, lyr, zoomMultiplier):
-        if (zoomMultiplier != 0):
-            buffer = zoomMultiplier
-            arcpy.env.overwriteOutput = "True"
-            extent = lyr.getExtent(True)  # visible extent of layer
+    def apply_frame_crs_and_extent(self, arc_data_frame, recipe_frame):
+        """
+        """
+        # minx, miny, maxx, maxy = recipe_frame.extent
+        # First set the spatial reference
+        if not recipe_frame.crs[:5].lower() == 'epsg:':
+            raise ValueError('unrecognised `recipe_frame.crs` value "{}". String does not begin with "EPSG:"'.format(
+                recipe_frame.crs))
 
-            extBuffDist = ((int(abs(extent.lowerLeft.X - extent.lowerRight.X))) * buffer)
+        prj_wkid = int(recipe_frame.crs[5:])
+        arc_data_frame.spatialReference = arcpy.SpatialReference(prj_wkid)
 
-            # TODO asmith 2020/03/06
-            # This is untested but possibly much terser:
-            # ```
-            #        x_min = extent.XMin - extBuffDist
-            #        y_min = extent.YMin - extBuffDist
-            #        x_max = extent.XMax + extBuffDist
-            #        y_max = extent.YMax + extBuffDist
-            #        new_extent = arcpy.Extent(x_min, y_min, x_max, y_max)
-            #        dataFrame.extent = new_extent
-            # ```
+        new_extent = arcpy.Extent(*recipe_frame.extent)
+        arc_data_frame.extent = new_extent
+        self.mxd.save()
 
-            newExtentPts = arcpy.Array()
-            newExtentPts.add(arcpy.Point(extent.lowerLeft.X-extBuffDist,
-                                         extent.lowerLeft.Y-extBuffDist,
-                                         extent.lowerLeft.Z,
-                                         extent.lowerLeft.M,
-                                         extent.lowerLeft.ID))
+        # if (zoomMultiplier != 0):
+        #     buffer = zoomMultiplier
+        #     arcpy.env.overwriteOutput = "True"
+        #     extent = arc_lyr.getExtent(True)  # visible extent of layer
 
-            newExtentPts.add(arcpy.Point(extent.lowerRight.X+extBuffDist,
-                                         extent.lowerRight.Y-extBuffDist,
-                                         extent.lowerRight.Z,
-                                         extent.lowerRight.M,
-                                         extent.lowerRight.ID))
+        #     extBuffDist = ((int(abs(extent.lowerLeft.X - extent.lowerRight.X))) * buffer)
 
-            newExtentPts.add(arcpy.Point(extent.upperRight.X+extBuffDist,
-                                         extent.upperRight.Y+extBuffDist,
-                                         extent.upperRight.Z,
-                                         extent.upperRight.M,
-                                         extent.upperRight.ID))
+        #     # minx, miny, maxx, maxy = recipe_frame.extent
 
-            newExtentPts.add(arcpy.Point(extent.upperLeft.X-extBuffDist,
-                                         extent.upperLeft.Y+extBuffDist,
-                                         extent.upperLeft.Z,
-                                         extent.upperLeft.M,
-                                         extent.upperLeft.ID))
+        #     # TODO asmith 2020/03/06
+        #     # This is untested but possibly much terser:
+        #     # ```
+        #     #        x_min = extent.XMin - extBuffDist
+        #     #        y_min = extent.YMin - extBuffDist
+        #     #        x_max = extent.XMax + extBuffDist
+        #     #        y_max = extent.YMax + extBuffDist
+        #     #        new_extent = arcpy.Extent(x_min, y_min, x_max, y_max)
+        #     #        dataFrame.extent = new_extent
+        #     # ```
 
-            newExtentPts.add(arcpy.Point(extent.lowerLeft.X-extBuffDist,
-                                         extent.lowerLeft.Y-extBuffDist,
-                                         extent.lowerLeft.Z,
-                                         extent.lowerLeft.M,
-                                         extent.lowerLeft.ID))
-            polygonTmp2 = arcpy.Polygon(newExtentPts)
-            dataFrame.extent = polygonTmp2
-            self.mxd.save()
+        #     newExtentPts = arcpy.Array()
+        #     newExtentPts.add(arcpy.Point(extent.lowerLeft.X-extBuffDist,
+        #                                  extent.lowerLeft.Y-extBuffDist,
+        #                                  extent.lowerLeft.Z,
+        #                                  extent.lowerLeft.M,
+        #                                  extent.lowerLeft.ID))
+
+        #     newExtentPts.add(arcpy.Point(extent.lowerRight.X+extBuffDist,
+        #                                  extent.lowerRight.Y-extBuffDist,
+        #                                  extent.lowerRight.Z,
+        #                                  extent.lowerRight.M,
+        #                                  extent.lowerRight.ID))
+
+        #     newExtentPts.add(arcpy.Point(extent.upperRight.X+extBuffDist,
+        #                                  extent.upperRight.Y+extBuffDist,
+        #                                  extent.upperRight.Z,
+        #                                  extent.upperRight.M,
+        #                                  extent.upperRight.ID))
+
+        #     newExtentPts.add(arcpy.Point(extent.upperLeft.X-extBuffDist,
+        #                                  extent.upperLeft.Y+extBuffDist,
+        #                                  extent.upperLeft.Z,
+        #                                  extent.upperLeft.M,
+        #                                  extent.upperLeft.ID))
+
+        #     newExtentPts.add(arcpy.Point(extent.lowerLeft.X-extBuffDist,
+        #                                  extent.lowerLeft.Y-extBuffDist,
+        #                                  extent.lowerLeft.Z,
+        #                                  extent.lowerLeft.M,
+        #                                  extent.lowerLeft.ID))
+        #     polygonTmp2 = arcpy.Polygon(newExtentPts)
+        #     arc_data_frame.extent = polygonTmp2
+        #     self.mxd.save()
 
     def addLayer(self, recipe_lyr, recipe_frame):
         # addLayer(recipe_lyr, recipe_lyr.layer_file_path, recipe_lyr.name)
@@ -428,7 +452,7 @@ class MapChef:
             # https: // trello.com/c/Bs70ru1s/145-design-criteria-for-selecting-zoom-extent
             # https://trello.com/c/piE3tKRp/146-implenment-rules-for-selection-zoom-extent
             # self.applyZoom(self.dataFrame, arc_lyr_to_add, cookBookLayer.get('zoomMultiplier', 0))
-            self.applyZoom(arc_data_frame, arc_lyr_to_add, 0)
+            self.apply_frame_extent(arc_data_frame, arc_lyr_to_add, 0)
 
             if recipe_lyr.add_to_legend is False:
                 self.legendEntriesToRemove.append(arc_lyr_to_add.name)

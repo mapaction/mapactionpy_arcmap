@@ -1,4 +1,28 @@
 
+fixture_recipe_minimal = (
+    '''{
+      "mapnumber": "MA001",
+    	"category": "Reference",
+      "product": "{e.country_name}: Overview Map",
+    	"summary": "Overview of {e.country_name} with topography displayed",
+    	"export": true,
+      "template": "reference",
+      "principal_map_frame": "Main map",
+      "map_frames": [
+         {
+            "name": "Main map",
+            "crs": "EPSG:3857",
+            "layers": [
+               {
+                  "name": "mainmap-admn-ad1-py-s0-reference"
+               }
+            ]
+         }
+      ]
+   }'''
+)
+
+
 fixture_datasource_dictionary_ma001 = r"""
 {
 "settlement_points": "D:\MapAction\2019-06-12-GBR\GIS\2_Active_Data\gbr_stle_stle_pt_s0_naturalearth_pp.shp"

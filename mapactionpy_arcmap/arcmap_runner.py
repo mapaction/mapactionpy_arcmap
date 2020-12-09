@@ -53,12 +53,13 @@ class ArcMapRunner(BaseRunnerPlugin):
 
     def get_lyr_render_extension(self):
         return '.lyr'
-    
+
     def get_aspect_ratios_of_templates(self, possible_templates, recipe):
         """
-        Calculates the aspect ratio of the pincipal map frame within the list of templates.
+        Calculates the aspect ratio of the principal map frame within the list of templates.
 
-        @param possible_templates: A list of paths to possible templates
+        @param possible_templates: A list of paths to possible templates.
+        @param recipe: A MapRecipe which is used to determine the principal map frame.
         @returns: A list of tuples. For each tuple the first element is the path to the template. The second
                   element is the aspect ratio of the largest* map frame within that template.
                   See `_get_largest_map_frame` for the description of hour largest is determined.
@@ -73,7 +74,7 @@ class ArcMapRunner(BaseRunnerPlugin):
             aspect_ratio = float(arc_frame.elementWidth)/float(arc_frame.elementHeight)
             results.append((template, aspect_ratio))
             logging.debug('Calculated aspect ratio= {} for template={}'.format(aspect_ratio, template))
-            print(float(arc_frame.elementWidth),float(arc_frame.elementHeight))
+            print(float(arc_frame.elementWidth), float(arc_frame.elementHeight))
             print('Calculated aspect ratio= {} for mf="{}" template={}'.format(aspect_ratio, arc_frame.name, template))
 
         print('selected_template={}'.format(results))

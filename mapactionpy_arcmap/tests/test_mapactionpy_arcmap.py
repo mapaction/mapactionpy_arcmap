@@ -4,9 +4,12 @@ import sys
 from itertools import repeat
 # from unittest import TestCase
 import unittest
+import fixtures
 
 from mapactionpy_controller.crash_move_folder import CrashMoveFolder
 from mapactionpy_controller.event import Event
+from mapactionpy_controller.map_recipe import MapRecipe
+from mapactionpy_controller.layer_properties import LayerProperties
 import mapactionpy_arcmap.arcmap_runner as arcmap_runner
 
 
@@ -58,35 +61,6 @@ class TestArcMapRunner(unittest.TestCase):
         self.df6.elementHeight = 19
         self.df6.elementWidth = 17
 
-    def test_get_largest_map_frame(self):
-
-        # Case 1)
-        # Main map and inset map
-        result1 = self.arcmap_runner._get_largest_map_frame([self.df1, self.df2])
-        self.assertIs(result1, self.df2)
-        self.assertIsNot(result1, self.df1)
-
-        # Case 2)
-        # Two large maps and the inset map
-        result2 = self.arcmap_runner._get_largest_map_frame([self.df1, self.df2, self.df3, self.df5])
-        self.assertIs(result2, self.df3)
-        self.assertIsNot(result2, self.df1)
-        self.assertIsNot(result2, self.df2)
-        self.assertIsNot(result2, self.df5)
-
-        # Case 3)
-        # Three large maps, two of which are identical in size plus the inset map
-        result3 = self.arcmap_runner._get_largest_map_frame([self.df1, self.df2, self.df3, self.df4])
-        self.assertIs(result3, self.df4)
-        self.assertIsNot(result3, self.df1)
-        self.assertIsNot(result3, self.df2)
-        self.assertIsNot(result3, self.df3)
-        self.assertIsNot(result3, self.df5)
-
-        # Case 4
-        with self.assertRaises(ValueError):
-            self.arcmap_runner._get_largest_map_frame([self.df1, self.df6])
-
     @mock.patch('mapactionpy_arcmap.arcmap_runner.arcpy.mapping.MapDocument')
     @mock.patch('mapactionpy_arcmap.arcmap_runner.arcpy.mapping.ListDataFrames')
     def test_get_aspect_ratios_of_templates(self, mock_ListDataFrames, mock_MapDocument):
@@ -96,22 +70,25 @@ class TestArcMapRunner(unittest.TestCase):
         ]
         mock_ListDataFrames.side_effect = df_lists
         tmpl_paths = repeat('/the/path', len(df_lists))
+        tmpl_paths = ['/the/path{}'.format(n) for n in range(1, 7)]
+
+        test_lp = LayerProperties(self.cmf, '.lyr')
+        test_recipe = MapRecipe(fixtures.fixture_recipe_minimal, test_lp)
 
         expected_result = [
-            ('/the/path', float(self.df1.elementWidth)/self.df1.elementHeight),
-            ('/the/path', float(self.df2.elementWidth)/self.df2.elementHeight),
-            ('/the/path', float(self.df3.elementWidth)/self.df3.elementHeight),
-            ('/the/path', float(self.df4.elementWidth)/self.df4.elementHeight),
-            ('/the/path', float(self.df5.elementWidth)/self.df5.elementHeight),
-            ('/the/path', float(self.df6.elementWidth)/self.df6.elementHeight)
+            ('/the/path1', float(self.df1.elementWidth)/self.df1.elementHeight),
+            ('/the/path2', float(self.df2.elementWidth)/self.df2.elementHeight),
+            ('/the/path3', float(self.df3.elementWidth)/self.df3.elementHeight),
+            ('/the/path4', float(self.df4.elementWidth)/self.df4.elementHeight),
+            ('/the/path5', float(self.df5.elementWidth)/self.df5.elementHeight),
+            ('/the/path6', float(self.df6.elementWidth)/self.df6.elementHeight)
         ]
 
-        actual_result = self.arcmap_runner.get_aspect_ratios_of_templates(tmpl_paths)
+        actual_result = self.arcmap_runner.get_aspect_ratios_of_templates(tmpl_paths, test_recipe)
 
         self.assertEqual(actual_result, expected_result)
 
-
-    @unittest.skip('Not ready yet')
+    @ unittest.skip('Not ready yet')
     def test_arcmap_runner_main(self):
         sys.argv[1:] = ['--eventConfigFile', os.path.join(self.cmf.path, 'event_description.json'),
                         '--template', os.path.join(self.cmf.map_templates,
@@ -121,7 +98,7 @@ class TestArcMapRunner(unittest.TestCase):
         arcmap_runner.main()
         self.assertTrue(True)
 
-    @unittest.skip('Not ready yet')
+    @ unittest.skip('Not ready yet')
     def test_arcmap_runner_main_unknown_product(self):
         sys.argv[1:] = ['--eventConfigFile', os.path.join(self.cmf.path, 'event_description.json'),
                         '--template', os.path.join(self.cmf.map_templates,
@@ -132,4 +109,3 @@ class TestArcMapRunner(unittest.TestCase):
         except Exception as e:
             self.assertTrue("Could not find recipe for product: \"" +
                             sys.argv[6] + "\"" in str(e.message))
-
