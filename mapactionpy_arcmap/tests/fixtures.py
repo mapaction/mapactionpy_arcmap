@@ -1,11 +1,11 @@
-
+# flake8: noqa
 fixture_recipe_minimal = (
     '''{
       "mapnumber": "MA001",
-    	"category": "Reference",
+      "category": "Reference",
       "product": "{e.country_name}: Overview Map",
-    	"summary": "Overview of {e.country_name} with topography displayed",
-    	"export": true,
+      "summary": "Overview of {e.country_name} with topography displayed",
+      "export": true,
       "template": "reference",
       "principal_map_frame": "Main map",
       "map_frames": [
@@ -22,6 +22,54 @@ fixture_recipe_minimal = (
    }'''
 )
 
+fixture_recipe_processed_by_controller = (
+    r'''{
+      "mapnumber": "MA001",
+      "category": "Reference",
+      "product": "Atlantis: Overview Map",
+      "summary": "Overview of Atlantis with topography displayed",
+      "export": true,
+      "template": "reference",
+      "principal_map_frame": "Main map",
+      "map_frames": [
+         {
+            "name": "Main map",
+            "crs": "EPSG:3857",
+            "extent": [
+               30.76715745398743,
+               31.029105187500107,
+               36.2156944299999,
+               36.930416107500065
+            ],
+            "layers": [
+               {
+                  "crs": "epsg:4326",
+                  "data_source_path": "D:\\MapAction\\mapchef-test-env\\2020-08-05-Lebanon\\GIS/2_Active_Data\\211_elev\\aoi_elev_cst_ln_s0_gadm_pp.shp",
+                  "name": "locationmap-elev-cst-ln-s0-locationmaps",
+                  "schema_definition": "null-schema.yml",
+                  "data_schema": true,
+                  "data_name": "aoi_elev_cst_ln_s0_gadm_pp",
+                  "definition_query": "\"NAME_0\" <> 'Lebanon'",
+                  "label_classes": [],
+                  "layer_file_path": "D:\\MapAction\\mapchef-test-env\\2020-08-05-Lebanon\\GIS\\3_Mapping\\31_Resources\\312_Layer_files\\locationmap-elev-cst-ln-s0-locationmaps.lyr",
+                  "data_source_checksum": "2ee4edea9ec37087ed5b1cb3e55761af",
+                  "layer_file_checksum": "a33da00ef5f5471d3d93a869b9843a87",
+                  "extent": [
+                     30.76715745398743,
+                     31.029105187500107,
+                     36.2156944299999,
+                     36.930416107500065
+                  ],
+                  "add_to_legend": false,
+                  "display": true,
+                  "use_for_frame_extent": true,
+                  "reg_exp": "^wrl_elev_cst_ln_(.*?)_(.*?)_([phm][phm])(.*?).shp$"
+               }
+            ]
+         }
+      ]
+   }'''
+)
 
 fixture_datasource_dictionary_ma001 = r"""
 {

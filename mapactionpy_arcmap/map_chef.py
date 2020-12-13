@@ -2,11 +2,12 @@ import os
 import arcpy
 import jsonpickle
 import logging
-# import re
+import re
 from mapactionpy_controller.map_report import MapReport
 from mapactionpy_controller.map_result import MapResult
 from mapactionpy_controller.data_source import DataSource
 from datetime import datetime
+
 
 # TODO asmith 2020/03/06
 # What is the separation of responsiblities between MapChef and ArcMapRunner? Why is the boundary
@@ -168,10 +169,6 @@ class MapChef:
     #     subsequent attempt to call `cook()` should result in an exception
     #   * If `cook()` can be called multiple times, then the `mxd` and the `map_version_number`
     #     should be parameters for the cook method and not for the constructor.
-    #
-    # Not with standing the above, the relevant Recipe object has already be identified and
-    # validated in the ArcMapRunner object. Why not just pass that instead of the productName?
-
     def cook(self, recipe):
         arcpy.env.addOutputsToMap = False
 
@@ -328,8 +325,9 @@ class MapChef:
         prj_wkid = int(recipe_frame.crs[5:])
         arc_data_frame.spatialReference = arcpy.SpatialReference(prj_wkid)
 
-        new_extent = arcpy.Extent(*recipe_frame.extent)
-        arc_data_frame.extent = new_extent
+        if recipe_frame.extent:
+            new_extent = arcpy.Extent(*recipe_frame.extent)
+            arc_data_frame.extent = new_extent
         self.mxd.save()
 
         # if (zoomMultiplier != 0):
@@ -395,9 +393,74 @@ class MapChef:
         #     mapResult = self.addLayerWithFile(recipe_lyr, arc_lyr_to_add,  recipe_frame)
         # else:
         #     mapResult = self.addLayerWithGdb(recipe_lyr, arc_lyr_to_add,  recipe_frame)
-        mapResult = self.addLayerWithFile(recipe_lyr, arc_lyr_to_add,  recipe_frame)
+
+        # Apply Label Classes
+        try:
+            self.apply_layer_visiblity(arc_lyr_to_add, recipe_lyr)
+            self.apply_label_classes(arc_lyr_to_add, recipe_lyr)
+            mapResult = self.addLayerWithFile(recipe_lyr, arc_lyr_to_add,  recipe_frame)
+            # Apply Definition Query
+            self.apply_definition_query(arc_lyr_to_add, recipe_lyr)
+            recipe_lyr.success = True
+        except:
+            recipe_lyr.success = False
 
         return mapResult
+
+    def apply_layer_visiblity(self, arc_lyr_to_add, recipe_lyr):
+        if arc_lyr_to_add.supports('VISIBLE'):
+            try:
+                arc_lyr_to_add.visible = recipe_lyr.visible
+            except Exception as exp:
+                recipe_lyr.error_messages.append('Error whilst applying layer visiblity: {}'.format(
+                    exp.message))
+
+    def apply_label_classes(self, arc_lyr_to_add, recipe_lyr):
+        if arc_lyr_to_add.supports("LABELCLASSES"):
+            for labelClass in recipe_lyr.label_classes:
+                for lblClass in arc_lyr_to_add.labelClasses:
+                    if (lblClass.className == labelClass.class_name):
+                        lblClass.SQLQuery = labelClass.sql_query
+                        lblClass.expression = labelClass.expression
+                        lblClass.showClassLabels = labelClass.show_class_labels
+
+    def apply_definition_query(self, arc_lyr_to_add, recipe_lyr):
+        if recipe_lyr.definition_query and arc_lyr_to_add.supports('DEFINITIONQUERY'):
+            try:
+                arc_lyr_to_add.definition_query = recipe_lyr.definition_query
+            except Exception as exp:
+                recipe_lyr.error_messages.append('Error whilst applying definition query: "{}"\n{}'.format(
+                    recipe_lyr.definition_query, exp.message))
+
+            # try:
+            #     arcpy.SelectLayerByAttribute_management(arc_lyr_to_add,
+            #                                             "SUBSET_SELECTION",
+            #                                             recipe_lyr.definition_query)
+            # except Exception as exp:
+            #     recipe_lyr.success = False
+            #     recipe_lyr.error_messages.append('Selection query failed: {}\n{}'.format(
+            #         recipe_lyr.definition_query, exp.message))
+            #     raise exp
+
+    def get_dataset_type_from_path(self, f_path):
+        """
+        * '.shp' at the end of a path name
+        * '.img' at the end of a path name
+        * '.tif' at the end of a path name
+        * '.gdb\' in teh middle of a path name
+        """
+        dataset_type_lookup = [
+            (r'\.shp$', 'SHAPEFILE_WORKSPACE'),
+            (r'\.img$', 'RASTER_WORKSPACE'),
+            (r'\.tif$', 'RASTER_WORKSPACE'),
+            (r'\.gdb\\.+', 'FILEGDB_WORKSPACE')
+        ]
+
+        for reg_ex, dataset_type in dataset_type_lookup:
+            if re.search(reg_ex, f_path):
+                return dataset_type
+
+        raise ValueError('"Unsupported dataset type with path: {}'.format(f_path))
 
     def addLayerWithFile(self, recipe_lyr, arc_lyr_to_add, recipe_frame):
         mapResult = MapResult(recipe_lyr.name)
@@ -408,43 +471,21 @@ class MapChef:
         except AttributeError:
             return mapResult
 
-        data_src_dir = os.path.dirname(os.path.realpath(recipe_lyr.data_source_path))
-
-        # Apply Label Classes
-        if arc_lyr_to_add.supports("LABELCLASSES"):
-            for labelClass in recipe_lyr.label_classes:
-                for lblClass in arc_lyr_to_add.labelClasses:
-                    if (lblClass.className == labelClass.class_name):
-                        lblClass.SQLQuery = labelClass.sql_query
-                        lblClass.expression = labelClass.expression
-                        lblClass.showClassLabels = labelClass.show_class_labels
+        r_path = os.path.realpath(recipe_lyr.data_source_path)
+        data_src_dir = os.path.dirname(r_path)
+        dataset_type = self.get_dataset_type_from_path(r_path)
 
         # Apply Data Source
         if arc_lyr_to_add.supports("DATASOURCE"):
-            for datasetType in ESRI_DATASET_TYPES:
-                try:
-                    arc_lyr_to_add.replaceDataSource(data_src_dir, datasetType, recipe_lyr.data_name)
-                    mapResult.message = "Layer added successfully"
-                    mapResult.added = True
-                    ds = DataSource(recipe_lyr.data_name)
-                    mapResult.dataSource = recipe_lyr.data_source_path
-                    mapResult.hash = ds.calculate_checksum()
-                    break
-                except Exception:
-                    pass
-
-        # Apply Definition Query
-        if mapResult.added and (recipe_lyr.definition_query):
-            definitionQuery = recipe_lyr.definition_query
-            arc_lyr_to_add.definition_query = definitionQuery
             try:
-                arcpy.SelectLayerByAttribute_management(arc_lyr_to_add,
-                                                        "SUBSET_SELECTION",
-                                                        recipe_lyr.definition_query)
-            except Exception:
-                mapResult.added = False
-                mapResult.message = "Selection query failed: " + recipe_lyr.definition_query
-                self.mxd.save()
+                arc_lyr_to_add.replaceDataSource(data_src_dir, dataset_type, recipe_lyr.data_name)
+                mapResult.message = "Layer added successfully"
+                mapResult.added = True
+                ds = DataSource(recipe_lyr.data_name)
+                mapResult.dataSource = recipe_lyr.data_source_path
+                mapResult.hash = ds.calculate_checksum()
+            except Exception as exp:
+                raise exp
 
         if mapResult.added:
             arc_data_frame = arcpy.mapping.ListDataFrames(self.mxd, recipe_frame.name)[0]
@@ -452,7 +493,9 @@ class MapChef:
             # https: // trello.com/c/Bs70ru1s/145-design-criteria-for-selecting-zoom-extent
             # https://trello.com/c/piE3tKRp/146-implenment-rules-for-selection-zoom-extent
             # self.applyZoom(self.dataFrame, arc_lyr_to_add, cookBookLayer.get('zoomMultiplier', 0))
-            self.apply_frame_extent(arc_data_frame, arc_lyr_to_add, 0)
+
+            # Is this even required after adding each layer?
+            # self.apply_frame_crs_and_extent(arc_data_frame, recipe_frame)
 
             if recipe_lyr.add_to_legend is False:
                 self.legendEntriesToRemove.append(arc_lyr_to_add.name)

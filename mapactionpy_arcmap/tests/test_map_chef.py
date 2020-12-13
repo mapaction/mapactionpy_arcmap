@@ -16,7 +16,7 @@ class TestMapChef(TestCase):
 
     def setUp(self):
         try:
-            import arcpy
+            import arcpy  # noqa: F401
         except ImportError:
             self.skipTest()
 
@@ -43,7 +43,6 @@ class TestMapChef(TestCase):
 
     def test_map_chef_cook(self):
         my_mxd = arcpy.mapping.MapDocument(self.my_mxd_fpath)
-        productName = "Example Map"
 
         mc = MapChef(
             my_mxd,
@@ -51,12 +50,13 @@ class TestMapChef(TestCase):
             self.event
         )
 
-        mc.cook(self.cookBook.products[productName])
+        test_recipe = MapRecipe(fixtures.fixture_recipe_processed_by_controller, self.layer_props)
+        mc.cook(test_recipe)
         self.assertTrue(True)
 
     def test_apply_frame_crs_and_extent(self):
         """
-        Because the test can't assume what stating extent the mxd is, the test applies to different 
+        Because the test can't assume what starting extent the mxd is, the test applies to different
         extents as checks that the mxd changes.
         """
         recipe = MapRecipe(fixtures.fixture_recipe_minimal, self.layer_props)
@@ -117,4 +117,16 @@ class TestMapChef(TestCase):
             self.assertTrue(any((passable_height, passable_width)))
 
     def test_add_layer(self):
+        self.fail()
+
+    def test_apply_label_classes(self):
+        self.fail()
+
+    def test_apply_definition_query(self):
+        # Load a test shapefile
+
+        # feature count without DQ
+        # https://desktop.arcgis.com/en/arcmap/10.6/tools/data-management-toolbox/get-count.htm
+        # feature count with DQ
+
         self.fail()
