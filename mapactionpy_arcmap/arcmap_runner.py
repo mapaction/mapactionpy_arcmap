@@ -19,7 +19,6 @@ class ArcMapRunner(BaseRunnerPlugin):
     """
     ArcMapRunner - Executes the ArcMap automation methods
     """
-
     def __init__(self,
                  hum_event):
         super(ArcMapRunner, self).__init__(hum_event)
@@ -34,20 +33,11 @@ class ArcMapRunner(BaseRunnerPlugin):
     def build_project_files(self, **kwargs):
         # Construct a Crash Move Folder object if the cmf_description.json exists
         recipe = kwargs['state']
-        # print('########################################')
-        # print(recipe)
-        # print('########################################')
         mxd = arcpy.mapping.MapDocument(recipe.map_project_path)
 
         self.chef = MapChef(mxd, self.cmf, self.hum_event)
         self.chef.cook(recipe)
-        # TODO: Fix this so that it doesn't require a `orientation` member
-        # self.chef.alignLegend(self.hum_event.orientation)
-
         # Output the Map Generation report alongside the MXD
-        # reportJsonFile = recipe.map_project_path.replace(".mxd", ".json")
-        # with open(reportJsonFile, 'w') as outfile:
-        #     outfile.write(self.chef.report_as_json())
         final_recipe_file = recipe.map_project_path.replace(".mxd", ".json")
         with open(final_recipe_file, 'w') as outfile:
             outfile.write(str(recipe))

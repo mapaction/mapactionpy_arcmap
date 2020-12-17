@@ -214,29 +214,12 @@ class MapChef:
         # Try just using add Layer (no update layer option)
         mapResult = self.addLayer(recipe_lyr, arc_data_frame)
 
-        # if mapResult.added:
-        #     try:
-        #         # Seperate the next two lines so that the cause of any exceptions is more easily
-        #         # appartent from the stack trace.
-        #         # BUG
-        #         # The layer name in the TOC is not necessarily == recipe_lyr.name
-        #         # lyr_list = arcpy.mapping.ListLayers(self.mxd, recipe_lyr.name, self.dataFrame)
-        #         # new_layer = lyr_list[0]
-        #         # Try this instead
-        #         lyr_index = recipe_frame.layers.index(recipe_lyr)
-        #         arc_layer = arcpy.mapping.ListLayers(self.mxd, None, arc_data_frame)[lyr_index]
-        #         self.apply_frame_extent(arc_data_frame, arc_layer, 0)
-        #     except IndexError:
-        #         pass
-
         self.mapReport.add(mapResult)
 
-    """
-    Updates Text Elements in Marginalia
-
-    """
-
     def updateTextElements(self, recipe):
+        """
+        Updates Text Elements in Marginalia
+        """
         for elm in arcpy.mapping.ListLayoutElements(self.mxd, "TEXT_ELEMENT"):
             if elm.name == "country":
                 elm.text = self.eventConfiguration.country_name
@@ -329,60 +312,6 @@ class MapChef:
             new_extent = arcpy.Extent(*recipe_frame.extent)
             arc_data_frame.extent = new_extent
         self.mxd.save()
-
-        # if (zoomMultiplier != 0):
-        #     buffer = zoomMultiplier
-        #     arcpy.env.overwriteOutput = "True"
-        #     extent = arc_lyr.getExtent(True)  # visible extent of layer
-
-        #     extBuffDist = ((int(abs(extent.lowerLeft.X - extent.lowerRight.X))) * buffer)
-
-        #     # minx, miny, maxx, maxy = recipe_frame.extent
-
-        #     # TODO asmith 2020/03/06
-        #     # This is untested but possibly much terser:
-        #     # ```
-        #     #        x_min = extent.XMin - extBuffDist
-        #     #        y_min = extent.YMin - extBuffDist
-        #     #        x_max = extent.XMax + extBuffDist
-        #     #        y_max = extent.YMax + extBuffDist
-        #     #        new_extent = arcpy.Extent(x_min, y_min, x_max, y_max)
-        #     #        dataFrame.extent = new_extent
-        #     # ```
-
-        #     newExtentPts = arcpy.Array()
-        #     newExtentPts.add(arcpy.Point(extent.lowerLeft.X-extBuffDist,
-        #                                  extent.lowerLeft.Y-extBuffDist,
-        #                                  extent.lowerLeft.Z,
-        #                                  extent.lowerLeft.M,
-        #                                  extent.lowerLeft.ID))
-
-        #     newExtentPts.add(arcpy.Point(extent.lowerRight.X+extBuffDist,
-        #                                  extent.lowerRight.Y-extBuffDist,
-        #                                  extent.lowerRight.Z,
-        #                                  extent.lowerRight.M,
-        #                                  extent.lowerRight.ID))
-
-        #     newExtentPts.add(arcpy.Point(extent.upperRight.X+extBuffDist,
-        #                                  extent.upperRight.Y+extBuffDist,
-        #                                  extent.upperRight.Z,
-        #                                  extent.upperRight.M,
-        #                                  extent.upperRight.ID))
-
-        #     newExtentPts.add(arcpy.Point(extent.upperLeft.X-extBuffDist,
-        #                                  extent.upperLeft.Y+extBuffDist,
-        #                                  extent.upperLeft.Z,
-        #                                  extent.upperLeft.M,
-        #                                  extent.upperLeft.ID))
-
-        #     newExtentPts.add(arcpy.Point(extent.lowerLeft.X-extBuffDist,
-        #                                  extent.lowerLeft.Y-extBuffDist,
-        #                                  extent.lowerLeft.Z,
-        #                                  extent.lowerLeft.M,
-        #                                  extent.lowerLeft.ID))
-        #     polygonTmp2 = arcpy.Polygon(newExtentPts)
-        #     arc_data_frame.extent = polygonTmp2
-        #     self.mxd.save()
 
     def addLayer(self, recipe_lyr, recipe_frame):
         # addLayer(recipe_lyr, recipe_lyr.layer_file_path, recipe_lyr.name)
