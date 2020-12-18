@@ -19,6 +19,7 @@ class ArcMapRunner(BaseRunnerPlugin):
     """
     ArcMapRunner - Executes the ArcMap automation methods
     """
+
     def __init__(self,
                  hum_event):
         super(ArcMapRunner, self).__init__(hum_event)

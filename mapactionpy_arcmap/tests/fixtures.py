@@ -1,4 +1,7 @@
 # flake8: noqa
+import json
+from os import path
+
 fixture_recipe_minimal = (
     '''{
       "mapnumber": "MA001",
@@ -22,7 +25,8 @@ fixture_recipe_minimal = (
    }'''
 )
 
-fixture_recipe_processed_by_controller = (
+
+_temp_recipe_processed_by_controller = (
     r'''{
       "mapnumber": "MA001",
       "category": "Reference",
@@ -70,6 +74,14 @@ fixture_recipe_processed_by_controller = (
       ]
    }'''
 )
+
+_temp_recipe = json.loads(_temp_recipe_processed_by_controller)
+_root_dir = path.abspath(path.dirname(__file__))
+_shp_path = path.join(_root_dir, 'test_data', 'test_shapefile', 'aoi_elev_cst_ln_s0_gadm_pp.shp')
+_lyr_path = path.join(_root_dir, 'test_data', 'test_shapefile', 'locationmap-elev-cst-ln-s0-locationmaps.lyr')
+_temp_recipe['map_frames'][0]['layers'][0]['data_source_path'] = _shp_path
+_temp_recipe['map_frames'][0]['layers'][0]['layer_file_path'] = _lyr_path
+fixture_recipe_processed_by_controller = json.dumps(_temp_recipe)
 
 fixture_datasource_dictionary_ma001 = r"""
 {

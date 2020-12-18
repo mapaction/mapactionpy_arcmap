@@ -12,7 +12,6 @@
 .coverage
 
 .idea/
-all-tests.cmd
 run-all-tests.cmd
 htmlcov/
 mapactionpy_arcmap/tests/test_data/output*
