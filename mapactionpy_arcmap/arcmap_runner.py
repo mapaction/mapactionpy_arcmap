@@ -63,7 +63,6 @@ class ArcMapRunner(BaseRunnerPlugin):
         """
         logging.debug('Calculating the aspect ratio of the largest map frame within the list of templates.')
         results = []
-        # print('possible_templates={}'.format(possible_templates))
         for template in possible_templates:
             mxd = arcpy.mapping.MapDocument(template)
             arc_frame = arcpy.mapping.ListDataFrames(mxd, recipe.principal_map_frame).pop()
@@ -71,10 +70,6 @@ class ArcMapRunner(BaseRunnerPlugin):
             aspect_ratio = float(arc_frame.elementWidth)/float(arc_frame.elementHeight)
             results.append((template, aspect_ratio))
             logging.debug('Calculated aspect ratio= {} for template={}'.format(aspect_ratio, template))
-            # print(float(arc_frame.elementWidth), float(arc_frame.elementHeight))
-            # print('Calculated aspect ratio= {} for mf="{}" template={}'.format(aspect_ratio, arc_frame.name, template))
-
-        # print('selected_template={}'.format(results))
 
         return results
 

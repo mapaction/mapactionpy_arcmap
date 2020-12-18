@@ -3,7 +3,9 @@ import six
 import sys
 from itertools import repeat
 # from unittest import TestCase
-import unittest
+from unittest import TestCase, skip
+
+# import unittest
 import fixtures
 
 from mapactionpy_controller.crash_move_folder import CrashMoveFolder
@@ -20,7 +22,7 @@ else:
     from unittest import mock  # noqa: F401
 
 
-class TestArcMapRunner(unittest.TestCase):
+class TestArcMapRunner(TestCase):
 
     def setUp(self):
         self.parent_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -88,7 +90,7 @@ class TestArcMapRunner(unittest.TestCase):
 
         self.assertEqual(actual_result, expected_result)
 
-    @ unittest.skip('Not ready yet')
+    @skip('Not ready yet')
     def test_arcmap_runner_main(self):
         sys.argv[1:] = ['--eventConfigFile', os.path.join(self.cmf.path, 'event_description.json'),
                         '--template', os.path.join(self.cmf.map_templates,
@@ -98,7 +100,7 @@ class TestArcMapRunner(unittest.TestCase):
         arcmap_runner.main()
         self.assertTrue(True)
 
-    @ unittest.skip('Not ready yet')
+    @skip('Not ready yet')
     def test_arcmap_runner_main_unknown_product(self):
         sys.argv[1:] = ['--eventConfigFile', os.path.join(self.cmf.path, 'event_description.json'),
                         '--template', os.path.join(self.cmf.map_templates,

@@ -1,7 +1,7 @@
 import arcpy
 import os
 # import unittest
-from unittest import TestCase
+from unittest import TestCase, skip
 from mapactionpy_arcmap.map_chef import MapChef
 from mapactionpy_controller.crash_move_folder import CrashMoveFolder
 from mapactionpy_controller.map_cookbook import MapCookbook
@@ -116,12 +116,15 @@ class TestMapChef(TestCase):
 
             self.assertTrue(any((passable_height, passable_width)))
 
+    @skip('Not ready yet')
     def test_add_layer(self):
         self.fail()
 
+    @skip('Not ready yet')
     def test_apply_label_classes(self):
         self.fail()
 
+    @skip('Not ready yet')
     def test_apply_definition_query(self):
         # Load a test shapefile
 

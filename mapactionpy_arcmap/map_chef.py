@@ -331,7 +331,7 @@ class MapChef:
             # Apply Definition Query
             self.apply_definition_query(arc_lyr_to_add, recipe_lyr)
             recipe_lyr.success = True
-        except:
+        except Exception:
             recipe_lyr.success = False
 
         return mapResult
