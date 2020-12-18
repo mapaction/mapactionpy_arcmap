@@ -1,4 +1,6 @@
 unittest-xml-reporting
+autopep8
+mock
 coverage
 python-coveralls
 coveralls

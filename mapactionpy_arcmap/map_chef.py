@@ -2,11 +2,12 @@ import os
 import arcpy
 import jsonpickle
 import logging
-# import re
+import re
 from mapactionpy_controller.map_report import MapReport
 from mapactionpy_controller.map_result import MapResult
 from mapactionpy_controller.data_source import DataSource
 from datetime import datetime
+
 
 # TODO asmith 2020/03/06
 # What is the separation of responsiblities between MapChef and ArcMapRunner? Why is the boundary
@@ -95,7 +96,7 @@ class MapChef:
     def get_map_scale(self, mxd, recipe):
         """
         Returns a human-readable string representing the map scale of the
-        princial map frame of the mxd.
+        principal map frame of the mxd.
 
         @param mxd: The MapDocument object of the map being produced.
         @param recipe: The MapRecipe object being used to produced it.
@@ -111,7 +112,7 @@ class MapChef:
     def get_map_spatial_ref(self, mxd, recipe):
         """
         Returns a human-readable string representing the spatial reference used to display the
-        princial map frame of the mxd.
+        principal map frame of the mxd.
 
         @param mxd: The MapDocument object of the map being produced.
         @param recipe: The MapRecipe object being used to produced it.
@@ -168,10 +169,6 @@ class MapChef:
     #     subsequent attempt to call `cook()` should result in an exception
     #   * If `cook()` can be called multiple times, then the `mxd` and the `map_version_number`
     #     should be parameters for the cook method and not for the constructor.
-    #
-    # Not with standing the above, the relevant Recipe object has already be identified and
-    # validated in the ArcMapRunner object. Why not just pass that instead of the productName?
-
     def cook(self, recipe):
         arcpy.env.addOutputsToMap = False
 
@@ -180,10 +177,17 @@ class MapChef:
 
         self.mapReport = MapReport(recipe.product)
         if recipe:
-            for mf in recipe.map_frames:
-                for recipe_lyr in mf.layers:
-                    self.process_layer(recipe_lyr, mf)
+            for recipe_frame in recipe.map_frames:
+                arc_data_frame = arcpy.mapping.ListDataFrames(self.mxd, recipe_frame.name).pop()
 
+                for recipe_lyr in recipe_frame.layers:
+                    # Do things at an individual layer level
+                    self.process_layer(recipe_lyr, arc_data_frame)
+
+                # Do things at an map/data frame level
+                self.apply_frame_crs_and_extent(arc_data_frame, recipe_frame)
+
+        # Do things at a map layout level
         self.enableLayers()
         arcpy.RefreshTOC()
         arcpy.RefreshActiveView()
@@ -201,38 +205,21 @@ class MapChef:
         """
         return(jsonpickle.encode(self.mapReport, unpicklable=False))
 
-    def process_layer(self, recipe_lyr, recipe_frame):
+    def process_layer(self, recipe_lyr, arc_data_frame):
         """
         Updates or Adds a layer of data.  Maintains the Map Report.
         """
         mapResult = MapResult(recipe_lyr.name)
-        arc_data_frame = arcpy.mapping.ListDataFrames(self.mxd, recipe_frame.name)[0]
+        # arc_data_frame = arcpy.mapping.ListDataFrames(self.mxd, recipe_frame.name)[0]
         # Try just using add Layer (no update layer option)
         mapResult = self.addLayer(recipe_lyr, arc_data_frame)
 
-        if mapResult.added:
-            try:
-                # Seperate the next two lines so that the cause of any exceptions is more easily
-                # appartent from the stack trace.
-                # BUG
-                # The layer name in the TOC is not necessarily == recipe_lyr.name
-                # lyr_list = arcpy.mapping.ListLayers(self.mxd, recipe_lyr.name, self.dataFrame)
-                # new_layer = lyr_list[0]
-                # Try this instead
-                lyr_index = recipe_frame.layers.index(recipe_lyr)
-                new_layer = arcpy.mapping.ListLayers(self.mxd, None, arc_data_frame)[lyr_index]
-                self.applyZoom(arc_data_frame, new_layer, 0)
-            except IndexError:
-                pass
-
         self.mapReport.add(mapResult)
 
-    """
-    Updates Text Elements in Marginalia
-
-    """
-
     def updateTextElements(self, recipe):
+        """
+        Updates Text Elements in Marginalia
+        """
         for elm in arcpy.mapping.ListLayoutElements(self.mxd, "TEXT_ELEMENT"):
             if elm.name == "country":
                 elm.text = self.eventConfiguration.country_name
@@ -309,58 +296,22 @@ class MapChef:
         elm.elementWidth = 51.1585
         self.mxd.save()
 
-    def applyZoom(self, dataFrame, lyr, zoomMultiplier):
-        if (zoomMultiplier != 0):
-            buffer = zoomMultiplier
-            arcpy.env.overwriteOutput = "True"
-            extent = lyr.getExtent(True)  # visible extent of layer
+    def apply_frame_crs_and_extent(self, arc_data_frame, recipe_frame):
+        """
+        """
+        # minx, miny, maxx, maxy = recipe_frame.extent
+        # First set the spatial reference
+        if not recipe_frame.crs[:5].lower() == 'epsg:':
+            raise ValueError('unrecognised `recipe_frame.crs` value "{}". String does not begin with "EPSG:"'.format(
+                recipe_frame.crs))
 
-            extBuffDist = ((int(abs(extent.lowerLeft.X - extent.lowerRight.X))) * buffer)
+        prj_wkid = int(recipe_frame.crs[5:])
+        arc_data_frame.spatialReference = arcpy.SpatialReference(prj_wkid)
 
-            # TODO asmith 2020/03/06
-            # This is untested but possibly much terser:
-            # ```
-            #        x_min = extent.XMin - extBuffDist
-            #        y_min = extent.YMin - extBuffDist
-            #        x_max = extent.XMax + extBuffDist
-            #        y_max = extent.YMax + extBuffDist
-            #        new_extent = arcpy.Extent(x_min, y_min, x_max, y_max)
-            #        dataFrame.extent = new_extent
-            # ```
-
-            newExtentPts = arcpy.Array()
-            newExtentPts.add(arcpy.Point(extent.lowerLeft.X-extBuffDist,
-                                         extent.lowerLeft.Y-extBuffDist,
-                                         extent.lowerLeft.Z,
-                                         extent.lowerLeft.M,
-                                         extent.lowerLeft.ID))
-
-            newExtentPts.add(arcpy.Point(extent.lowerRight.X+extBuffDist,
-                                         extent.lowerRight.Y-extBuffDist,
-                                         extent.lowerRight.Z,
-                                         extent.lowerRight.M,
-                                         extent.lowerRight.ID))
-
-            newExtentPts.add(arcpy.Point(extent.upperRight.X+extBuffDist,
-                                         extent.upperRight.Y+extBuffDist,
-                                         extent.upperRight.Z,
-                                         extent.upperRight.M,
-                                         extent.upperRight.ID))
-
-            newExtentPts.add(arcpy.Point(extent.upperLeft.X-extBuffDist,
-                                         extent.upperLeft.Y+extBuffDist,
-                                         extent.upperLeft.Z,
-                                         extent.upperLeft.M,
-                                         extent.upperLeft.ID))
-
-            newExtentPts.add(arcpy.Point(extent.lowerLeft.X-extBuffDist,
-                                         extent.lowerLeft.Y-extBuffDist,
-                                         extent.lowerLeft.Z,
-                                         extent.lowerLeft.M,
-                                         extent.lowerLeft.ID))
-            polygonTmp2 = arcpy.Polygon(newExtentPts)
-            dataFrame.extent = polygonTmp2
-            self.mxd.save()
+        if recipe_frame.extent:
+            new_extent = arcpy.Extent(*recipe_frame.extent)
+            arc_data_frame.extent = new_extent
+        self.mxd.save()
 
     def addLayer(self, recipe_lyr, recipe_frame):
         # addLayer(recipe_lyr, recipe_lyr.layer_file_path, recipe_lyr.name)
@@ -371,9 +322,74 @@ class MapChef:
         #     mapResult = self.addLayerWithFile(recipe_lyr, arc_lyr_to_add,  recipe_frame)
         # else:
         #     mapResult = self.addLayerWithGdb(recipe_lyr, arc_lyr_to_add,  recipe_frame)
-        mapResult = self.addLayerWithFile(recipe_lyr, arc_lyr_to_add,  recipe_frame)
+
+        # Apply Label Classes
+        try:
+            self.apply_layer_visiblity(arc_lyr_to_add, recipe_lyr)
+            self.apply_label_classes(arc_lyr_to_add, recipe_lyr)
+            mapResult = self.addLayerWithFile(recipe_lyr, arc_lyr_to_add,  recipe_frame)
+            # Apply Definition Query
+            self.apply_definition_query(arc_lyr_to_add, recipe_lyr)
+            recipe_lyr.success = True
+        except Exception:
+            recipe_lyr.success = False
 
         return mapResult
+
+    def apply_layer_visiblity(self, arc_lyr_to_add, recipe_lyr):
+        if arc_lyr_to_add.supports('VISIBLE'):
+            try:
+                arc_lyr_to_add.visible = recipe_lyr.visible
+            except Exception as exp:
+                recipe_lyr.error_messages.append('Error whilst applying layer visiblity: {}'.format(
+                    exp.message))
+
+    def apply_label_classes(self, arc_lyr_to_add, recipe_lyr):
+        if arc_lyr_to_add.supports("LABELCLASSES"):
+            for labelClass in recipe_lyr.label_classes:
+                for lblClass in arc_lyr_to_add.labelClasses:
+                    if (lblClass.className == labelClass.class_name):
+                        lblClass.SQLQuery = labelClass.sql_query
+                        lblClass.expression = labelClass.expression
+                        lblClass.showClassLabels = labelClass.show_class_labels
+
+    def apply_definition_query(self, arc_lyr_to_add, recipe_lyr):
+        if recipe_lyr.definition_query and arc_lyr_to_add.supports('DEFINITIONQUERY'):
+            try:
+                arc_lyr_to_add.definition_query = recipe_lyr.definition_query
+            except Exception as exp:
+                recipe_lyr.error_messages.append('Error whilst applying definition query: "{}"\n{}'.format(
+                    recipe_lyr.definition_query, exp.message))
+
+            # try:
+            #     arcpy.SelectLayerByAttribute_management(arc_lyr_to_add,
+            #                                             "SUBSET_SELECTION",
+            #                                             recipe_lyr.definition_query)
+            # except Exception as exp:
+            #     recipe_lyr.success = False
+            #     recipe_lyr.error_messages.append('Selection query failed: {}\n{}'.format(
+            #         recipe_lyr.definition_query, exp.message))
+            #     raise exp
+
+    def get_dataset_type_from_path(self, f_path):
+        """
+        * '.shp' at the end of a path name
+        * '.img' at the end of a path name
+        * '.tif' at the end of a path name
+        * '.gdb\' in teh middle of a path name
+        """
+        dataset_type_lookup = [
+            (r'\.shp$', 'SHAPEFILE_WORKSPACE'),
+            (r'\.img$', 'RASTER_WORKSPACE'),
+            (r'\.tif$', 'RASTER_WORKSPACE'),
+            (r'\.gdb\\.+', 'FILEGDB_WORKSPACE')
+        ]
+
+        for reg_ex, dataset_type in dataset_type_lookup:
+            if re.search(reg_ex, f_path):
+                return dataset_type
+
+        raise ValueError('"Unsupported dataset type with path: {}'.format(f_path))
 
     def addLayerWithFile(self, recipe_lyr, arc_lyr_to_add, recipe_frame):
         mapResult = MapResult(recipe_lyr.name)
@@ -384,43 +400,21 @@ class MapChef:
         except AttributeError:
             return mapResult
 
-        data_src_dir = os.path.dirname(os.path.realpath(recipe_lyr.data_source_path))
-
-        # Apply Label Classes
-        if arc_lyr_to_add.supports("LABELCLASSES"):
-            for labelClass in recipe_lyr.label_classes:
-                for lblClass in arc_lyr_to_add.labelClasses:
-                    if (lblClass.className == labelClass.class_name):
-                        lblClass.SQLQuery = labelClass.sql_query
-                        lblClass.expression = labelClass.expression
-                        lblClass.showClassLabels = labelClass.show_class_labels
+        r_path = os.path.realpath(recipe_lyr.data_source_path)
+        data_src_dir = os.path.dirname(r_path)
+        dataset_type = self.get_dataset_type_from_path(r_path)
 
         # Apply Data Source
         if arc_lyr_to_add.supports("DATASOURCE"):
-            for datasetType in ESRI_DATASET_TYPES:
-                try:
-                    arc_lyr_to_add.replaceDataSource(data_src_dir, datasetType, recipe_lyr.data_name)
-                    mapResult.message = "Layer added successfully"
-                    mapResult.added = True
-                    ds = DataSource(recipe_lyr.data_name)
-                    mapResult.dataSource = recipe_lyr.data_source_path
-                    mapResult.hash = ds.calculate_checksum()
-                    break
-                except Exception:
-                    pass
-
-        # Apply Definition Query
-        if mapResult.added and (recipe_lyr.definition_query):
-            definitionQuery = recipe_lyr.definition_query
-            arc_lyr_to_add.definition_query = definitionQuery
             try:
-                arcpy.SelectLayerByAttribute_management(arc_lyr_to_add,
-                                                        "SUBSET_SELECTION",
-                                                        recipe_lyr.definition_query)
-            except Exception:
-                mapResult.added = False
-                mapResult.message = "Selection query failed: " + recipe_lyr.definition_query
-                self.mxd.save()
+                arc_lyr_to_add.replaceDataSource(data_src_dir, dataset_type, recipe_lyr.data_name)
+                mapResult.message = "Layer added successfully"
+                mapResult.added = True
+                ds = DataSource(recipe_lyr.data_name)
+                mapResult.dataSource = recipe_lyr.data_source_path
+                mapResult.hash = ds.calculate_checksum()
+            except Exception as exp:
+                raise exp
 
         if mapResult.added:
             arc_data_frame = arcpy.mapping.ListDataFrames(self.mxd, recipe_frame.name)[0]
@@ -428,7 +422,9 @@ class MapChef:
             # https: // trello.com/c/Bs70ru1s/145-design-criteria-for-selecting-zoom-extent
             # https://trello.com/c/piE3tKRp/146-implenment-rules-for-selection-zoom-extent
             # self.applyZoom(self.dataFrame, arc_lyr_to_add, cookBookLayer.get('zoomMultiplier', 0))
-            self.applyZoom(arc_data_frame, arc_lyr_to_add, 0)
+
+            # Is this even required after adding each layer?
+            # self.apply_frame_crs_and_extent(arc_data_frame, recipe_frame)
 
             if recipe_lyr.add_to_legend is False:
                 self.legendEntriesToRemove.append(arc_lyr_to_add.name)
