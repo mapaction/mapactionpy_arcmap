@@ -250,7 +250,10 @@ class ArcMapRunner(BaseRunnerPlugin):
                 slugify(unicode(region)) + "-" + str(self.hum_event.default_pdf_res_dpi) + "dpi.pdf"
             pdfFileLocation = os.path.join(export_dir, pdfFileName)
 
+            logging.info('About to export atlas page for region; {}.'.format(region))
             arcpy.mapping.ExportToPDF(arc_mxd, pdfFileLocation, resolution=int(self.hum_event.default_pdf_res_dpi))
+            logging.info('Completed exporting atlas page for for region; {}.'.format(region))
+
             # if arcpy.Exists(os.path.join(export_dir, shpFile)):
             #     arcpy.Delete_management(os.path.join(export_dir, shpFile))
 
