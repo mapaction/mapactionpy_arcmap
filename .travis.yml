@@ -13,8 +13,8 @@ jobs:
         - pip install mock
       env: PATH=/c/Python27:/c/Python27/Scripts:$PATH
     # Only required becuase deployto to PyPi appears to work better on a linux VM.
-    - name: "Python 2.7 on Xenial Linux"
-      python: 2.7
+    - name: Python 3.6 on Xenial Linux
+      python: 3.6
   allow_failures:
     # None of the jobs below matter. They are included as a measure of how much work
     # might be required at a future date to port this package to a different target GIS,
