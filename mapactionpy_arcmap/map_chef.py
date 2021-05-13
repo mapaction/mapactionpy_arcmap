@@ -1,6 +1,5 @@
 import os
 import arcpy
-import jsonpickle
 import logging
 import re
 # from mapactionpy_controller.map_report import MapReport
@@ -212,7 +211,8 @@ class MapChef:
         # mapResult = MapResult(recipe_lyr.name)
         # arc_data_frame = arcpy.mapping.ListDataFrames(self.mxd, recipe_frame.name)[0]
         # Try just using add Layer (no update layer option)
-        mapResult = self.addLayer(recipe_lyr, arc_data_frame)
+        # mapResult = self.addLayer(recipe_lyr, arc_data_frame)
+        self.addLayer(recipe_lyr, arc_data_frame)
 
         # self.mapReport.add(mapResult)
 
