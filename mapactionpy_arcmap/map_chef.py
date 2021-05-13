@@ -3,7 +3,7 @@ import arcpy
 import jsonpickle
 import logging
 import re
-from mapactionpy_controller.map_report import MapReport
+# from mapactionpy_controller.map_report import MapReport
 from mapactionpy_controller.map_result import MapResult
 from mapactionpy_controller.data_source import DataSource
 from datetime import datetime
@@ -175,7 +175,7 @@ class MapChef:
         self.disableLayers()
         self.removeLayers()
 
-        self.mapReport = MapReport(recipe.product)
+        # self.mapReport = MapReport(recipe.product)
         if recipe:
             for recipe_frame in recipe.map_frames:
                 arc_data_frame = arcpy.mapping.ListDataFrames(self.mxd, recipe_frame.name).pop()
@@ -199,22 +199,22 @@ class MapChef:
             self.updateTextElements(recipe)
             self.mxd.save()
 
-    def report_as_json(self):
-        """
-        Returns map report in json format
-        """
-        return(jsonpickle.encode(self.mapReport, unpicklable=False))
+    # def report_as_json(self):
+    #     """
+    #     Returns map report in json format
+    #     """
+    #     return(jsonpickle.encode(self.mapReport, unpicklable=False))
 
     def process_layer(self, recipe_lyr, arc_data_frame):
         """
         Updates or Adds a layer of data.  Maintains the Map Report.
         """
-        mapResult = MapResult(recipe_lyr.name)
+        # mapResult = MapResult(recipe_lyr.name)
         # arc_data_frame = arcpy.mapping.ListDataFrames(self.mxd, recipe_frame.name)[0]
         # Try just using add Layer (no update layer option)
         mapResult = self.addLayer(recipe_lyr, arc_data_frame)
 
-        self.mapReport.add(mapResult)
+        # self.mapReport.add(mapResult)
 
     def updateTextElements(self, recipe):
         """

@@ -124,10 +124,12 @@ class ArcMapRunner(BaseRunnerPlugin):
         export_params['pngThumbNailFileLocation'] = self.exportPngThumbNail(
             core_file_name, export_dir, arc_mxd, export_params)
 
+        export_params['pdfFileName'] = os.path.basename(export_params['pdfFileLocation'])
+        export_params['jpgFileName'] = os.path.basename(export_params['jpgFileLocation'])
+
         if recipe.atlas:
             self._export_atlas(recipe, arc_mxd, export_dir, core_file_name)
 
-        xmlExporter = XmlExporter(self.hum_event, self.chef)
         export_params['mapNumber'] = recipe.mapnumber
         export_params['productName'] = recipe.product
         export_params['versionNumber'] = recipe.version_num
@@ -136,6 +138,13 @@ class ArcMapRunner(BaseRunnerPlugin):
         export_params["ymin"] = self.miny
         export_params["xmax"] = self.maxx
         export_params["ymax"] = self.maxy
+
+        export_params["createdate"] = self.chef.createDate
+        export_params["createtime"] = self.chef.createTime
+        export_params["scale"] = self.chef.get_map_scale(arc_mxd, recipe)
+        export_params["datum"] = self.chef.get_map_spatial_ref(arc_mxd, recipe)
+
+        xmlExporter = XmlExporter(self.hum_event)
         export_params['exportXmlFileLocation'] = xmlExporter.write(export_params)
 
         return export_params

@@ -90,6 +90,31 @@ class TestArcMapRunner(TestCase):
 
         self.assertEqual(actual_result, expected_result)
 
+    @mock.patch('mapactionpy_arcmap.arcmap_runner.arcpy.mapping.ExportToJPEG')
+    @mock.patch('mapactionpy_arcmap.arcmap_runner.arcpy.mapping.ExportToPDF')
+    @mock.patch('mapactionpy_arcmap.arcmap_runner.ArcMapRunner.exportPngThumbNail')
+    @mock.patch('mapactionpy_arcmap.arcmap_runner.arcpy.mapping.MapDocument')
+    @mock.patch('mapactionpy_arcmap.arcmap_runner.os.path.getsize')
+    def test_do_export_params(self, mock_jpeg, mock_pdf, mock_png, mock_mapdoc, mock_getsize):
+        mock_jpeg.return_value = None
+        mock_pdf.return_value = None
+        mock_png.return_value = None
+        mock_mapdoc.return_value = None
+        mock_getsize.return_value = 9999
+
+        test_lp = LayerProperties(self.cmf, '.lyr')
+        test_recipe = MapRecipe(fixtures.fixture_recipe_minimal, test_lp)
+        test_recipe.map_project_path = os.path.join(
+            self.parent_dir, 'tests', 'test_data', 'arcgis_10_6_reference_landscape_bottom.mxd')
+
+        initial_export_params = {}
+        initial_export_params["exportDirectory"] = os.path.join(
+            self.parent_dir, 'tests', 'test_data', 'outputs')
+
+        self.arcmap_runner._do_export(initial_export_params, test_recipe)
+        self.arcmap_runner._check_plugin_supplied_params(initial_export_params)
+        # self.fail()
+
     @skip('Not ready yet')
     def test_arcmap_runner_main(self):
         sys.argv[1:] = ['--eventConfigFile', os.path.join(self.cmf.path, 'event_description.json'),
