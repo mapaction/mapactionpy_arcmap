@@ -5,8 +5,7 @@ import json
 from PIL import Image
 from resizeimage import resizeimage
 from slugify import slugify
-from map_chef import MapChef
-from mapactionpy_controller.xml_exporter import XmlExporter
+from map_chef import MapChef, get_map_scale, get_map_spatial_ref
 from mapactionpy_controller.plugin_base import BaseRunnerPlugin
 
 logging.basicConfig(
@@ -107,49 +106,53 @@ class ArcMapRunner(BaseRunnerPlugin):
         # return returnValue
         return True
 
-    def _do_export(self, export_params, recipe):
+    def _do_export(self, recipe):
         """
         Does the actual work of exporting of the PDF, Jpeg and thumbnail files.
         """
-        export_dir = export_params["exportDirectory"]
+        export_dir = recipe.export_path
         arc_mxd = arcpy.mapping.MapDocument(recipe.map_project_path)
 
-        core_file_name = os.path.splitext(os.path.basename(recipe.map_project_path))[0]
-        export_params["coreFileName"] = core_file_name
-        productType = "mapsheet"
-        export_params["productType"] = productType
-        export_params['themes'] = export_params.get('themes', set())
-        export_params['pdfFileLocation'] = self.exportPdf(core_file_name, export_dir, arc_mxd, export_params)
-        export_params['jpgFileLocation'] = self.exportJpeg(core_file_name, export_dir, arc_mxd, export_params)
-        export_params['pngThumbNailFileLocation'] = self.exportPngThumbNail(
-            core_file_name, export_dir, arc_mxd, export_params)
+        recipe.export_metadata["coreFileName"] = recipe.core_file_name
+        recipe.export_metadata["product-type"] = "mapsheet"
+        recipe.export_metadata['themes'] = recipe.export_metadata.get('themes', set())
 
-        export_params['pdfFileName'] = os.path.basename(export_params['pdfFileLocation'])
-        export_params['jpgFileName'] = os.path.basename(export_params['jpgFileLocation'])
+        # PDF export
+        pdf_path = self.export_pdf(recipe, arc_mxd)
+        recipe.zip_file_contents.append(pdf_path)
+        recipe.export_metadata['pdffilename'] = os.path.basename(pdf_path)
+
+        # JPEG export
+        jpeg_path = self.export_jpeg(recipe, arc_mxd)
+        recipe.zip_file_contents.append(jpeg_path)
+        recipe.export_metadata['jpgfilename'] = os.path.basename(jpeg_path)
+
+        # Thumbnail
+        tb_nail_path = self.exportPngThumbNail(
+            recipe.core_file_name, export_dir, arc_mxd, recipe.export_metadata)
+        recipe.zip_file_contents.append(tb_nail_path)
+        recipe.export_metadata['pngThumbNailFileLocation'] = tb_nail_path
 
         if recipe.atlas:
-            self._export_atlas(recipe, arc_mxd, export_dir, core_file_name)
+            self._export_atlas(recipe, arc_mxd, export_dir, recipe.core_file_name)
 
-        export_params['mapNumber'] = recipe.mapnumber
-        export_params['productName'] = recipe.product
-        export_params['versionNumber'] = recipe.version_num
-        export_params['summary'] = recipe.summary
-        export_params["xmin"] = self.minx
-        export_params["ymin"] = self.miny
-        export_params["xmax"] = self.maxx
-        export_params["ymax"] = self.maxy
+        recipe.export_metadata['mapNumber'] = recipe.mapnumber
+        recipe.export_metadata['title'] = recipe.product
+        recipe.export_metadata['versionNumber'] = recipe.version_num
+        recipe.export_metadata['summary'] = recipe.summary
+        recipe.export_metadata["xmin"] = self.minx
+        recipe.export_metadata["ymin"] = self.miny
+        recipe.export_metadata["xmax"] = self.maxx
+        recipe.export_metadata["ymax"] = self.maxy
 
-        export_params["createdate"] = self.chef.createDate
-        export_params["createtime"] = self.chef.createTime
-        export_params["scale"] = self.chef.get_map_scale(arc_mxd, recipe)
-        export_params["datum"] = self.chef.get_map_spatial_ref(arc_mxd, recipe)
+        recipe.export_metadata["createdate"] = recipe.creation_time_stamp.strftime("%d-%b-%Y")
+        recipe.export_metadata["createtime"] = recipe.creation_time_stamp.strftime("%H:%M")
+        recipe.export_metadata["scale"] = get_map_scale(arc_mxd, recipe)
+        recipe.export_metadata["datum"] = get_map_spatial_ref(arc_mxd, recipe)
 
-        xmlExporter = XmlExporter(self.hum_event)
-        export_params['exportXmlFileLocation'] = xmlExporter.write(export_params)
+        return recipe
 
-        return export_params
-
-    def _export_atlas(self, recipe_with_atlas, arc_mxd, export_dir, core_file_name):
+    def _export_atlas(self, recipe_with_atlas, arc_mxd, export_dir):
         """
         Exports each individual page for recipes which contain an atlas definition
         """
@@ -255,9 +258,10 @@ class ArcMapRunner(BaseRunnerPlugin):
             # Clear selection, otherwise the selected feature is highlighted in the exported map
             arcpy.SelectLayerByAttribute_management(arc_lyr, "CLEAR_SELECTION")
             # Export to PDF
-            pdfFileName = core_file_name + "-" + \
+            pdfFileName = recipe_with_atlas.core_file_name + "-" + \
                 slugify(unicode(region)) + "-" + str(self.hum_event.default_pdf_res_dpi) + "dpi.pdf"
             pdfFileLocation = os.path.join(export_dir, pdfFileName)
+            recipe.zip_file_contents.append(pdfFileLocation)
 
             logging.info('About to export atlas page for region; {}.'.format(region))
             arcpy.mapping.ExportToPDF(arc_mxd, pdfFileLocation, resolution=int(self.hum_event.default_pdf_res_dpi))
@@ -266,25 +270,27 @@ class ArcMapRunner(BaseRunnerPlugin):
             # if arcpy.Exists(os.path.join(export_dir, shpFile)):
             #     arcpy.Delete_management(os.path.join(export_dir, shpFile))
 
-    def exportJpeg(self, coreFileName, exportDirectory, mxd, exportParams):
+    def export_jpeg(self, recipe, arc_mxd):
         # JPEG
-        jpgFileName = coreFileName+"-"+str(self.hum_event.default_jpeg_res_dpi) + "dpi.jpg"
-        jpgFileLocation = os.path.join(exportDirectory, jpgFileName)
-        exportParams["jpgFileName"] = jpgFileName
-        arcpy.mapping.ExportToJPEG(mxd, jpgFileLocation)
-        jpgFileSize = os.path.getsize(jpgFileLocation)
-        exportParams["jpgFileSize"] = jpgFileSize
-        return jpgFileLocation
+        jpeg_fname = recipe.core_file_name+"-"+str(self.hum_event.default_jpeg_res_dpi) + "dpi.jpg"
+        jpeg_fpath = os.path.join(recipe.export_path, jpeg_fname)
+        recipe.export_metadata["jpgfilename"] = jpeg_fname
+        arcpy.mapping.ExportToJPEG(arc_mxd, jpeg_fpath)
+        jpeg_fsize = os.path.getsize(jpeg_fpath)
+        recipe.export_metadata["jpgfilesize"] = jpeg_fsize
+        return jpeg_fpath
 
-    def exportPdf(self, coreFileName, exportDirectory, mxd, exportParams):
+    def export_pdf(self, recipe, arc_mxd):
+        # recipe.core_file_name, recipe.export_path, arc_mxd, recipe.export_metadata
+
         # PDF
-        pdfFileName = coreFileName+"-"+str(self.hum_event.default_pdf_res_dpi) + "dpi.pdf"
-        pdfFileLocation = os.path.join(exportDirectory, pdfFileName)
-        exportParams["pdfFileName"] = pdfFileName
-        arcpy.mapping.ExportToPDF(mxd, pdfFileLocation, resolution=int(self.hum_event.default_pdf_res_dpi))
-        pdfFileSize = os.path.getsize(pdfFileLocation)
-        exportParams["pdfFileSize"] = pdfFileSize
-        return pdfFileLocation
+        pdf_fname = recipe.core_file_name+"-"+str(self.hum_event.default_pdf_res_dpi) + "dpi.pdf"
+        pdf_fpath = os.path.join(recipe.export_path, pdf_fname)
+        recipe.export_metadata["pdffilename"] = pdf_fname
+        arcpy.mapping.ExportToPDF(arc_mxd, pdf_fpath, resolution=int(self.hum_event.default_pdf_res_dpi))
+        pdf_fsize = os.path.getsize(pdf_fpath)
+        recipe.export_metadata["pdffilesize"] = pdf_fsize
+        return pdf_fpath
 
     def exportPngThumbNail(self, coreFileName, exportDirectory, mxd, exportParams):
         # PNG Thumbnail.  Need to create a larger image first.

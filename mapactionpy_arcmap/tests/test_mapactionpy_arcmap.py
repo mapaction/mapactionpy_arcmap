@@ -1,9 +1,13 @@
+import mapactionpy_arcmap.arcmap_runner as arcmap_runner
 import os
 import six
 import sys
 from itertools import repeat
 # from unittest import TestCase
 from unittest import TestCase, skip
+import types
+from datetime import datetime
+import pytz
 
 # import unittest
 import fixtures
@@ -12,8 +16,7 @@ from mapactionpy_controller.crash_move_folder import CrashMoveFolder
 from mapactionpy_controller.event import Event
 from mapactionpy_controller.map_recipe import MapRecipe
 from mapactionpy_controller.layer_properties import LayerProperties
-import mapactionpy_arcmap.arcmap_runner as arcmap_runner
-
+import mapactionpy_controller.xml_exporter as xml_exporter
 
 # works differently for python 2.7 and python 3.x
 if six.PY2:
@@ -95,15 +98,22 @@ class TestArcMapRunner(TestCase):
     @mock.patch('mapactionpy_arcmap.arcmap_runner.ArcMapRunner.exportPngThumbNail')
     @mock.patch('mapactionpy_arcmap.arcmap_runner.arcpy.mapping.MapDocument')
     @mock.patch('mapactionpy_arcmap.arcmap_runner.os.path.getsize')
-    def test_do_export_params(self, mock_jpeg, mock_pdf, mock_png, mock_mapdoc, mock_getsize):
-        mock_jpeg.return_value = None
-        mock_pdf.return_value = None
-        mock_png.return_value = None
+    @mock.patch('mapactionpy_arcmap.arcmap_runner.get_map_scale')
+    @mock.patch('mapactionpy_arcmap.arcmap_runner.get_map_spatial_ref')
+    def test_do_export_params(self, mock_jpeg, mock_pdf, mock_png, mock_mapdoc, mock_getsize,
+                              mock_scale, mock_spatial_ref):
+        mock_jpeg.return_value = '/abc/xyz.jpeg'
+        mock_pdf.return_value = '/abc/xyz.pdf'
+        mock_png.return_value = '/abc/xyz.png'
         mock_mapdoc.return_value = None
         mock_getsize.return_value = 9999
+        mock_scale.return_value = '1:123456 at A3'
+        mock_spatial_ref.return_value = 'WGS 1984'
 
         test_lp = LayerProperties(self.cmf, '.lyr')
         test_recipe = MapRecipe(fixtures.fixture_recipe_minimal, test_lp)
+        test_recipe.export_path = self.cmf.path
+        test_recipe.creation_time_stamp = datetime.now(pytz.utc)
         test_recipe.map_project_path = os.path.join(
             self.parent_dir, 'tests', 'test_data', 'arcgis_10_6_reference_landscape_bottom.mxd')
 
@@ -111,8 +121,9 @@ class TestArcMapRunner(TestCase):
         initial_export_params["exportDirectory"] = os.path.join(
             self.parent_dir, 'tests', 'test_data', 'outputs')
 
-        self.arcmap_runner._do_export(initial_export_params, test_recipe)
-        self.arcmap_runner._check_plugin_supplied_params(initial_export_params)
+        self.arcmap_runner._do_export(test_recipe)
+        # This will fail with a ValueError if the right metadata data isn't available
+        xml_exporter._check_for_export_metadata(test_recipe)
         # self.fail()
 
     @skip('Not ready yet')
