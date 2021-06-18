@@ -6,6 +6,7 @@ fixture_recipe_minimal = (
     '''{
       "mapnumber": "MA001",
       "category": "Reference",
+      "core_file_name": "ma001-v01-overview-of-mozambique-with-topography-displayed",
       "product": "{e.country_name}: Overview Map",
       "summary": "Overview of {e.country_name} with topography displayed",
       "export": true,

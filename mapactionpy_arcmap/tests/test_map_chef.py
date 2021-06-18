@@ -27,7 +27,7 @@ class TestMapChef(TestCase):
         self.event = Event(os.path.join(self.parent_dir, 'tests', 'test_data',
                                         'event_description.json'))
         self.my_mxd_fpath = os.path.join(self.parent_dir, 'tests', 'test_data',
-                                         'output_arcgis_10_6_reference_landscape_bottom.mxd')
+                                         'arcgis_10_6_reference_landscape_bottom.mxd')
         self.layer_props = LayerProperties(self.cmf, '.lyr')
         self.cookBook = MapCookbook(self.cmf, self.layer_props)
 
