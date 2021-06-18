@@ -110,12 +110,7 @@ class ArcMapRunner(BaseRunnerPlugin):
         """
         Does the actual work of exporting of the PDF, Jpeg and thumbnail files.
         """
-        export_dir = recipe.export_path
         arc_mxd = arcpy.mapping.MapDocument(recipe.map_project_path)
-
-        recipe.export_metadata["coreFileName"] = recipe.core_file_name
-        recipe.export_metadata["product-type"] = "mapsheet"
-        recipe.export_metadata['themes'] = recipe.export_metadata.get('themes', set())
 
         # PDF export
         pdf_path = self.export_pdf(recipe, arc_mxd)
@@ -128,13 +123,25 @@ class ArcMapRunner(BaseRunnerPlugin):
         recipe.export_metadata['jpgfilename'] = os.path.basename(jpeg_path)
 
         # Thumbnail
-        tb_nail_path = self.exportPngThumbNail(
-            recipe.core_file_name, export_dir, arc_mxd, recipe.export_metadata)
+        tb_nail_path = self.export_png_thumbnail(recipe, arc_mxd)
         recipe.zip_file_contents.append(tb_nail_path)
         recipe.export_metadata['pngThumbNailFileLocation'] = tb_nail_path
 
+        # Atlas (if required)
         if recipe.atlas:
+            export_dir = recipe.export_path
             self._export_atlas(recipe, arc_mxd, export_dir, recipe.core_file_name)
+
+        # Update export metadata and return
+        return self._update_export_metadata(recipe)
+
+    def _update_export_metadata(self, recipe, arc_mxd):
+        """
+        Populates the `recipe.export_metadata` dict
+        """
+        recipe.export_metadata["coreFileName"] = recipe.core_file_name
+        recipe.export_metadata["product-type"] = "mapsheet"
+        recipe.export_metadata['themes'] = recipe.export_metadata.get('themes', set())
 
         recipe.export_metadata['mapNumber'] = recipe.mapnumber
         recipe.export_metadata['title'] = recipe.product
@@ -149,7 +156,6 @@ class ArcMapRunner(BaseRunnerPlugin):
         recipe.export_metadata["createtime"] = recipe.creation_time_stamp.strftime("%H:%M")
         recipe.export_metadata["scale"] = get_map_scale(arc_mxd, recipe)
         recipe.export_metadata["datum"] = get_map_spatial_ref(arc_mxd, recipe)
-
         return recipe
 
     def _export_atlas(self, recipe_with_atlas, arc_mxd, export_dir):
@@ -292,23 +298,23 @@ class ArcMapRunner(BaseRunnerPlugin):
         recipe.export_metadata["pdffilesize"] = pdf_fsize
         return pdf_fpath
 
-    def exportPngThumbNail(self, coreFileName, exportDirectory, mxd, exportParams):
+    def export_png_thumbnail(self, recipe, arc_mxd):
         # PNG Thumbnail.  Need to create a larger image first.
         # If this isn't done, the thumbnail is pixelated amd doesn't look good
-        pngTmpThumbNailFileName = "tmp-thumbnail.png"
-        pngTmpThumbNailFileLocation = os.path.join(exportDirectory, pngTmpThumbNailFileName)
-        arcpy.mapping.ExportToPNG(mxd, pngTmpThumbNailFileLocation)
+        tmp_fname = "tmp-thumbnail.png"
+        tmp_fpath = os.path.join(recipe.export_path, tmp_fname)
+        arcpy.mapping.ExportToPNG(arc_mxd, tmp_fpath)
 
-        pngThumbNailFileName = "thumbnail.png"
-        pngThumbNailFileLocation = os.path.join(exportDirectory, pngThumbNailFileName)
+        png_fname = "thumbnail.png"
+        png_fpath = os.path.join(recipe.export_path, png_fname)
 
         # Resize the thumbnail
-        fd_img = open(pngTmpThumbNailFileLocation, 'r+b')
+        fd_img = open(tmp_fpath, 'r+b')
         img = Image.open(fd_img)
         img = resizeimage.resize('thumbnail', img, [140, 99])
-        img.save(pngThumbNailFileLocation, img.format)
+        img.save(png_fpath, img.format)
         fd_img.close()
 
         # Remove the temporary larger thumbnail
-        os.remove(pngTmpThumbNailFileLocation)
-        return pngThumbNailFileLocation
+        os.remove(tmp_fpath)
+        return png_fpath
