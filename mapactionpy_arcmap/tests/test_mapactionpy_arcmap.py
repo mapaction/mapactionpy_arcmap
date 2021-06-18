@@ -5,7 +5,6 @@ import sys
 from itertools import repeat
 # from unittest import TestCase
 from unittest import TestCase, skip
-import types
 from datetime import datetime
 import pytz
 
