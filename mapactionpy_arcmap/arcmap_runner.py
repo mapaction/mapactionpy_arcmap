@@ -133,7 +133,7 @@ class ArcMapRunner(BaseRunnerPlugin):
             self._export_atlas(recipe, arc_mxd, export_dir, recipe.core_file_name)
 
         # Update export metadata and return
-        return self._update_export_metadata(recipe)
+        return self._update_export_metadata(recipe, arc_mxd)
 
     def _update_export_metadata(self, recipe, arc_mxd):
         """
@@ -267,7 +267,7 @@ class ArcMapRunner(BaseRunnerPlugin):
             pdfFileName = recipe_with_atlas.core_file_name + "-" + \
                 slugify(unicode(region)) + "-" + str(self.hum_event.default_pdf_res_dpi) + "dpi.pdf"
             pdfFileLocation = os.path.join(export_dir, pdfFileName)
-            recipe.zip_file_contents.append(pdfFileLocation)
+            recipe_with_atlas.zip_file_contents.append(pdfFileLocation)
 
             logging.info('About to export atlas page for region; {}.'.format(region))
             arcpy.mapping.ExportToPDF(arc_mxd, pdfFileLocation, resolution=int(self.hum_event.default_pdf_res_dpi))

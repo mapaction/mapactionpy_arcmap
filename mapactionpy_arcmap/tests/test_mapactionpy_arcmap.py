@@ -95,7 +95,7 @@ class TestArcMapRunner(TestCase):
 
     @mock.patch('mapactionpy_arcmap.arcmap_runner.arcpy.mapping.ExportToJPEG')
     @mock.patch('mapactionpy_arcmap.arcmap_runner.arcpy.mapping.ExportToPDF')
-    @mock.patch('mapactionpy_arcmap.arcmap_runner.ArcMapRunner.exportPngThumbNail')
+    @mock.patch('mapactionpy_arcmap.arcmap_runner.ArcMapRunner.export_png_thumbnail')
     @mock.patch('mapactionpy_arcmap.arcmap_runner.arcpy.mapping.MapDocument')
     @mock.patch('mapactionpy_arcmap.arcmap_runner.os.path.getsize')
     @mock.patch('mapactionpy_arcmap.arcmap_runner.get_map_scale')
