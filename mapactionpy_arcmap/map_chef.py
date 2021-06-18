@@ -2,9 +2,6 @@ import os
 import arcpy
 import logging
 import re
-# from mapactionpy_controller.map_report import MapReport
-from mapactionpy_controller.map_result import MapResult
-from mapactionpy_controller.data_source import DataSource
 from datetime import datetime
 import pytz
 
@@ -131,8 +128,6 @@ class MapChef:
         self.namingConvention = None
 
         self.dataSources = set()
-        # self.createDate = datetime.utcnow().strftime("%d-%b-%Y")
-        # self.createTime = datetime.utcnow().strftime("%H:%M")
         self.export = False
 
     def disableLayers(self):
@@ -203,23 +198,12 @@ class MapChef:
             self.updateTextElements(recipe)
             self.mxd.save()
 
-    # def report_as_json(self):
-    #     """
-    #     Returns map report in json format
-    #     """
-    #     return(jsonpickle.encode(self.mapReport, unpicklable=False))
-
     def process_layer(self, recipe_lyr, arc_data_frame):
         """
         Updates or Adds a layer of data.  Maintains the Map Report.
         """
-        # mapResult = MapResult(recipe_lyr.name)
-        # arc_data_frame = arcpy.mapping.ListDataFrames(self.mxd, recipe_frame.name)[0]
-        # Try just using add Layer (no update layer option)
-        # mapResult = self.addLayer(recipe_lyr, arc_data_frame)
+        # Try just using add Layer (currently no update layer option)
         self.addLayer(recipe_lyr, arc_data_frame)
-
-        # self.mapReport.add(mapResult)
 
     def updateTextElements(self, recipe):
         """
@@ -320,7 +304,7 @@ class MapChef:
 
     def addLayer(self, recipe_lyr, recipe_frame):
         # addLayer(recipe_lyr, recipe_lyr.layer_file_path, recipe_lyr.name)
-        mapResult = MapResult(recipe_lyr.name)
+        # mapResult = MapResult(recipe_lyr.name)
         logging.debug('Attempting to add layer; {}'.format(recipe_lyr.layer_file_path))
         arc_lyr_to_add = arcpy.mapping.Layer(recipe_lyr.layer_file_path)
         # if (".gdb/" not in recipe_lyr.reg_exp):
@@ -332,14 +316,12 @@ class MapChef:
         try:
             self.apply_layer_visiblity(arc_lyr_to_add, recipe_lyr)
             self.apply_label_classes(arc_lyr_to_add, recipe_lyr)
-            mapResult = self.addLayerWithFile(recipe_lyr, arc_lyr_to_add,  recipe_frame)
+            self.addLayerWithFile(recipe_lyr, arc_lyr_to_add,  recipe_frame)
             # Apply Definition Query
             self.apply_definition_query(arc_lyr_to_add, recipe_lyr)
             recipe_lyr.success = True
         except Exception:
             recipe_lyr.success = False
-
-        return mapResult
 
     def apply_layer_visiblity(self, arc_lyr_to_add, recipe_lyr):
         if arc_lyr_to_add.supports('VISIBLE'):
@@ -397,13 +379,11 @@ class MapChef:
         raise ValueError('"Unsupported dataset type with path: {}'.format(f_path))
 
     def addLayerWithFile(self, recipe_lyr, arc_lyr_to_add, recipe_frame):
-        mapResult = MapResult(recipe_lyr.name)
-
         # Skip past any layer which didn't already have a source file located
         try:
             recipe_lyr.data_source_path
         except AttributeError:
-            return mapResult
+            return
 
         r_path = os.path.realpath(recipe_lyr.data_source_path)
         data_src_dir = os.path.dirname(r_path)
@@ -413,28 +393,17 @@ class MapChef:
         if arc_lyr_to_add.supports("DATASOURCE"):
             try:
                 arc_lyr_to_add.replaceDataSource(data_src_dir, dataset_type, recipe_lyr.data_name)
-                mapResult.message = "Layer added successfully"
-                mapResult.added = True
-                ds = DataSource(recipe_lyr.data_name)
-                mapResult.dataSource = recipe_lyr.data_source_path
-                mapResult.hash = ds.calculate_checksum()
-            except Exception as exp:
-                raise exp
+                arc_data_frame = arcpy.mapping.ListDataFrames(self.mxd, recipe_frame.name)[0]
+                # TODO add proper fix for applyZoom in line with these two cards
+                # https: // trello.com/c/Bs70ru1s/145-design-criteria-for-selecting-zoom-extent
+                # https://trello.com/c/piE3tKRp/146-implenment-rules-for-selection-zoom-extent
+                # self.applyZoom(self.dataFrame, arc_lyr_to_add, cookBookLayer.get('zoomMultiplier', 0))
 
-        if mapResult.added:
-            arc_data_frame = arcpy.mapping.ListDataFrames(self.mxd, recipe_frame.name)[0]
-            # TODO add proper fix for applyZoom in line with these two cards
-            # https: // trello.com/c/Bs70ru1s/145-design-criteria-for-selecting-zoom-extent
-            # https://trello.com/c/piE3tKRp/146-implenment-rules-for-selection-zoom-extent
-            # self.applyZoom(self.dataFrame, arc_lyr_to_add, cookBookLayer.get('zoomMultiplier', 0))
+                # Is this even required after adding each layer?
+                # self.apply_frame_crs_and_extent(arc_data_frame, recipe_frame)
 
-            # Is this even required after adding each layer?
-            # self.apply_frame_crs_and_extent(arc_data_frame, recipe_frame)
-
-            if recipe_lyr.add_to_legend is False:
-                self.legendEntriesToRemove.append(arc_lyr_to_add.name)
-            arcpy.mapping.AddLayer(arc_data_frame, arc_lyr_to_add, "BOTTOM")
-            self.mxd.save()
-            # break
-
-        return mapResult
+                if recipe_lyr.add_to_legend is False:
+                    self.legendEntriesToRemove.append(arc_lyr_to_add.name)
+                arcpy.mapping.AddLayer(arc_data_frame, arc_lyr_to_add, "BOTTOM")
+            finally:
+                self.mxd.save()
