@@ -1,12 +1,9 @@
 import os
 import arcpy
-import jsonpickle
 import logging
 import re
-from mapactionpy_controller.map_report import MapReport
-from mapactionpy_controller.map_result import MapResult
-from mapactionpy_controller.data_source import DataSource
 from datetime import datetime
+import pytz
 
 
 # TODO asmith 2020/03/06
@@ -34,6 +31,56 @@ ESRI_DATASET_TYPES = [
     "TIN_WORKSPACE",
     "VPF_WORKSPACE"
 ]
+
+
+def get_map_scale(arc_mxd, recipe):
+    """
+    Returns a human-readable string representing the map scale of the
+    principal map frame of the mxd.
+
+    @param arc_mxd: The MapDocument object of the map being produced.
+    @param recipe: The MapRecipe object being used to produced it.
+    @returns: The string representing the map scale.
+    """
+    scale_str = ""
+    for df in arcpy.mapping.ListDataFrames(arc_mxd, recipe.principal_map_frame):
+        if df.name == recipe.principal_map_frame:
+            scale_str = '1: {:,} (At A3)'.format(int(df.scale))
+            break
+    return scale_str
+
+
+def get_map_spatial_ref(arc_mxd, recipe):
+    """
+    Returns a human-readable string representing the spatial reference used to display the
+    principal map frame of the mxd.
+
+    @param arc_mxd: The MapDocument object of the map being produced.
+    @param recipe: The MapRecipe object being used to produced it.
+    @returns: The string representing the spatial reference. If the spatial reference cannot be determined
+                then the value "Unknown" is returned.
+    """
+    data_frames = [df for df in arcpy.mapping.ListDataFrames(arc_mxd) if df.name == recipe.principal_map_frame]
+
+    if not data_frames:
+        err_msg = 'MXD does not have a MapFrame (aka DataFrame) with the name "{}"'.format(
+            recipe.principal_map_frame)
+        raise ValueError(err_msg)
+
+    if len(data_frames) > 1:
+        err_msg = 'MXD has more than one MapFrames (aka DataFrames) with the name "{}"'.format(
+            recipe.principal_map_frame)
+        raise ValueError(err_msg)
+
+    df = data_frames.pop()
+    spatial_ref_str = "Unknown"
+
+    if (len(df.spatialReference.datumName) > 0):
+        spatial_ref_str = df.spatialReference.datumName
+        spatial_ref_str = spatial_ref_str[2:]
+        spatial_ref_str = spatial_ref_str.replace('_', ' ')
+
+    return spatial_ref_str
 
 
 class MapChef:
@@ -81,8 +128,6 @@ class MapChef:
         self.namingConvention = None
 
         self.dataSources = set()
-        self.createDate = datetime.utcnow().strftime("%d-%b-%Y")
-        self.createTime = datetime.utcnow().strftime("%H:%M")
         self.export = False
 
     def disableLayers(self):
@@ -92,54 +137,6 @@ class MapChef:
         for df in arcpy.mapping.ListDataFrames(self.mxd):
             for lyr in arcpy.mapping.ListLayers(self.mxd, "", df):
                 lyr.visible = False
-
-    def get_map_scale(self, mxd, recipe):
-        """
-        Returns a human-readable string representing the map scale of the
-        principal map frame of the mxd.
-
-        @param mxd: The MapDocument object of the map being produced.
-        @param recipe: The MapRecipe object being used to produced it.
-        @returns: The string representing the map scale.
-        """
-        scale_str = ""
-        for df in arcpy.mapping.ListDataFrames(mxd, recipe.principal_map_frame):
-            if df.name == recipe.principal_map_frame:
-                scale_str = '1: {:,} (At A3)'.format(int(df.scale))
-                break
-        return scale_str
-
-    def get_map_spatial_ref(self, mxd, recipe):
-        """
-        Returns a human-readable string representing the spatial reference used to display the
-        principal map frame of the mxd.
-
-        @param mxd: The MapDocument object of the map being produced.
-        @param recipe: The MapRecipe object being used to produced it.
-        @returns: The string representing the spatial reference. If the spatial reference cannot be determined
-                  then the value "Unknown" is returned.
-        """
-        data_frames = [df for df in arcpy.mapping.ListDataFrames(mxd) if df.name == recipe.principal_map_frame]
-
-        if not data_frames:
-            err_msg = 'MXD does not have a MapFrame (aka DataFrame) with the name "{}"'.format(
-                recipe.principal_map_frame)
-            raise ValueError(err_msg)
-
-        if len(data_frames) > 1:
-            err_msg = 'MXD has more than one MapFrames (aka DataFrames) with the name "{}"'.format(
-                recipe.principal_map_frame)
-            raise ValueError(err_msg)
-
-        df = data_frames.pop()
-        spatial_ref_str = "Unknown"
-
-        if (len(df.spatialReference.datumName) > 0):
-            spatial_ref_str = df.spatialReference.datumName
-            spatial_ref_str = spatial_ref_str[2:]
-            spatial_ref_str = spatial_ref_str.replace('_', ' ')
-
-        return spatial_ref_str
 
     # TODO asmith 2020/0306
     # Do we need to accommodate a use case where we would want to add layers but not make them
@@ -175,8 +172,10 @@ class MapChef:
         self.disableLayers()
         self.removeLayers()
 
-        self.mapReport = MapReport(recipe.product)
+        # self.mapReport = MapReport(recipe.product)
         if recipe:
+            recipe.creation_time_stamp = datetime.now(pytz.utc)
+
             for recipe_frame in recipe.map_frames:
                 arc_data_frame = arcpy.mapping.ListDataFrames(self.mxd, recipe_frame.name).pop()
 
@@ -199,22 +198,12 @@ class MapChef:
             self.updateTextElements(recipe)
             self.mxd.save()
 
-    def report_as_json(self):
-        """
-        Returns map report in json format
-        """
-        return(jsonpickle.encode(self.mapReport, unpicklable=False))
-
     def process_layer(self, recipe_lyr, arc_data_frame):
         """
         Updates or Adds a layer of data.  Maintains the Map Report.
         """
-        mapResult = MapResult(recipe_lyr.name)
-        # arc_data_frame = arcpy.mapping.ListDataFrames(self.mxd, recipe_frame.name)[0]
-        # Try just using add Layer (no update layer option)
-        mapResult = self.addLayer(recipe_lyr, arc_data_frame)
-
-        self.mapReport.add(mapResult)
+        # Try just using add Layer (currently no update layer option)
+        self.addLayer(recipe_lyr, arc_data_frame)
 
     def updateTextElements(self, recipe):
         """
@@ -226,7 +215,7 @@ class MapChef:
             if elm.name == "title":
                 elm.text = recipe.product
             if elm.name == "create_date_time":
-                elm.text = self.createDate + " " + self.createTime
+                elm.text = recipe.creation_time_stamp.strftime("%d-%b-%Y %H:%M")
             if elm.name == "summary":
                 elm.text = recipe.summary
             if elm.name == "map_no":
@@ -234,7 +223,7 @@ class MapChef:
             if elm.name == "mxd_name":
                 elm.text = os.path.basename(self.mxd.filePath)
             if elm.name == "scale":
-                elm.text = self.get_map_scale(self.mxd, recipe)
+                elm.text = get_map_scale(self.mxd, recipe)
             if elm.name == "data_sources":
                 iter = 0
                 dataSourcesString = "<BOL>Data Sources:</BOL>" + os.linesep + os.linesep
@@ -248,7 +237,7 @@ class MapChef:
                 versionNumberString = "v" + str(recipe.version_num).zfill(2)
                 elm.text = versionNumberString
             if elm.name == "spatial_reference":
-                elm.text = self.get_map_spatial_ref(self.mxd, recipe)
+                elm.text = get_map_spatial_ref(self.mxd, recipe)
             if elm.name == "glide_no":
                 if self.eventConfiguration and self.eventConfiguration.glide_number:
                     elm.text = self.eventConfiguration.glide_number
@@ -315,7 +304,7 @@ class MapChef:
 
     def addLayer(self, recipe_lyr, recipe_frame):
         # addLayer(recipe_lyr, recipe_lyr.layer_file_path, recipe_lyr.name)
-        mapResult = MapResult(recipe_lyr.name)
+        # mapResult = MapResult(recipe_lyr.name)
         logging.debug('Attempting to add layer; {}'.format(recipe_lyr.layer_file_path))
         arc_lyr_to_add = arcpy.mapping.Layer(recipe_lyr.layer_file_path)
         # if (".gdb/" not in recipe_lyr.reg_exp):
@@ -327,14 +316,12 @@ class MapChef:
         try:
             self.apply_layer_visiblity(arc_lyr_to_add, recipe_lyr)
             self.apply_label_classes(arc_lyr_to_add, recipe_lyr)
-            mapResult = self.addLayerWithFile(recipe_lyr, arc_lyr_to_add,  recipe_frame)
+            self.addLayerWithFile(recipe_lyr, arc_lyr_to_add,  recipe_frame)
             # Apply Definition Query
             self.apply_definition_query(arc_lyr_to_add, recipe_lyr)
             recipe_lyr.success = True
         except Exception:
             recipe_lyr.success = False
-
-        return mapResult
 
     def apply_layer_visiblity(self, arc_lyr_to_add, recipe_lyr):
         if arc_lyr_to_add.supports('VISIBLE'):
@@ -392,13 +379,11 @@ class MapChef:
         raise ValueError('"Unsupported dataset type with path: {}'.format(f_path))
 
     def addLayerWithFile(self, recipe_lyr, arc_lyr_to_add, recipe_frame):
-        mapResult = MapResult(recipe_lyr.name)
-
         # Skip past any layer which didn't already have a source file located
         try:
             recipe_lyr.data_source_path
         except AttributeError:
-            return mapResult
+            return
 
         r_path = os.path.realpath(recipe_lyr.data_source_path)
         data_src_dir = os.path.dirname(r_path)
@@ -408,28 +393,17 @@ class MapChef:
         if arc_lyr_to_add.supports("DATASOURCE"):
             try:
                 arc_lyr_to_add.replaceDataSource(data_src_dir, dataset_type, recipe_lyr.data_name)
-                mapResult.message = "Layer added successfully"
-                mapResult.added = True
-                ds = DataSource(recipe_lyr.data_name)
-                mapResult.dataSource = recipe_lyr.data_source_path
-                mapResult.hash = ds.calculate_checksum()
-            except Exception as exp:
-                raise exp
+                arc_data_frame = arcpy.mapping.ListDataFrames(self.mxd, recipe_frame.name)[0]
+                # TODO add proper fix for applyZoom in line with these two cards
+                # https: // trello.com/c/Bs70ru1s/145-design-criteria-for-selecting-zoom-extent
+                # https://trello.com/c/piE3tKRp/146-implenment-rules-for-selection-zoom-extent
+                # self.applyZoom(self.dataFrame, arc_lyr_to_add, cookBookLayer.get('zoomMultiplier', 0))
 
-        if mapResult.added:
-            arc_data_frame = arcpy.mapping.ListDataFrames(self.mxd, recipe_frame.name)[0]
-            # TODO add proper fix for applyZoom in line with these two cards
-            # https: // trello.com/c/Bs70ru1s/145-design-criteria-for-selecting-zoom-extent
-            # https://trello.com/c/piE3tKRp/146-implenment-rules-for-selection-zoom-extent
-            # self.applyZoom(self.dataFrame, arc_lyr_to_add, cookBookLayer.get('zoomMultiplier', 0))
+                # Is this even required after adding each layer?
+                # self.apply_frame_crs_and_extent(arc_data_frame, recipe_frame)
 
-            # Is this even required after adding each layer?
-            # self.apply_frame_crs_and_extent(arc_data_frame, recipe_frame)
-
-            if recipe_lyr.add_to_legend is False:
-                self.legendEntriesToRemove.append(arc_lyr_to_add.name)
-            arcpy.mapping.AddLayer(arc_data_frame, arc_lyr_to_add, "BOTTOM")
-            self.mxd.save()
-            # break
-
-        return mapResult
+                if recipe_lyr.add_to_legend is False:
+                    self.legendEntriesToRemove.append(arc_lyr_to_add.name)
+                arcpy.mapping.AddLayer(arc_data_frame, arc_lyr_to_add, "BOTTOM")
+            finally:
+                self.mxd.save()
