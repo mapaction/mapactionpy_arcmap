@@ -316,9 +316,9 @@ class MapChef:
         try:
             self.apply_layer_visiblity(arc_lyr_to_add, recipe_lyr)
             self.apply_label_classes(arc_lyr_to_add, recipe_lyr)
-            self.addLayerWithFile(recipe_lyr, arc_lyr_to_add,  recipe_frame)
             # Apply Definition Query
             self.apply_definition_query(arc_lyr_to_add, recipe_lyr)
+            self.addLayerWithFile(arc_lyr_to_add, recipe_lyr, recipe_frame)
             recipe_lyr.success = True
         except Exception:
             recipe_lyr.success = False
@@ -341,29 +341,25 @@ class MapChef:
                         lblClass.showClassLabels = labelClass.show_class_labels
 
     def apply_definition_query(self, arc_lyr_to_add, recipe_lyr):
+        logging.debug('In method apply_definition_query for layer; {}'.format(recipe_lyr.layer_file_path))
+        logging.debug('   Target layer supports DEFINITIONQUERY; {}'.format(arc_lyr_to_add.supports('DEFINITIONQUERY')))
+        logging.debug('   Target DEFINITIONQUERY; {}'.format(recipe_lyr.definition_query))
         if recipe_lyr.definition_query and arc_lyr_to_add.supports('DEFINITIONQUERY'):
             try:
-                arc_lyr_to_add.definition_query = recipe_lyr.definition_query
+                logging.debug('  Attempting to apply definition query')
+                arc_lyr_to_add.definitionQuery = recipe_lyr.definition_query
             except Exception as exp:
+                logging.error('Error whilst applying definition query: "{}"\n{}'.format(
+                    recipe_lyr.definition_query, exp.message))
                 recipe_lyr.error_messages.append('Error whilst applying definition query: "{}"\n{}'.format(
                     recipe_lyr.definition_query, exp.message))
-
-            # try:
-            #     arcpy.SelectLayerByAttribute_management(arc_lyr_to_add,
-            #                                             "SUBSET_SELECTION",
-            #                                             recipe_lyr.definition_query)
-            # except Exception as exp:
-            #     recipe_lyr.success = False
-            #     recipe_lyr.error_messages.append('Selection query failed: {}\n{}'.format(
-            #         recipe_lyr.definition_query, exp.message))
-            #     raise exp
 
     def get_dataset_type_from_path(self, f_path):
         """
         * '.shp' at the end of a path name
         * '.img' at the end of a path name
         * '.tif' at the end of a path name
-        * '.gdb\' in teh middle of a path name
+        * '.gdb\' in the middle of a path name
         """
         dataset_type_lookup = [
             (r'\.shp$', 'SHAPEFILE_WORKSPACE'),
@@ -378,7 +374,7 @@ class MapChef:
 
         raise ValueError('"Unsupported dataset type with path: {}'.format(f_path))
 
-    def addLayerWithFile(self, recipe_lyr, arc_lyr_to_add, recipe_frame):
+    def addLayerWithFile(self, arc_lyr_to_add, recipe_lyr, recipe_frame):
         # Skip past any layer which didn't already have a source file located
         try:
             recipe_lyr.data_source_path
