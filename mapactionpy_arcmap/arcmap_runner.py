@@ -130,7 +130,7 @@ class ArcMapRunner(BaseRunnerPlugin):
         # Atlas (if required)
         if recipe.atlas:
             export_dir = recipe.export_path
-            self._export_atlas(recipe, arc_mxd, export_dir, recipe.core_file_name)
+            self._export_atlas(recipe, arc_mxd, export_dir)
 
         # Update export metadata and return
         return self._update_export_metadata(recipe, arc_mxd)
